@@ -203,20 +203,20 @@ void get() {
 	connect(getSockfd, (struct sockaddr*) &servaddr, sizeof(servaddr));
 
 	char* toWrite = "get tom\n";
-	write(getSockfd, toWrite, sizeof(toWrite));
+	write(getSockfd, toWrite, strlen(toWrite));
 	char buf[LINE_LIMIT];
 	bzero(buf, LINE_LIMIT);
 	read(getSockfd, buf, LINE_LIMIT);
 	cout << buf << endl;
 
-	char* toWritePut = "set tom alskdjfkladsjflkj\n";
-	write(getSockfd, toWritePut, sizeof(toWritePut));
+	char* toWritePut = "set kkk jack\n";
+	write(getSockfd, toWritePut, strlen(toWritePut));
 	bzero(buf, LINE_LIMIT);
 	read(getSockfd, buf, LINE_LIMIT);
 	cout << buf << endl;
 
-	char* toWriteGet = "get tom\n";
-	write(getSockfd, toWriteGet, sizeof(toWriteGet));
+	char* toWriteGet = "get kkk\n";
+	write(getSockfd, toWriteGet, strlen(toWriteGet));
 	bzero(buf, LINE_LIMIT);
 	read(getSockfd, buf, LINE_LIMIT);
 	cout << buf << endl;
