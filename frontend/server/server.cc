@@ -189,21 +189,34 @@ void closeClient(struct Message*& pM) {
 }
 
 void get() {
-	int getSockfd;
-	struct sockaddr_in clientAddr;
-	char* ipStr = (char*) malloc(sizeof(char) * 16);
-	openSocket(getSockfd, clientAddr, 7890);
+	int getSockfd = socket(PF_INET, SOCK_STREAM, 0);
+	if (getSockfd < 0) {
+		fprintf(stderr, "Cannot open socket (%s)\n", strerror(errno));
+		exit(1);
+	}
 
 	struct sockaddr_in servaddr;
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
-	inet_pton(AF_INET, "172.20.10.12", &servaddr.sin_addr);
 	servaddr.sin_port = htons(9876);
+	inet_pton(AF_INET, "127.0.0.1", &(servaddr.sin_addr));
+	connect(getSockfd, (struct sockaddr*) &servaddr, sizeof(servaddr));
 
-	connect(getSockfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
 	char* toWrite = "get tom\n";
 	write(getSockfd, toWrite, sizeof(toWrite));
 	char buf[LINE_LIMIT];
+	bzero(buf, LINE_LIMIT);
+	read(getSockfd, buf, LINE_LIMIT);
+	cout << buf << endl;
+
+	char* toWritePut = "set tom alskdjfkladsjflkj\n";
+	write(getSockfd, toWritePut, sizeof(toWritePut));
+	bzero(buf, LINE_LIMIT);
+	read(getSockfd, buf, LINE_LIMIT);
+	cout << buf << endl;
+
+	char* toWriteGet = "get tom\n";
+	write(getSockfd, toWriteGet, sizeof(toWriteGet));
 	bzero(buf, LINE_LIMIT);
 	read(getSockfd, buf, LINE_LIMIT);
 	cout << buf << endl;
