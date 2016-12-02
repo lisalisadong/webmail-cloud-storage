@@ -16,17 +16,19 @@ service StorageQuery {
 
 // get
 message GetRequest {
-  Key key = 1;
+  string row = 1;
+  string col = 2;
 }
 
 message GetResponse {
-  Value value = 1;
+  string val = 1;
 }
 
 // put
 message PutRequest {
-  Key key = 1;
-  Value value = 2;
+  string row = 1;
+  string col = 2;
+  string val = 3;
 }
 
 message PutResponse {
@@ -35,9 +37,10 @@ message PutResponse {
 
 // cput
 message CPutRequest {
-  Key key = 1;
-  Value value1 = 2;
-  Value value2 = 3;
+  string row = 1;
+  string col = 2;
+  string val1 = 3;
+  string val2 = 4;
 }
 
 message CPutResponse {
@@ -46,19 +49,10 @@ message CPutResponse {
 
 // delete
 message DeleteRequest {
-  Key key = 1;
+  string row = 1;
+  string col = 2;
 }
 
 message DeleteResponse {
 
-}
-
-// key value
-message Key {
-  string row = 1;
-  string column = 2;
-}
-
-message Value {
-  string value = 1;
 }
