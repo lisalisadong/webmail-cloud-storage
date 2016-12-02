@@ -60,6 +60,7 @@
 #define LINE_LIMIT 1000
 #define MAX_CON 128
 #define DEFAULT_PORT 8000
+#define BUFF_SIZE 8192
 using namespace std;
 
 class Message {
@@ -78,6 +79,8 @@ public:
 		confd = fd;
 	}
 };
+
+#include "parseURL.h"
 
 /* threads & fds */
 pthread_t threads[1000];
@@ -221,11 +224,28 @@ void get() {
 	read(getSockfd, buf, LINE_LIMIT);
 	cout << buf << endl;
 }
-int generateHTML(char* line, struct Message* pM, char*& sender,
-		vector<char*>* receivers) {
-	get();
-	const char* response =
-			"HTTP/1.0 200 OK\nDate: Fri, 31 Dec 1999 23:59:59 GMT\nContent-Type: text/html\nContent-Length: 57\n\n<html><body><h1>Happy New Millennium!</h1>a</body></html>";
+
+int generateHTML(char* line, struct Message* pM, char* url) {
+//	get();
+	string response;
+	if (!strncmp(url, " ", 1)) {
+		response =
+				"HTTP/1.0 200 OK\nDate: Fri, 31 Dec 1999 23:59:59 GMT\nContent-Type: text/html\nContent-Length: ";
+		string fileStr;
+		FILE* f = fopen("sites/login.html", "r");
+		char buf[BUFF_SIZE];
+		while (fgets(buf, BUFF_SIZE, f) != NULL) {
+			fileStr += buf;
+			bzero(buf, BUFF_SIZE);
+		}
+		response +=
+
+while	((fread(f)))
+
+}
+
+else if (!strncmp(url, "signup ", 7))
+response = "666";
 	write(pM->confd, response, strlen(response));
 	return 0;
 }
@@ -233,13 +253,12 @@ int generateHTML(char* line, struct Message* pM, char*& sender,
 // function to handle multi-thread
 void* threadFun(void* arg) {
 	struct Message* pM = (struct Message*) arg;
-	vector<char*> receivers;
 	char* sender = NULL;
 	if (isDebug) {
 		fprintf(stderr, "[%d] New connection\n", pM->confd);
 	}
 	bool isContent = false;
-//	write(pM->confd, GREETING_S, strlen(GREETING_S));
+	char* url;
 	while (true) {
 		char* line = (char*) malloc(sizeof(char) * LINE_LIMIT);
 		if (getLine(pM, line) <= 0) {
@@ -249,6 +268,8 @@ void* threadFun(void* arg) {
 		}
 		if (!strncmp(line, "\r\n", 2))
 			isContent = true;
+		if (!strncmp(line, "GET ", 4))
+			url = line + 5;
 
 		if (isDebug) {
 			fprintf(stderr, "[%d] C: ", pM->confd);
@@ -256,7 +277,7 @@ void* threadFun(void* arg) {
 		}
 		int checkStatus = 0;
 		if (isContent)
-			checkStatus = generateHTML(line, pM, sender, &receivers);
+			checkStatus = generateHTML(line, pM, url);
 		if (checkStatus == -1) // QUIT
 			return (void*) 0;
 	}
