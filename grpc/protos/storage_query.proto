@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+// option java_multiple_files = true;
+// option java_package = "io.grpc.examples.storagequery";
+// option java_outer_classname = "StorageQueryProto";
+// option objc_class_prefix = "SQ";
+
+package storagequery;
+
+service StorageQuery {
+  rpc Get (GetRequest) returns (GetResponse) {}
+  rpc Put (PutRequest) returns (PutResponse) {}
+  rpc CPut (CPutRequest) returns (CPutResponse) {}
+  rpc Delete (DeleteRequest) returns (DeleteResponse) {}
+}  
+
+// get
+message GetRequest {
+  Key key = 1;
+}
+
+message GetResponse {
+  Value value = 1;
+}
+
+// put
+message PutRequest {
+  Key key = 1;
+  Value value = 2;
+}
+
+message PutResponse {
+  
+}
+
+// cput
+message CPutRequest {
+  Key key = 1;
+  Value value1 = 2;
+  Value value2 = 3;
+}
+
+message CPutResponse {
+  
+}
+
+// delete
+message DeleteRequest {
+  Key key = 1;
+}
+
+message DeleteResponse {
+
+}
+
+// key value
+message Key {
+  string row = 1;
+  string column = 2;
+}
+
+message Value {
+  string value = 1;
+}
