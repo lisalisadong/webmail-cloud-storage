@@ -19,9 +19,6 @@ using storagequery::CPutResponse;
 using storagequery::DeleteRequest;
 using storagequery::DeleteResponse;
 
-StorageClient::StorageClient(std::shared_ptr<Channel> channel) 
-			: stub_(StorageQuery::NewStub(channel)) {}
-
 std::string StorageClient::Get(const std::string& row, const std::string& col) {
 	// Data we are sending to the server.
 	GetRequest request;

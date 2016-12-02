@@ -57,9 +57,13 @@
 #include <map>
 #include <ctime>
 
+#include <grpc++/grpc++.h>
+#include "../../backend/storage_query/storage_client.h"
+
 #define LINE_LIMIT 1000
 #define MAX_CON 128
 #define DEFAULT_PORT 8000
+using grpc::Channel;
 using namespace std;
 
 class Message {
@@ -189,37 +193,41 @@ void closeClient(struct Message*& pM) {
 }
 
 void get() {
-	int getSockfd = socket(PF_INET, SOCK_STREAM, 0);
-	if (getSockfd < 0) {
-		fprintf(stderr, "Cannot open socket (%s)\n", strerror(errno));
-		exit(1);
-	}
+	//TODO!!!
+	StorageClient client(grpc::CreateChannel(
+      "localhost:50051", grpc::InsecureChannelCredentials()));
 
-	struct sockaddr_in servaddr;
-	bzero(&servaddr, sizeof(servaddr));
-	servaddr.sin_family = AF_INET;
-	servaddr.sin_port = htons(9876);
-	inet_pton(AF_INET, "127.0.0.1", &(servaddr.sin_addr));
-	connect(getSockfd, (struct sockaddr*) &servaddr, sizeof(servaddr));
+	// int getSockfd = socket(PF_INET, SOCK_STREAM, 0);
+	// if (getSockfd < 0) {
+	// 	fprintf(stderr, "Cannot open socket (%s)\n", strerror(errno));
+	// 	exit(1);
+	// }
 
-	char* toWrite = "get tom\n";
-	write(getSockfd, toWrite, strlen(toWrite));
-	char buf[LINE_LIMIT];
-	bzero(buf, LINE_LIMIT);
-	read(getSockfd, buf, LINE_LIMIT);
-	cout << buf << endl;
+	// struct sockaddr_in servaddr;
+	// bzero(&servaddr, sizeof(servaddr));
+	// servaddr.sin_family = AF_INET;
+	// servaddr.sin_port = htons(9876);
+	// inet_pton(AF_INET, "127.0.0.1", &(servaddr.sin_addr));
+	// connect(getSockfd, (struct sockaddr*) &servaddr, sizeof(servaddr));
 
-	char* toWritePut = "set kkk jack\n";
-	write(getSockfd, toWritePut, strlen(toWritePut));
-	bzero(buf, LINE_LIMIT);
-	read(getSockfd, buf, LINE_LIMIT);
-	cout << buf << endl;
+	// char* toWrite = "get tom\n";
+	// write(getSockfd, toWrite, strlen(toWrite));
+	// char buf[LINE_LIMIT];
+	// bzero(buf, LINE_LIMIT);
+	// read(getSockfd, buf, LINE_LIMIT);
+	// cout << buf << endl;
 
-	char* toWriteGet = "get kkk\n";
-	write(getSockfd, toWriteGet, strlen(toWriteGet));
-	bzero(buf, LINE_LIMIT);
-	read(getSockfd, buf, LINE_LIMIT);
-	cout << buf << endl;
+	// char* toWritePut = "set kkk jack\n";
+	// write(getSockfd, toWritePut, strlen(toWritePut));
+	// bzero(buf, LINE_LIMIT);
+	// read(getSockfd, buf, LINE_LIMIT);
+	// cout << buf << endl;
+
+	// char* toWriteGet = "get kkk\n";
+	// write(getSockfd, toWriteGet, strlen(toWriteGet));
+	// bzero(buf, LINE_LIMIT);
+	// read(getSockfd, buf, LINE_LIMIT);
+	// cout << buf << endl;
 }
 int generateHTML(char* line, struct Message* pM, char*& sender,
 		vector<char*>* receivers) {

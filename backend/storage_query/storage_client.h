@@ -9,7 +9,8 @@ using storagequery::StorageQuery;
 
 class StorageClient {
 public:
-	StorageClient(std::shared_ptr<Channel> channel);
+	StorageClient(std::shared_ptr<Channel> channel)
+		: stub_(StorageQuery::NewStub(channel)) {}
 
 	std::string Get(const std::string& row, const std::string& col);
 
