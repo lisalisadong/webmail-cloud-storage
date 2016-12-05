@@ -14,11 +14,11 @@ vpath %.proto $(PROTOS_PATH)
 
 all: system-check storage_client storage_server
 
-storage_client: storage_query.pb.o storage_query.grpc.pb.o storage_client.o
-	$(CXX) $^ $(LDFLAGS) -o $@
+storage_client: storage_query.pb.o storage_query.grpc.pb.o storage_client.o storage_client.cc storage_client.h
+	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 
 storage_server: storage_query.pb.o storage_query.grpc.pb.o storage_server.o
-	$(CXX) $^ $(LDFLAGS) -o $@
+	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 
 .PRECIOUS: %.grpc.pb.cc
 %.grpc.pb.cc: %.proto
