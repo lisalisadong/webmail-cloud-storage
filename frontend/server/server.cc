@@ -59,13 +59,29 @@
 
 #include <grpc++/grpc++.h>
 #include "../../backend/storage_query/storage_client.h"
+#include "../../backend/storage_query/storage_query.grpc.pb.h"
 
 #define LINE_LIMIT 1000
 #define MAX_CON 128
 #define DEFAULT_PORT 8000
 #define BUFF_SIZE 8192
+
 using grpc::Channel;
 using namespace std;
+using grpc::Channel;
+using grpc::ClientContext;
+using grpc::Status;
+using storagequery::StorageQuery;
+using storagequery::GetRequest;
+using storagequery::GetResponse;
+using storagequery::PutRequest;
+using storagequery::PutResponse;
+using storagequery::CPutRequest;
+using storagequery::CPutResponse;
+using storagequery::DeleteRequest;
+using storagequery::DeleteResponse;
+
+const static char* HTTP_HEADER = "HTTP/1.0 200 OK\nDate: Fri, 31 Dec 1999 23:59:59 GMT\nContent-Type: text/html\nContent-Length: ";
 
 class Message {
 public:
@@ -91,8 +107,7 @@ pthread_t threads[1000];
 int fd;
 int threadNum = -1;
 bool isDebug = false;
-static char* remainingChars = (char*) malloc(
-		sizeof(char) * (LINE_LIMIT + 1) * 2);
+static char* remainingChars = (char*) malloc(sizeof(char) * (LINE_LIMIT + 1) * 2);
 static int sockfd;
 static set<int> allfd;
 
@@ -162,8 +177,7 @@ size_t getLine(struct Message* pM, char* line) {
 		while (buf[i] != 0) {
 			line[lineIndex] = buf[i];
 			totalCnt++;
-			if (buf[i] == '\n')
-				break;
+			if (buf[i] == '\n') break;
 			i++;
 			lineIndex++;
 		}
@@ -197,65 +211,59 @@ void closeClient(struct Message*& pM) {
 
 void get() {
 	//TODO!!!
-//	StorageClient client(
-//			grpc::CreateChannel("localhost:50051",
-//					grpc::InsecureChannelCredentials()));
+	StorageClient client(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
+	std::string row("lisa");
+	std::string col("emails");
+	std::string val("from 1 to 2:xxx");
+	client.Put(row, col, val);
+	std::cout << "putting lisa||emails||from 1 to 2:xxx" << std::endl;
 
-// int getSockfd = socket(PF_INET, SOCK_STREAM, 0);
-// if (getSockfd < 0) {
-// 	fprintf(stderr, "Cannot open socket (%s)\n", strerror(errno));
-// 	exit(1);
-// }
+	std::string response = client.Get(row, col);
+	std::cout << "getting lisa||emails: " << response << std::endl;
+}
 
-// struct sockaddr_in servaddr;
-// bzero(&servaddr, sizeof(servaddr));
-// servaddr.sin_family = AF_INET;
-// servaddr.sin_port = htons(9876);
-// inet_pton(AF_INET, "127.0.0.1", &(servaddr.sin_addr));
-// connect(getSockfd, (struct sockaddr*) &servaddr, sizeof(servaddr));
+string getResponse(const char* fileLoc) {
+	string response = HTTP_HEADER;
+	string fileStr = "";
+	FILE* f = fopen(fileLoc, "r");
+	char fileLine[BUFF_SIZE];
+	while (fgets(fileLine, BUFF_SIZE, f) != NULL) {
+		fileStr += fileLine;
+		bzero(fileLine, BUFF_SIZE);
+	}
+	response += to_string(fileStr.length());
+	response += "\n\n";
+	response += fileStr;
+	return response;
+}
 
-// char* toWrite = "get tom\n";
-// write(getSockfd, toWrite, strlen(toWrite));
-// char buf[LINE_LIMIT];
-// bzero(buf, LINE_LIMIT);
-// read(getSockfd, buf, LINE_LIMIT);
-// cout << buf << endl;
+bool checkPWD(char* url) {
+	string urlStr = url;
+	int emailIndex = urlStr.find("email");
+	string email = urlStr.substr(emailIndex + 6, urlStr.find('&', emailIndex) - emailIndex - 6);
+	int passwordIndex = urlStr.find("password");
+	string password = urlStr.substr(passwordIndex + 9);
+	if (isDebug) cout << "Current login user is: " << email << " with password: " << password << endl;
 
-// char* toWritePut = "set kkk jack\n";
-// write(getSockfd, toWritePut, strlen(toWritePut));
-// bzero(buf, LINE_LIMIT);
-// read(getSockfd, buf, LINE_LIMIT);
-// cout << buf << endl;
-
-// char* toWriteGet = "get kkk\n";
-// write(getSockfd, toWriteGet, strlen(toWriteGet));
-// bzero(buf, LINE_LIMIT);
-// read(getSockfd, buf, LINE_LIMIT);
-// cout << buf << endl;
+	return true;
 }
 
 int generateHTML(char* line, struct Message* pM, char* url) {
 //	get();
 	string response = "";
-	if (!strncmp(url, " ", 1)) {
-		response =
-				"HTTP/1.0 200 OK\nDate: Fri, 31 Dec 1999 23:59:59 GMT\nContent-Type: text/html\nContent-Length: ";
-		string fileStr = "";
-		FILE* f = fopen("frontend/sites/login.html", "r");
-		cout << "fileStr: " << f << endl;
-		char fileLine[BUFF_SIZE];
-		cout << "fileLine: " << fileLine << endl;
-		while (fgets(fileLine, BUFF_SIZE, f) != NULL) {
-			fileStr += fileLine;
-			bzero(fileLine, BUFF_SIZE);
-		}
-		response += to_string(fileStr.length());
-		response += "\n\n";
-		response += fileStr;
-	}
-
+	if (!strncmp(url, " ", 1))
+		response = getResponse("frontend/sites/login.html");
 	else if (!strncmp(url, "signup ", 7))
-		response = "666";
+		response = getResponse("frontend/sites/signup.html");
+	else if (!strncmp(url, "loginsubmit ", 12))
+		if (checkPWD(url))
+			response = getResponse("frontend/sites/dashboard.html");
+		else response = getResponse("frontend/sites/loginError.html");
+	else if (!strncmp(url, "emails ", 7))
+		response = getResponse("frontend/sites/emails.html");
+	else if (!strncmp(url, "files ", 6))
+		response = getResponse("frontend/sites/files.html");
+	else response = getResponse("frontend/sites/notfound.html");
 	write(pM->confd, response.c_str(), response.length());
 	return 0;
 }
@@ -276,18 +284,15 @@ void* threadFun(void* arg) {
 			closeClient(pM);
 			return (void*) 0;
 		}
-		if (!strncmp(line, "\r\n", 2))
-			isContent = true;
-		if (!strncmp(line, "GET ", 4))
-			url = line + 5;
-
+		if (!strncmp(line, "\r\n", 2)) isContent = true;
+		if (!strncmp(line, "GET ", 4)) url = line + 5;
+		if (!strncmp(line, "POST", 4)) url = line + 6;
 		if (isDebug) {
 			fprintf(stderr, "[%d] C: ", pM->confd);
 			fputs(line, stderr);
 		}
 		int checkStatus = 0;
-		if (isContent)
-			checkStatus = generateHTML(line, pM, url);
+		if (isContent) checkStatus = generateHTML(line, pM, url);
 		if (checkStatus == -1) // QUIT
 			return (void*) 0;
 	}
