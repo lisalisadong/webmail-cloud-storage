@@ -136,33 +136,73 @@ int main(int argc, char** argv) {
   StorageClient client(grpc::CreateChannel(
       "localhost:50051", grpc::InsecureChannelCredentials()));
 
-  std::string row("lisa");
-  std::string col("emails");
-  std::string val("from 1 to 2:xxx");
-  client.Put(row, col, val);
-  std::cout << "putting lisa||emails||from 1 to 2:xxx" << std::endl;
+  while(1) {
+    
+    std::string mode;
 
-  std::string response = client.Get(row, col);
-  std::cout << "getting lisa||emails: " << response << std::endl;
+    std::cout << "Enter mode: " << std::endl;
+    
+    std::cin >> mode;
 
-  std::string val_new("from 1 to 2:ooo");
-  client.CPut(row, col, val_new, val_new);
-  std::cout << "cputting lisa||emails||from 1 to 2:ooo||from 1 to 2:ooo" << std::endl;
+    if(mode == "g") {
+      std::string row;
+      std::cout << "Enter row: " << std::endl;
+      std::cin >> row;
+      
+      std::string col;
+      std::cout << "Enter col: " << std::endl;
+      std::cin >> col;
 
-  response = client.Get(row, col);
-  std::cout << "getting lisa||emails: " << response << std::endl;
+      std::string res = client.Get(row, col);
 
-  client.CPut(row, col, val, val_new);
-  std::cout << "cputting lisa||emails||from 1 to 2:xxx||from 1 to 2:ooo" << std::endl;
+      std::cout << "Reponse: " << res << std::endl;
+    } else {
+      std::string row;
+      std::cout << "Enter row: " << std::endl;
+      std::cin >> row;
+      
+      std::string col;
+      std::cout << "Enter col: " << std::endl;
+      std::cin >> col;
 
-  response = client.Get(row, col);
-  std::cout << "getting lisa||emails: " << response << std::endl;
+      std::string val;
+      std::cout << "Enter val: " << std::endl;
+      std::cin >> val;
 
-  client.Delete(row, col);
-  std::cout << "deleting lisa||emails: " << response << std::endl;
+      client.Put(row, col, val);
 
-	response = client.Get(row, col);
-  std::cout << "getting lisa||emails: " << response << std::endl;
+    }
+  }
+
+
+
+ //  std::string row("lisa");
+ //  std::string col("emails");
+ //  std::string val("from 1 to 2:xxx");
+ //  client.Put(row, col, val);
+ //  std::cout << "putting lisa||emails||from 1 to 2:xxx" << std::endl;
+
+ //  std::string response = client.Get(row, col);
+ //  std::cout << "getting lisa||emails: " << response << std::endl;
+
+ //  std::string val_new("from 1 to 2:ooo");
+ //  client.CPut(row, col, val_new, val_new);
+ //  std::cout << "cputting lisa||emails||from 1 to 2:ooo||from 1 to 2:ooo" << std::endl;
+
+ //  response = client.Get(row, col);
+ //  std::cout << "getting lisa||emails: " << response << std::endl;
+
+ //  client.CPut(row, col, val, val_new);
+ //  std::cout << "cputting lisa||emails||from 1 to 2:xxx||from 1 to 2:ooo" << std::endl;
+
+ //  response = client.Get(row, col);
+ //  std::cout << "getting lisa||emails: " << response << std::endl;
+
+ //  client.Delete(row, col);
+ //  std::cout << "deleting lisa||emails: " << response << std::endl;
+
+	// response = client.Get(row, col);
+ //  std::cout << "getting lisa||emails: " << response << std::endl;
 
   return 0;
 }

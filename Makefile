@@ -5,11 +5,11 @@ LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++ grpc`       \
            -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed \
            -lprotobuf -lpthread -ldl
 
-all:  $(HTTP_SERVER_DIR)server 
+all: storage_backend $(HTTP_SERVER_DIR)server
 
-#storage_backend
-#storage_backend:
-#	$(MAKE) -C $(STORAGE_DIR)
+
+storage_backend:
+	$(MAKE) -C $(STORAGE_DIR)
 
 $(HTTP_SERVER_DIR)server: $(HTTP_SERVER_DIR)server.cc $(STORAGE_DIR)storage_client.h $(STORAGE_DIR)storage_query.pb.o $(STORAGE_DIR)storage_query.grpc.pb.o
 	g++ $(CXXFLAGS) $^ $(LDFLAGS) -o $@ -g -O0 
