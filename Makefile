@@ -5,7 +5,11 @@ LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++ grpc`       \
            -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed \
            -lprotobuf -lpthread -ldl
 
+<<<<<<< HEAD
 all: storage_backend $(HTTP_SERVER_DIR)server
+=======
+all:  storage_backend $(HTTP_SERVER_DIR)server 
+>>>>>>> 8bbd426201f6e6836da4f34b7fe49d324cc3c245
 
 
 storage_backend:
