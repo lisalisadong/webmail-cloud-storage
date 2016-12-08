@@ -8,7 +8,7 @@
 #include <utility>
 #include "file_system.h"
 
-#define CACHE_SIZE 100
+#define CACHE_SIZE 1
 
 class Cache {
 private:
@@ -81,6 +81,8 @@ private:
         map.erase(row);
       }
     }
+
+    fileToKeys.erase(lrFile);
 
     // remove the count
     fileCnt.erase(lrFile);
