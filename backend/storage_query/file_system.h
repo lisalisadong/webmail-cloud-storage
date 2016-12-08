@@ -12,7 +12,6 @@ public:
 private:
 	std::string serialize(std::string str);
 	std::string get_next_tuple(std::ifstream& stream);
-	void deserialize(std::string str, std::string& row, std::string& col, std::string& val);
-	
+	std::string deserialize_next(std::string str, int& pos);
 };
 
