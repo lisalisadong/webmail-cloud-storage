@@ -176,14 +176,23 @@ int main(int argc, char** argv) {
 
 
 
- //  std::string row("lisa");
- //  std::string col("emails");
- //  std::string val("from 1 to 2:xxx");
- //  client.Put(row, col, val);
- //  std::cout << "putting lisa||emails||from 1 to 2:xxx" << std::endl;
+  std::string row("lisa");
+  std::string col("emails");
+  std::string val("from 1 to 2:xxx");
 
- //  std::string response = client.Get(row, col);
- //  std::cout << "getting lisa||emails: " << response << std::endl;
+  std::string response = client.Get(row, col);
+  std::cout << "getting lisa||emails: " << response << std::endl;
+
+  client.Put(row, col, val);
+  std::cout << "putting lisa||emails||from 1 to 2:xxx" << std::endl;
+
+  response = client.Get(row, col);
+  std::cout << "getting lisa||emails: " << response << std::endl;
+
+  response = client.Get(row, col);
+  std::cout << "getting lisa||emails: " << response << std::endl;
+
+  
 
  //  std::string val_new("from 1 to 2:ooo");
  //  client.CPut(row, col, val_new, val_new);
