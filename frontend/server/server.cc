@@ -249,7 +249,7 @@ bool checkPWD(char* url) {
 }
 
 int generateHTML(char* line, struct Message* pM, char* url) {
-//	get();
+	get();
 	string response = "";
 	if (!strncmp(url, " ", 1))
 		response = getResponse("frontend/sites/login.html");
