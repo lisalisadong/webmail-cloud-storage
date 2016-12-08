@@ -14,14 +14,6 @@
 
 class Cache {
 private:
-  struct Hash {
-      size_t operator()(const std::pair<std::string, std::string>& p) const {
-          std::string str = p.first + p.second;
-          return simpleHash(str);
-        // return 1;
-      }
-  };
-
   // <fileName, keys>
   std::unordered_map<std::string, std::vector<std::pair<std::string, std::string>> > fileToKeys;
 

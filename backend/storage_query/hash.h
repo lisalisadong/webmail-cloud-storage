@@ -7,6 +7,14 @@
 #include <vector>
 #include <utility>
 
+struct Hash {
+  size_t operator()(const std::pair<std::string, std::string>& p) const {
+      std::string str = p.first + p.second;
+      return simpleHash(str);
+    // return 1;
+  }
+};
+
 unsigned int simpleHash(std::string& str)
 {
     unsigned int b    = 378551;
