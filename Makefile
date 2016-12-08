@@ -7,7 +7,6 @@ LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++ grpc`       \
 
 all: storage_backend $(HTTP_SERVER_DIR)server
 
-
 storage_backend:
 	$(MAKE) -C $(STORAGE_DIR)
 
