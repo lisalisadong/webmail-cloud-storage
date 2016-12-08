@@ -10,11 +10,12 @@
 	- serialize(row, col, val):
 	- deserialize(string): return null
 	- read(row, col): return <row, <col, val>>
-	- write(row, col, val): 
+	- writeData(row, col, val): 
+	- writeMeta(row, col, file): 
 
 ### utils:
-	- log(row, col, val)
-	- replay();
+	- log(row, col, val, operation)
+	- replay(filesystem);
 
 
 

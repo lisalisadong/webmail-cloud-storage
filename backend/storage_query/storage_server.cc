@@ -51,10 +51,14 @@ class StorageServiceImpl final : public StorageQuery::Service{
 			std::string val = cache.get(row, col);
 			response->set_val(val);
 			return Status::OK;
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 			Status status(StatusCode::NOT_FOUND, "No corresponding keys");
 			return status;
 		}
+
+		// std::string val = cache.get(row, col);
+		// response->set_val(val);
+		// return Status::OK;
 		
 	}
 

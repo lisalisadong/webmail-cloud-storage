@@ -1,62 +1,83 @@
 #include <unordered_map>
+#include <unordered_set>
 #include <string>
 #include <iostream>
 #include <memory>
 #include <limits.h>
 #include <vector>
 #include <utility>
+#include "file_system.h"
+#include "hash.h"
 
-#define CACHE_SIZE 100
+#define CACHE_SIZE 1
+
 
 class Cache {
 private:
+  // <fileName, keys>
+  std::unordered_map<std::string, std::vector<std::pair<std::string, std::string>> > fileToKeys;
+
+  std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> > test;
+
   std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
 
   // <row, <col, fileName> >
-  // std::unordered_map<std::string, std::unordered_map<std::string, std::string> > keysToFile;
-
-  // <fileName, keys>
-  // std::unordered_map<std::string, std::vector<std::vector<string> > > fileToKeys;
+  std::unordered_map<std::string, std::unordered_map<std::string, std::string> > keysToFile;
 
   FileSystem fs;
 
-  // Util util;
+  // Log logger;
 
-  // <fileName, count>
+  // // <fileName, count>
   std::unordered_map<std::string, int> fileCnt;
 
-  bool writeSnapshot() {
+  // bool writeSnapshot() {
+  //   // writeMeta();
+  //   // writeData();
+  // }
 
-  }
+  // void writeMeta() {
 
+  // }
+
+  /* evict the least used chunk */
   void evict() {
     if(fileCnt.size() < CACHE_SIZE) return;
 
-    string lrFile = getLRFile();
+    std::string lrFile = getLRFile();
 
-    // std::vector<std::vector<string> > keys = fileToKeys[lrFile];
+    std::cout << "Write " << lrFile << " into disk." << std::endl;
 
-    std::vector<std::pair<std::string, std::string> > keys = fs.getKeys(lrFile);
+    std::vector<std::pair<std::string, std::string> > keys = fileToKeys[lrFile];
+
+    // std::vector<std::pair<std::string, std::string> > keys = fs.getKeys(lrFile);
 
     // write the file to disk and remove it from the cache(map).
     for(int i = 0; i < keys.size(); i++) {
       std::string row = keys[i].first;
       std::string col = keys[i].second;
-      std::string val = get(row, col);
+      std::string val = map[row][col];
 
       fs.write(row, col, val);
-      map[row].erase(col);    // can't erase row?
+      std::cout<< "write " << row << col << val << std::endl;
+      map[row].erase(col); 
+
+      if(map[row].size() == 0) {
+        map.erase(row);
+      }
     }
+
+    fileToKeys.erase(lrFile);
 
     // remove the count
     fileCnt.erase(lrFile);
   }
 
+  /* get the least used file */
   std::string getLRFile() {
     int cnt = INT_MAX;
     std::string lrFile;
-    std::unordered_map<std::string, std::unordered_map<std::string, std::string> >
-          ::const_iterator itr = fileCnt.begin();
+    std::unordered_map<std::string, int>::const_iterator itr = fileCnt.begin();
 
     while(itr != fileCnt.end()) {
       if(itr->second < cnt) {
@@ -69,7 +90,43 @@ private:
     return lrFile;
   }
 
+  /* put the chunk into cache */
   void updateCache(std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk) {
+    std::unordered_map<std::string, std::unordered_map<std::string, std::string> >
+         ::const_iterator rItr = chunk.begin();
+    rItr++;
+
+    std::string row = rItr->first;
+
+    std::unordered_map<std::string, std::string>::const_iterator cItr = chunk[row].begin();
+    cItr++;
+
+    std::string col = cItr->first;
+
+    std::string file = fs.keys_to_file(row, col);
+
+
+    while(rItr != chunk.end()) {
+      row = rItr->first;
+
+      cItr = chunk[row].begin();
+
+      cItr++;
+
+      while (cItr != chunk[row].end()) {
+        col = cItr->first;
+
+        map[row][col] = chunk[row][col];    // put into map
+
+        std::pair <std::string, std::string> p (row, col);
+
+        fileToKeys[file].push_back(p);  // put into meta
+
+        cItr++;
+      }
+
+      rItr++;
+    }
 
   }
 
@@ -80,15 +137,17 @@ private:
          ::const_iterator rfind = map.find(row);
 
     if (rfind == map.end()) {
-      // a chunk is a file
-      std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk = fs.read(row, col);
-      if(chunk.size() == 0) {
-        return false;
-      }
+      return false;
+      
+      // // a chunk is a file
+      // std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk = fs.read(row, col);
+      // if(chunk.size() == 0) {
+      //   return false;
+      // }
 
-      evict();
+      // evict();
 
-      updateCache(chunk);
+      // updateCache(chunk);
     }
 
     std::unordered_map<std::string,std::string>::const_iterator cfind = map.at(row).find(col);
@@ -101,7 +160,11 @@ private:
 public: 
 
   Cache() {
-    fileNum = 100;
+    // fs.keys_to_fileToKeys(fileToKeys);
+    std::vector<std::pair<std::string, std::string> > vec;
+    std::pair<std::string, std::string> p("lisa", "emails");
+    vec.push_back(p);
+    fileToKeys["lisaemails"] = vec;
   }
 
   /**
@@ -109,12 +172,14 @@ public:
   */
   std::string get(std::string row, std::string col) {
     if(!containsKey(row, col)) {
-      throw exception();
+      throw std::exception();
     }
 
-    std::string file = fs.getFile(row, val);
+    std::string file = fs.keys_to_file(row, col);
     fileCnt[file] += 1;
-    std::string val = map.at(row).at(col);
+    std::string val = map[row][col];
+
+    std::cout<<file<<" is accessed "<<fileCnt[file]<<" times."<<std::endl;
 
     return val;
   }
@@ -125,9 +190,11 @@ public:
     // 2. update the keys->file, file->keys mapping
     // 3. update file->cnt mapping
 
-    std::string file = fs.getFile(row, val);
+    std::string file = fs.keys_to_file(row, col);
     fileCnt[file] += 1;
-    fs.addKey(row, col);
+    keysToFile[row][col] = file;
+
+    std::cout<<file<<" is accessed "<<fileCnt[file]<<" times."<<std::endl;
 
     map[row][col] = val;
     return true;
@@ -137,9 +204,9 @@ public:
     if (!containsKey(row, col) || get(row, col) != val1) return false;
 
     evict();
-    std::string file = fs.getFile(row, val);
+    std::string file = fs.keys_to_file(row, col);
     fileCnt[file] += 1;
-    fs.addKey(row, col);
+    keysToFile[row][col] = file;
 
     map[row][col] = val2;
     return true;
@@ -148,14 +215,19 @@ public:
   bool remove(std::string row, std::string col) {
     if(!containsKey(row, col)) return false;
 
-    std::string file = fs.getFile(row, val);
+    std::string file = fs.keys_to_file(row, col);
     fileCnt[file] += 1;
-    fs.removeKey(row, col);
+    // fileToKeys[file].erase(col);
 
-    // erase row?
     map[row].erase(col);
+    if(map[row].size() == 0) {
+      map.erase(row);
+    }
     return true;
   }
 
 
 };
+
+
+
