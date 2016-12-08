@@ -14,8 +14,8 @@
 	- writeMeta(row, col, file): 
 
 ### utils:
-	- log(row, col, val)
-	- replay();
+	- log(row, col, val, operation)
+	- replay(filesystem);
 
 
 
