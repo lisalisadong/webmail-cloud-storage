@@ -189,8 +189,12 @@ int main(int argc, char** argv) {
   response = client.Get(row, col);
   std::cout << "getting lisa||emails: " << response << std::endl;
 
+  row = "Tom"; col = "Cruise"; val = "wow";
+  client.Put(row, col, val);
+  std::cout << "putting Tom||Cruise||wow" << std::endl;
+
   response = client.Get(row, col);
-  std::cout << "getting lisa||emails: " << response << std::endl;
+  std::cout << "getting Tom||Cruise: " << response << std::endl;
 
   
 

@@ -7,20 +7,25 @@
 #include <vector>
 #include <utility>
 #include "file_system.h"
+#include "hash.h"
 
 #define CACHE_SIZE 1
 
+
 class Cache {
 private:
-  // struct SimpleHash {
-  //     size_t operator()(const std::pair<std::string, std::string>& p) const {
-  //         // return hash(p.first);
-  //       return 1;
-  //     }
-  // };
+  struct Hash {
+      size_t operator()(const std::pair<std::string, std::string>& p) const {
+          std::string str = p.first + p.second;
+          return simpleHash(str);
+        // return 1;
+      }
+  };
 
   // <fileName, keys>
   std::unordered_map<std::string, std::vector<std::pair<std::string, std::string>> > fileToKeys;
+
+  std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> > test;
 
   std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
 
@@ -33,21 +38,6 @@ private:
 
   // // <fileName, count>
   std::unordered_map<std::string, int> fileCnt;
-
-  // unsigned int hash(std::string& str)
-  // {
-  //     unsigned int b    = 378551;
-  //     unsigned int a    = 63689;
-  //     unsigned int hash = 0;
-
-  //     for(std::size_t i = 0; i < str.length(); i++)
-  //     {
-  //         hash = hash * a + str[i];
-  //         a    = a * b;
-  //     }
-
-  //     return (hash & 0x7FFFFFFF);
-  //  }
 
   // bool writeSnapshot() {
   //   // writeMeta();
@@ -64,6 +54,8 @@ private:
 
     std::string lrFile = getLRFile();
 
+    std::cout << "Write " << lrFile << " into disk." << std::endl;
+
     std::vector<std::pair<std::string, std::string> > keys = fileToKeys[lrFile];
 
     // std::vector<std::pair<std::string, std::string> > keys = fs.getKeys(lrFile);
@@ -75,6 +67,7 @@ private:
       std::string val = map[row][col];
 
       fs.write(row, col, val);
+      std::cout<< "write " << row << col << val << std::endl;
       map[row].erase(col); 
 
       if(map[row].size() == 0) {
@@ -176,6 +169,10 @@ public:
 
   Cache() {
     // fs.keys_to_fileToKeys(fileToKeys);
+    std::vector<std::pair<std::string, std::string> > vec;
+    std::pair<std::string, std::string> p("lisa", "emails");
+    vec.push_back(p);
+    fileToKeys["lisaemails"] = vec;
   }
 
   /**
@@ -239,3 +236,6 @@ public:
 
 
 };
+
+
+
