@@ -7,6 +7,8 @@
 
 #include "storage_query.grpc.pb.h"
 
+#include "Cache.h"
+
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
@@ -30,21 +32,30 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		std::string col = request->col();
 
 		// notify if not found
-		std::unordered_map<std::string, std::unordered_map<std::string, std::string> >
-					::const_iterator rfind = map.find(row);
-		if (rfind == map.end()) {
-			Status status(StatusCode::NOT_FOUND, "Row does not exist");
-			return status;
-		}
-		std::unordered_map<std::string,std::string>::const_iterator cfind = map.at(row).find(col);
-		if (cfind == map.at(row).end()) {
-			Status status(StatusCode::NOT_FOUND, "Column does not exist");
-			return status;
-		}
+		// std::unordered_map<std::string, std::unordered_map<std::string, std::string> >
+		// 			::const_iterator rfind = map.find(row);
+		// if (rfind == map.end()) {
+		// if(!cache.containsKey(row, col)) {
+		// 	Status status(StatusCode::NOT_FOUND, "Row does not exist");
+		// 	return status;
+		// }
+		// std::unordered_map<std::string,std::string>::const_iterator cfind = map.at(row).find(col);
+		// if (cfind == map.at(row).end()) {
+		// 	Status status(StatusCode::NOT_FOUND, "Column does not exist");
+		// 	return status;
+		// }
 
-		std::string val = map.at(row).at(col);
-		response->set_val(val);
-		return Status::OK;
+		// std::string val = map.at(row).at(col);
+
+		try {
+			std::string val = cache.get(row, col);
+			response->set_val(val);
+			return Status::OK;
+		} catch (exception &e) {
+			Status status(StatusCode::NOT_FOUND, "No corresponding keys");
+			return status;
+		}
+		
 	}
 
 	Status Put(ServerContext* context, const PutRequest* request, 
@@ -53,7 +64,13 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		std::string row = request->row();
 		std::string col = request->col();
 		std::string val = request->val();
-		map[row][col] = val;
+		// map[row][col] = val;
+		bool status = cache.put(row, col, val);
+
+		// if(!status) {
+		// 	Status status(StatusCode::ERROR, "ERROR");
+		// 	return status;
+		// }
 
 		return Status::OK;
 	}
@@ -65,9 +82,11 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		std::string col = request->col();
 		std::string val1 = request->val1();
 		std::string val2 = request->val2();
-		if (map[row][col] == val1) {
-			map[row][col] = val2;
-		}
+		// if (map[row][col] == val1) {
+		// 	map[row][col] = val2;
+		// }
+
+		cache.cput(row, col, val1, val2);
 
 		return Status::OK;
 	}
@@ -77,13 +96,16 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 		std::string row = request->row();
 		std::string col = request->col();
-		map[row].erase(col);
+		// map[row].erase(col);
+
+		cache.remove(row, col);
 
 		return Status::OK;
 	}
 
 private:
-	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
+	// std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
+	Cache cache;
 };
 
 void RunServer() {
