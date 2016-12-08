@@ -55,6 +55,10 @@ class StorageServiceImpl final : public StorageQuery::Service{
 			Status status(StatusCode::NOT_FOUND, "No corresponding keys");
 			return status;
 		}
+
+		// std::string val = cache.get(row, col);
+		// response->set_val(val);
+		// return Status::OK;
 		
 	}
 
