@@ -7,7 +7,6 @@
 #include <vector>
 #include <utility>
 #include "file_system.h"
-#include "hash.h"
 
 #define CACHE_SIZE 1
 
