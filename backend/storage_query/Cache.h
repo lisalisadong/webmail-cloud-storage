@@ -9,35 +9,56 @@
 #include "file_system.h"
 
 #define CACHE_SIZE 1
+#define WRT_OP 1
 
 
 class Cache {
 private:
-  // <fileName, keys>
-  std::unordered_map<std::string, std::vector<std::pair<std::string, std::string>> > fileToKeys;
+  /************************************ instance variables ***********************************************/
+  // meta data: <fileName, keys>
+  std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> > fileToKeys;
+  // std::unordered_map<std::string, std::vector<std::pair<std::string, std::string>> > fileToKeys;
 
-  std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> > test;
-
-  std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
-
-  // <row, <col, fileName> >
+  // meta data: <row, <col, fileName> >
   std::unordered_map<std::string, std::unordered_map<std::string, std::string> > keysToFile;
+
+  // data
+  std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
 
   FileSystem fs;
 
   // Log logger;
 
-  // // <fileName, count>
+  // <fileName, count>
   std::unordered_map<std::string, int> fileCnt;
 
-  // bool writeSnapshot() {
-  //   // writeMeta();
-  //   // writeData();
-  // }
+  int wrtCnt;
 
-  // void writeMeta() {
+  /************************************ methods ***********************************************/
+  bool writeSnapshot() {
+    wrtCnt++;
 
-  // }
+    if(wrtCnt < WRT_OP) return false;
+
+    wrtCnt = 0;
+
+    writeMeta();
+    writeData();
+  } 
+
+  /* write meta data into file system */
+  void writeMeta() {
+    fs.write_file("mappings.meta", keysToFile);
+  }
+
+  /* write to map to file system */
+  void writeData() {
+
+    for(auto f = fileToKeys.begin(); f != fileToKeys.end(); ++f) {
+      writeFileToFs(f->first, false);
+    }
+
+  }
 
   /* evict the least used chunk */
   void evict() {
@@ -45,31 +66,34 @@ private:
 
     std::string lrFile = getLRFile();
 
-    std::cout << "Write " << lrFile << " into disk." << std::endl;
+    writeFileToFs(lrFile, true);
+  }
 
-    std::vector<std::pair<std::string, std::string> > keys = fileToKeys[lrFile];
+  void writeFileToFs(std::string file, bool isDelete) {
+    std::cout << "Write " << file << " into disk." << std::endl;
 
-    // std::vector<std::pair<std::string, std::string> > keys = fs.getKeys(lrFile);
+    std::unordered_set<std::pair<std::string, std::string>, Hash> keys = fileToKeys[file];
+
+    std::unordered_map<std::string, std::unordered_map<std::string, std::string> > tmpMap;
 
     // write the file to disk and remove it from the cache(map).
-    for(int i = 0; i < keys.size(); i++) {
-      std::string row = keys[i].first;
-      std::string col = keys[i].second;
+    for (auto p = keys.begin(); p != keys.end(); ++p) {
+      std::string row = p->first;
+      std::string col = p->second;
       std::string val = map[row][col];
 
-      fs.write(row, col, val);
-      std::cout<< "write " << row << col << val << std::endl;
-      map[row].erase(col); 
+      tmpMap[row][col] = val;
 
-      if(map[row].size() == 0) {
-        map.erase(row);
+      if(isDelete) {
+        map[row].erase(col); 
+
+        if(map[row].size() == 0) {
+          map.erase(row);
+        }
       }
     }
 
-    fileToKeys.erase(lrFile);
-
-    // remove the count
-    fileCnt.erase(lrFile);
+    fs.write_file(file, tmpMap);
   }
 
   /* get the least used file */
@@ -89,8 +113,9 @@ private:
     return lrFile;
   }
 
-  /* put the chunk into cache */
+  /* put a chunk into cache */
   void updateCache(std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk) {
+
     std::unordered_map<std::string, std::unordered_map<std::string, std::string> >
          ::const_iterator rItr = chunk.begin();
     rItr++;
@@ -102,8 +127,7 @@ private:
 
     std::string col = cItr->first;
 
-    std::string file = fs.keys_to_file(row, col);
-
+    std::string file = keysToFile[row][col];
 
     while(rItr != chunk.end()) {
       row = rItr->first;
@@ -117,9 +141,7 @@ private:
 
         map[row][col] = chunk[row][col];    // put into map
 
-        std::pair <std::string, std::string> p (row, col);
-
-        fileToKeys[file].push_back(p);  // put into meta
+        std::pair<std::string, std::string> p(row, col);
 
         cItr++;
       }
@@ -131,27 +153,30 @@ private:
 
   bool containsKey(std::string row, std::string col) {
 
-    /* firstly check if in cache */
+    // check meta data first
     std::unordered_map<std::string, std::unordered_map<std::string, std::string> >
-         ::const_iterator rfind = map.find(row);
+         ::const_iterator rfind = keysToFile.find(row);
 
-    if (rfind == map.end()) {
+    if (rfind == keysToFile.end()) {
       return false;
-      
-      // // a chunk is a file
-      // std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk = fs.read(row, col);
-      // if(chunk.size() == 0) {
-      //   return false;
-      // }
-
-      // evict();
-
-      // updateCache(chunk);
     }
 
-    std::unordered_map<std::string,std::string>::const_iterator cfind = map.at(row).find(col);
+    std::unordered_map<std::string,std::string>::const_iterator cfind = keysToFile.at(row).find(col);
+    if (cfind == keysToFile.at(row).end()) return false;
+
+    /* check if in map */
+    rfind = map.find(row);
+    if (rfind == map.end() || rfind->second.find(col) == rfind->second.end()) {
+      return false;
+    }
+
+    std::string file = keysToFile[row][col];
+
+    std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk = fs.read_file(file);
     
-    if (cfind == map.at(row).end()) return false;
+    evict();
+
+    updateCache(chunk);
 
     return true;
   }
@@ -160,10 +185,15 @@ public:
 
   Cache() {
     // fs.keys_to_fileToKeys(fileToKeys);
-    std::vector<std::pair<std::string, std::string> > vec;
-    std::pair<std::string, std::string> p("lisa", "emails");
-    vec.push_back(p);
-    fileToKeys["lisaemails"] = vec;
+
+    wrtCnt = 0;
+
+    fs.init(keysToFile, fileToKeys);
+
+    // std::unordered_set<std::pair<std::string, std::string>, Hash> set;
+    // std::pair<std::string, std::string> p("lisa", "emails");
+    // set.insert(p);
+    // fileToKeys["lisaemails"] = set;
   }
 
   /**
@@ -174,7 +204,7 @@ public:
       throw std::exception();
     }
 
-    std::string file = fs.keys_to_file(row, col);
+    std::string file = keysToFile[row][col];
     fileCnt[file] += 1;
     std::string val = map[row][col];
 
@@ -196,6 +226,9 @@ public:
     std::cout<<file<<" is accessed "<<fileCnt[file]<<" times."<<std::endl;
 
     map[row][col] = val;
+
+    writeSnapshot();
+
     return true;
   }
 
@@ -208,6 +241,9 @@ public:
     keysToFile[row][col] = file;
 
     map[row][col] = val2;
+
+    writeSnapshot();
+
     return true;
   }
 
@@ -216,12 +252,16 @@ public:
 
     std::string file = fs.keys_to_file(row, col);
     fileCnt[file] += 1;
-    // fileToKeys[file].erase(col);
+    std::pair<std::string, std::string> p(row, col);
+    fileToKeys[file].erase(p);
 
     map[row].erase(col);
     if(map[row].size() == 0) {
       map.erase(row);
     }
+
+    writeSnapshot();
+
     return true;
   }
 

@@ -47,13 +47,37 @@ std::unordered_map<std::string, std::unordered_map<std::string, std::string> > F
 }
 
 int FileSystem::write_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> > entries) {
-	return 0;
+	std::ofstream file (fileName, std::ios_base::app);
+	if (!file.is_open()) {
+		std::cout << "Cannot open file to write!" << std::endl;
+		return 1;
+	}
+	int ret = 0;
+	std::string row;
+	std::string col;
+	std::string val;
+	for (std::unordered_map<std::string, std::unordered_map<std::string, std::string> >::const_iterator it = entries.begin(); it != entries.end(); it++) {
+		row = it->first;
+		for (std::unordered_map<std::string, std::string>::const_iterator itr = it->second.begin(); itr != it->second.end(); itr++) {
+			col = itr->first;
+			val = itr->second;
+			if (keys_to_file(row, col) != fileName) {
+				ret = 1;
+			} else {
+				std::string raw = serialize(row) + serialize(col) + serialize(val);
+				std::string tuple = serialize(raw);
+				file << tuple;
+			}
+		}
+	}
+	file.close();
+	return ret;
 }
 
 void FileSystem::write_entry(std::string row, std::string col, std::string val) {
 	std::string raw = serialize(row) + serialize(col) + serialize(val);
 	std::string tuple = serialize(raw);
-	std::string fileName = this->keys_to_file(row, col);
+	std::string fileName = keys_to_file(row, col);
 	std::ofstream file (fileName, std::ios_base::app);
 	if (file.is_open()) {
 	    file << tuple;
@@ -63,7 +87,12 @@ void FileSystem::write_entry(std::string row, std::string col, std::string val) 
 }
 
 void FileSystem::delete_entry(std::string row, std::string col) {
-
+	std::string fileName = keys_to_file(row, col);
+	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map = read_file(fileName);
+	map[row].erase(col);
+	if (map[row].size() == 0) {
+		map.erase(row);
+	}
 }
 
 std::string FileSystem::keys_to_file(std::string row, std::string col) {
@@ -119,6 +148,19 @@ void FileSystem::file_to_keys(std::unordered_map<std::string, std::unordered_set
 		else std::cout << "Cannot open file to read!" << std::endl; //TODO: write loggers in utils
 	}
 }
+
+void get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile) {
+	std::ifstream file ("mapping.meta");
+	if (file.is_open()) {
+		// std::string tuple;
+		// while (true) {
+		// 	tuple = get_next_tuple(file);
+		// 	if (tuple.length() == 0)
+		// }
+	}
+	else std::cout << "Cannot open mapping.meta to read!" << std::endl;
+}
+
 
 
 
