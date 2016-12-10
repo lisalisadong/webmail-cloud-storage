@@ -19,7 +19,8 @@
 
 ### utils:
 	- log(row, col, val, operation)
-	- replay(filesystem);
+	- replay(filesystem)
+	- emptyTempLog()
 
 
 
