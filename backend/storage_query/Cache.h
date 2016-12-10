@@ -188,7 +188,7 @@ public:
 
     wrtCnt = 0;
 
-    fs.init(keysToFile, fileToKeys);
+    fs.get_mappings(fileToKeys, keysToFile);
 
     // std::unordered_set<std::pair<std::string, std::string>, Hash> set;
     // std::pair<std::string, std::string> p("lisa", "emails");
