@@ -47,7 +47,7 @@ std::unordered_map<std::string, std::unordered_map<std::string, std::string> > F
 }
 
 int FileSystem::write_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> > entries) {
-	std::ofstream file (fileName, std::ios_base::app);
+	std::ofstream file (fileName);
 	if (!file.is_open()) {
 		std::cout << "Cannot open file to write!" << std::endl;
 		return 1;
@@ -177,19 +177,34 @@ void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set
 
 // int main() {
 // 	FileSystem fs;
-// 	fs.write("lisa", "email", "123");
-// 	fs.write("lis", "aemail", "456");
-// 	fs.write("qingxiao", "drive", "xxx");
-// 	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map = fs.read("lisa", "email");
+// 	fs.write_entry("lisa", "email", "123");
+// 	fs.write_entry("lis", "aemail", "456");
+// 	fs.write_entry("qingxiao", "drive", "xxx");
+// 	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map = fs.read_file("lisaemail");
 // 	for(std::unordered_map<std::string, std::unordered_map<std::string, std::string> >::const_iterator it = map.begin(); it != map.end(); it++) {
 // 		for (std::unordered_map<std::string, std::string>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); it2++) {
 // 			std::cout << it->first << "," << it2->first << "," << it2->second << std::endl;
 // 		}
 // 	}
+// 	std::cout << std::endl;
 
-// 	map = fs.read("qingxiao", "drive");
+// 	map = fs.read_file("qingxiaodrive");
 // 	for(std::unordered_map<std::string, std::unordered_map<std::string, std::string> >::const_iterator it = map.begin(); it != map.end(); it++) {
 // 		for (std::unordered_map<std::string, std::string>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); it2++) {
 // 			std::cout << it->first << "," << it2->first << "," << it2->second << std::endl;
 // 		}
 // 	}
+// 	std::cout << std::endl;
+
+// 	map = fs.read_file("lisaemail");
+// 	fs.delete_entry("lisa", "email");
+// 	fs.delete_entry("lis", "aemail");
+// 	fs.write_file("lisaemail", map);
+// 	map = fs.read_file("lisaemail");
+// 	for(std::unordered_map<std::string, std::unordered_map<std::string, std::string> >::const_iterator it = map.begin(); it != map.end(); it++) {
+// 		for (std::unordered_map<std::string, std::string>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); it2++) {
+// 			std::cout << it->first << "," << it2->first << "," << it2->second << std::endl;
+// 		}
+// 	}
+// 	std::cout << std::endl;
+// }
