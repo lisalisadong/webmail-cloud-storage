@@ -25,8 +25,7 @@ std::string FileSystem::serialize(std::string str) {
 	return std::to_string(strLen) + ":" + str;
 }
 
-std::unordered_map<std::string, std::unordered_map<std::string, std::string> > FileSystem::read(std::string row, std::string col) {
-	std::string fileName = this->keys_to_file(row, col);
+std::unordered_map<std::string, std::unordered_map<std::string, std::string> > FileSystem::read_file(std::string fileName) {
 	std::ifstream file (fileName);
 	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
 	if (file.is_open()) {
@@ -41,12 +40,17 @@ std::unordered_map<std::string, std::unordered_map<std::string, std::string> > F
 			std::string val = deserialize_next(tuple, pos);
 			map[row][col] = val;
 		}
+		file.close();
 	}
 	else std::cout << "Cannot open file to read!" << std::endl; //TODO: write loggers in utils
 	return map;
 }
 
-void FileSystem::write(std::string row, std::string col, std::string val) {
+int FileSystem::write_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> > entries) {
+	return 0;
+}
+
+void FileSystem::write_entry(std::string row, std::string col, std::string val) {
 	std::string raw = serialize(row) + serialize(col) + serialize(val);
 	std::string tuple = serialize(raw);
 	std::string fileName = this->keys_to_file(row, col);
@@ -56,6 +60,10 @@ void FileSystem::write(std::string row, std::string col, std::string val) {
 	    file.close();
   	}
   	else std::cout << "Cannot open file to write!" << std::endl; //TODO: write loggers in utils
+}
+
+void FileSystem::delete_entry(std::string row, std::string col) {
+
 }
 
 std::string FileSystem::keys_to_file(std::string row, std::string col) {
@@ -90,6 +98,28 @@ std::string FileSystem::deserialize_next(std::string str, int& pos) {
 	return ret;
 }
 
+void FileSystem::file_to_keys(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& map) {
+	for (std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >::iterator it = map.begin(); it != map.end(); it++) {
+		std::string fileName = it->first;
+		std::ifstream file (fileName);
+		if (file.is_open()) {
+			std::string tuple;
+			while (true) {
+				tuple = get_next_tuple(file);
+				if (tuple.length() == 0)
+					break;
+				int pos = 0;
+				std::string row = deserialize_next(tuple, pos);
+				std::string col = deserialize_next(tuple, pos);
+				std::pair<std::string, std::string> keys(row, col);
+				it->second.insert(keys);
+			}
+			file.close();
+		}
+		else std::cout << "Cannot open file to read!" << std::endl; //TODO: write loggers in utils
+	}
+}
+
 
 
 
@@ -111,10 +141,3 @@ std::string FileSystem::deserialize_next(std::string str, int& pos) {
 // 			std::cout << it->first << "," << it2->first << "," << it2->second << std::endl;
 // 		}
 // 	}
-
-
-
-
-
-
-
