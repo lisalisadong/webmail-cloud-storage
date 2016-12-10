@@ -127,38 +127,47 @@ std::string FileSystem::deserialize_next(std::string str, int& pos) {
 	return ret;
 }
 
-void FileSystem::file_to_keys(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& map) {
-	for (std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >::iterator it = map.begin(); it != map.end(); it++) {
-		std::string fileName = it->first;
-		std::ifstream file (fileName);
-		if (file.is_open()) {
-			std::string tuple;
-			while (true) {
-				tuple = get_next_tuple(file);
-				if (tuple.length() == 0)
-					break;
-				int pos = 0;
-				std::string row = deserialize_next(tuple, pos);
-				std::string col = deserialize_next(tuple, pos);
-				std::pair<std::string, std::string> keys(row, col);
-				it->second.insert(keys);
-			}
-			file.close();
-		}
-		else std::cout << "Cannot open file to read!" << std::endl; //TODO: write loggers in utils
-	}
-}
+// void FileSystem::file_to_keys(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& map) {
+// 	for (std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >::iterator it = map.begin(); it != map.end(); it++) {
+// 		std::string fileName = it->first;
+// 		std::ifstream file (fileName);
+// 		if (file.is_open()) {
+// 			std::string tuple;
+// 			while (true) {
+// 				tuple = get_next_tuple(file);
+// 				if (tuple.length() == 0)
+// 					break;
+// 				int pos = 0;
+// 				std::string row = deserialize_next(tuple, pos);
+// 				std::string col = deserialize_next(tuple, pos);
+// 				std::pair<std::string, std::string> keys(row, col);
+// 				it->second.insert(keys);
+// 			}
+// 			file.close();
+// 		}
+// 		else std::cout << "Cannot open file to read!" << std::endl; //TODO: write loggers in utils
+// 	}
+// }
 
-void get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile) {
+void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile) {
 	std::ifstream file ("mapping.meta");
 	if (file.is_open()) {
-		// std::string tuple;
-		// while (true) {
-		// 	tuple = get_next_tuple(file);
-		// 	if (tuple.length() == 0)
-		// }
+		std::string tuple;
+		while (true) {
+			tuple = get_next_tuple(file);
+			if (tuple.length() == 0)
+				break;
+			int pos = 0;
+			std::string row = deserialize_next(tuple, pos);
+			std::string col = deserialize_next(tuple, pos);
+			std::string fileName = deserialize_next(tuple, pos);
+			std::pair<std::string, std::string> keys(row, col);
+			keyToFile[row][col] = fileName;
+			fileToKey[fileName].insert(keys);
+		}
 	}
 	else std::cout << "Cannot open mapping.meta to read!" << std::endl;
+	file.close();
 }
 
 
