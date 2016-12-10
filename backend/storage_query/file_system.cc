@@ -149,9 +149,14 @@ void FileSystem::file_to_keys(std::unordered_map<std::string, std::unordered_set
 	}
 }
 
-void get_mappings(std::unordered_map<std::string, std::vector<std::pair<std::string, std::string> > > fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> > keyToFile) {
+void get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile) {
 	std::ifstream file ("mapping.meta");
 	if (file.is_open()) {
+		// std::string tuple;
+		// while (true) {
+		// 	tuple = get_next_tuple(file);
+		// 	if (tuple.length() == 0)
+		// }
 	}
 	else std::cout << "Cannot open mapping.meta to read!" << std::endl;
 }
