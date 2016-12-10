@@ -93,6 +93,7 @@ void FileSystem::delete_entry(std::string row, std::string col) {
 	if (map[row].size() == 0) {
 		map.erase(row);
 	}
+	write_file(fileName, map);
 }
 
 std::string FileSystem::keys_to_file(std::string row, std::string col) {
@@ -165,9 +166,9 @@ void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set
 			keyToFile[row][col] = fileName;
 			fileToKey[fileName].insert(keys);
 		}
+		file.close();
 	}
 	else std::cout << "Cannot open mapping.meta to read!" << std::endl;
-	file.close();
 }
 
 
