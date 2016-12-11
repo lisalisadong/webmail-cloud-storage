@@ -288,7 +288,7 @@ public:
 
     writeSnapshot();
 
-    logger.log(row, col, '-');
+    logger.log(row, col, "", '-');
 
     return true;
   }
