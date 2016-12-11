@@ -9,10 +9,7 @@
 #include "utils.h"
 
 #define CACHE_SIZE 2
-#define WRT_OP 3000
-
-//TODO: can't write meta data
-
+#define WRT_OP 1
 
 class Cache {
 private:
@@ -248,6 +245,8 @@ public:
 
     if(fileToKeys.size() > CACHE_SIZE) evict();
 
+    logger.log(row, col, val, '+');
+
     return true;
   }
 
@@ -263,6 +262,8 @@ public:
     std::cout<< "add mapping: <" << row << ", " << col << "> -> " << map[row][col] <<std::endl;
 
     writeSnapshot();
+
+    logger.log(row, col, val2, '+');
 
     return true;
   }
@@ -286,6 +287,8 @@ public:
     }
 
     writeSnapshot();
+
+    logger.log(row, col, '-');
 
     return true;
   }

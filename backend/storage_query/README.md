@@ -21,6 +21,12 @@
 	- replay(filesystem)
 	- emptyTempLog()
 
+//TODO: 
+// 1. can't write meta data into disk
+// 2. now is LFU cache, change to LRU?
+// 3. read all meta data into cache would be a burden?
+// 4. put log and data files into folders.
+
 
 
 
