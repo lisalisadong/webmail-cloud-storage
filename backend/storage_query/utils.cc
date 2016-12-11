@@ -33,7 +33,7 @@ void Log::emptyTempLog() {
 }
 
 
-void Log::replay(FileSystem fs) {
+void Log::replay(FileSystem &fs) {
 	string line;
 	string operation, row, col, value;
 	ifstream temp_log(TEMP_LOG);

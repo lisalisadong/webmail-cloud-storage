@@ -151,7 +151,7 @@ std::string FileSystem::deserialize_next(std::string str, int& pos) {
 // }
 
 void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile) {
-	std::ifstream file ("mapping.meta");
+	std::ifstream file ("mapping");
 	if (file.is_open()) {
 		std::string tuple;
 		while (true) {
@@ -168,7 +168,7 @@ void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set
 		}
 		file.close();
 	}
-	else std::cout << "Cannot open mapping.meta to read!" << std::endl;
+	else std::cout << "Cannot open mapping to read!" << std::endl;
 }
 
 
