@@ -1,2 +1,3 @@
 frontend/server/server
 backend/storage_query/storage_server
+backend/storage_query/file_system.o
