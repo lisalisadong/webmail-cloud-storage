@@ -88,7 +88,7 @@ std::vector<std::string> ConHash::addNode(std::string addr) {
 	// 		next = itr->second;
 	// 	}
 
-		
+
 
 	// }
 
