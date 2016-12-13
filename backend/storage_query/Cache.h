@@ -50,7 +50,7 @@ private:
 
   /* write meta data into file system */
   void writeMeta() {
-    fs.write_file("mapping", keysToFile);
+    fs.write_file("./../store/mapping", keysToFile);
 
     std::cout << "Meta data write succeeded" << std::endl;
   }
@@ -78,7 +78,7 @@ private:
 
     std::cout<< "Evict: " << lrFile << std::endl;
 
-    writeFileToFs(lrFile, true);
+    //writeFileToFs(lrFile, true);
   }
 
   void writeFileToFs(std::string file, bool isDelete) {
@@ -165,11 +165,13 @@ private:
 
       // std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk = fs.read_file(file);
 
+      evict();
+
       fs.read_file(file, map);
       
       std::cout << "read " << file << " into cache " << std::endl;
 
-      evict();
+      
 
       // updateCache(chunk);
     }
