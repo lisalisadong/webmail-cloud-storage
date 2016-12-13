@@ -34,7 +34,7 @@ std::string FileSystem::serialize(std::string str) {
 }
 
 void FileSystem::read_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries) {
-	std::cout <<"opening file " << fileName << " for read" << std::endl;
+	// std::cout <<"opening file " << fileName << " for read" << std::endl;
 	std::ifstream file (STORE_DIR + fileName);
 	if (file.is_open()) {
 		std::string tuple;
@@ -54,7 +54,7 @@ void FileSystem::read_file(std::string fileName, std::unordered_map<std::string,
 }
 
 int FileSystem::write_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries) {
-	std::cout <<"opening file " << fileName << " for write" << std::endl;
+	// std::cout <<"opening file " << fileName << " for write" << std::endl;
 	std::ofstream file (STORE_DIR + fileName);
 	if (!file.is_open()) {
 		std::cout << "Cannot open file to write!" << std::endl;
@@ -78,11 +78,11 @@ int FileSystem::write_file(std::string fileName, std::unordered_map<std::string,
 }
 
 void FileSystem::write_entry(std::string row, std::string col, std::string val) {
-	std::cout <<"writting entry " << row << col << std::endl;
+	// std::cout <<"writting entry " << row << col << std::endl;
 	std::string raw = serialize(row) + serialize(col) + serialize(val);
 	std::string tuple = serialize(raw);
 	std::string fileName = keys_to_file(row, col);
-	std::cout <<"opening file " << row << col << " for write entry" << std::endl;
+	// std::cout <<"opening file " << row << col << " for write entry" << std::endl;
 	std::ofstream file (STORE_DIR + fileName, std::ios_base::app);
 	if (file.is_open()) {
 	    file << tuple;
@@ -127,7 +127,7 @@ std::string FileSystem::get_next_tuple(std::ifstream& stream) {
 
 std::string FileSystem::deserialize_next(std::string str, int& pos) {
 	std::size_t found = str.find(":", pos);
-	std::string lenStr = str.substr(pos, found - pos);
+	std::string lenStr = str.substr(pos, found - pos);	
 	int len = std::stoi(lenStr);
 	std::string ret = str.substr(found + 1, len);
 	pos = found + 1 + len;
@@ -158,7 +158,7 @@ std::string FileSystem::deserialize_next(std::string str, int& pos) {
 
 void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile) {
 	std::ifstream file (std::string(STORE_DIR) + MAPPING);
-	std::cout <<"opening file " << MAPPING << " for get mapp" << std::endl;
+	std::cout <<"opening file " << MAPPING << " for get mapping" << std::endl;
 	if (file.is_open()) {
 		std::string tuple;
 		while (true) {
@@ -182,19 +182,18 @@ void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set
 void FileSystem::write_log(std::string row, std::string col, std::string val, std::string operation) {
 	if (row.empty() || col.empty()) return;
 
-	std::string tuple = serialize(serialize(row) + serialize(col) + serialize(val) + serialize(operation));
+	std::string tuple = serialize(serialize(row) + serialize(col) + serialize(val) + serialize(operation + "\n"));
 
-	std::ofstream full_log, temp_log;
-	full_log.open(std::string(LOG_DIR) + FULL_LOG, std::ofstream::app);
-	temp_log.open(std::string(LOG_DIR) + TEMP_LOG, std::ofstream::app);
+	std::ofstream full_log (std::string(LOG_DIR) + FULL_LOG, std::ios_base::app);
+	std::ofstream temp_log (std::string(LOG_DIR) + TEMP_LOG, std::ios_base::app);
 
 	if (!full_log.is_open() || !temp_log.is_open()) {
 		std::cout << "cannot open log(s)" << std::endl;
 		return;
 	}
 
-	full_log << tuple << endl; //write to full log
-	temp_log << tuple << endl; //write to temp log
+	full_log << tuple; //write to full log
+	temp_log << tuple; //write to temp log
 
 	full_log.close();
 	temp_log.close();
@@ -227,8 +226,7 @@ void FileSystem::replay() {
 }
 
 void FileSystem::clear_temp_log() {
-	std::ofstream temp_log;
-	temp_log.open(std::string(LOG_DIR) + TEMP_LOG,std::ofstream::out);
+	std::ofstream temp_log (std::string(LOG_DIR) + TEMP_LOG);
 	temp_log.close();
 }
 
