@@ -1,3 +1,5 @@
+#ifndef F_S
+#define F_S
 
 #include <unordered_map>
 #include <string>
@@ -29,3 +31,5 @@ private:
 	std::string get_next_tuple(std::ifstream& stream);
 	std::string deserialize_next(std::string str, int& pos);
 };
+
+#endif
