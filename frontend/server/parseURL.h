@@ -76,8 +76,6 @@ void testInitialize() {
 	string col("emails");
 	client.Put(row, col, emails);
 	cout << "Put Alice emails: " << endl << emails << endl;
-	string response = client.Get(row, col);
-	cout << "Get Alice emails: " << endl << response << endl;
 
 	client.Put(row, "email-1", "aaaaaaaaaaaaaaa");
 	client.Put(row, "email-2", "bbbbbbbbbbbbbbb");
@@ -100,6 +98,8 @@ void testInitialize() {
 	client.Put(row, "file-2", file2);
 	client.Put(row, "file-5", file5);
 
+	string response = client.Get(row, col);
+	cout << "Get Alice emails: " << endl << response << endl;
 }
 
 string readHTMLFile(const char* fileLoc) {
