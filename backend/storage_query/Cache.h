@@ -52,15 +52,15 @@ private:
   void writeMeta() {
     fs.write_file("./../store/mapping", keysToFile);
 
-    std::cout << "Meta data write succeeded" << std::endl;
+    // std::cout << "Meta data write succeeded" << std::endl;
   }
 
   /* write to map to file system */
   void writeData() {
 
-    for(auto f = fileToKeys.begin(); f != fileToKeys.end(); ++f) {
+    for(auto f = fileCnt.begin(); f != fileCnt.end(); ++f) {
       writeFileToFs(f->first, false);
-      std::cout << f->first << " write succeeded" << std::endl;
+      // std::cout << f->first << " write succeeded" << std::endl;
     }
 
     logger.emptyTempLog();
@@ -70,7 +70,7 @@ private:
   /* evict the least used chunk */
   void evict() {
     if(fileCnt.size() < CACHE_SIZE) {
-      std::cout<< "Nothing to evict!" << std::endl;
+      // std::cout<< "Nothing to evict!" << std::endl;
       return;
     }
 
@@ -78,7 +78,7 @@ private:
 
     std::cout<< "Evict: " << lrFile << std::endl;
 
-    //writeFileToFs(lrFile, true);
+    writeFileToFs(lrFile, true);
   }
 
   void writeFileToFs(std::string file, bool isDelete) {
@@ -91,9 +91,14 @@ private:
     for (auto p = keys.begin(); p != keys.end(); ++p) {
       std::string row = p->first;
       std::string col = p->second;
+
+      // if(!isDelete && (map.find(row) == map.end() || map[row].find(col) == map[row].end()) continue;
+
       std::string val = map[row][col];
 
       tmpMap[row][col] = val;
+
+      std::cout << "========<" << row << ", " << col << ">: " << val << std::endl;
 
       if(isDelete) {
         map[row].erase(col); 
@@ -113,6 +118,8 @@ private:
 
   /* get the least used file */
   std::string getLRFile() {
+
+    // return (++fileCnt.begin())->first;
     int cnt = INT_MAX;
     std::string lrFile;
     std::unordered_map<std::string, int>::const_iterator itr = fileCnt.begin();
@@ -210,7 +217,7 @@ public:
     fileCnt[file] += 1;
     std::string val = map[row][col];
 
-    std::cout<<file<<" is accessed "<<fileCnt[file]<<" times."<<std::endl;
+    // std::cout<<file<<" is accessed "<<fileCnt[file]<<" times."<<std::endl;
 
     return val;
   }
@@ -225,12 +232,12 @@ public:
 
     /* file counter plus 1 */
     fileCnt[file] += 1;
-    std::cout<<file<<" is accessed "<<fileCnt[file]<<" times."<<std::endl;
+    // std::cout<<file<<" is accessed "<<fileCnt[file]<<" times."<<std::endl;
 
     if(!containsKey(row, col)) {
       /* add keys -> file mapping */
       keysToFile[row][col] = file;
-      std::cout<< "add mapping: <" << row << ", " << col << "> -> " << keysToFile[row][col] <<std::endl;
+      // std::cout<< "add mapping: <" << row << ", " << col << "> -> " << keysToFile[row][col] <<std::endl;
 
       /* add file -> keys mapping */
       std::pair<std::string, std::string> p(row, col);
@@ -239,11 +246,11 @@ public:
         fileToKeys[file] = set;
       }
       fileToKeys[file].insert(p);
-      std::cout<< "add mapping: " << file << "-> <" << p.first << ", " << p.second << ">" <<std::endl;
+      // std::cout<< "add mapping: " << file << "-> <" << p.first << ", " << p.second << ">" <<std::endl;
     }
 
     map[row][col] = val;
-    std::cout<< "add mapping: <" << row << ", " << col << "> -> " << map[row][col] <<std::endl;
+    // std::cout<< "add mapping: <" << row << ", " << col << "> -> " << map[row][col] <<std::endl;
 
     writeSnapshot();
 
@@ -260,10 +267,10 @@ public:
     std::string file = keysToFile[row][col];
 
     fileCnt[file] += 1;
-    std::cout<<file<<" is accessed "<<fileCnt[file]<<" times."<<std::endl;
+    // std::cout<<file<<" is accessed "<<fileCnt[file]<<" times."<<std::endl;
 
     map[row][col] = val2;
-    std::cout<< "add mapping: <" << row << ", " << col << "> -> " << map[row][col] <<std::endl;
+    // std::cout<< "add mapping: <" << row << ", " << col << "> -> " << map[row][col] <<std::endl;
 
     writeSnapshot();
 

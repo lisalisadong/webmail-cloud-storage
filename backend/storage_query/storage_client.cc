@@ -137,8 +137,8 @@ int main(int argc, char** argv) {
 
   std::string response = client.Get("1", "csadas");
   std::cout << "getting address 1: " << response << std::endl;
-  response = client.Get("r1", "dasdasfsa");
-  std::cout << "getting address 2: " << response << std::endl;
+  // response = client.Get("r1", "dasdasfsa");
+  // std::cout << "getting address 2: " << response << std::endl;
 
   response = client.Get("r1", "c1");
   std::cout << "getting r1||c1: " << response << std::endl;
