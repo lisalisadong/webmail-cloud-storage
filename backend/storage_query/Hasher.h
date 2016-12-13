@@ -26,19 +26,24 @@ public:
 	    // md5_append(&md5state, (const unsigned char *)addr.c_str(), addr.length());
 	    // md5_finish(&md5state, digest);
 	 
-	    //  每四个字节构成一个32位整数，
+		unsigned char digestBuffer[MD5_DIGEST_LENGTH];
+		MD5_CTX c;
+		long hashcode = 0;
+
+		MD5_Init(&c);
+		MD5_Update(&c, (const unsigned char*) addr.c_str(), addr.length());
+		MD5_Final(digestBuffer, &c);
+
+	    // 每四个字节构成一个32位整数，
 	    // 将四个32位整数相加得到instr的hash值（可能溢出） 
-	    // for(i = 0; i < 4; i++)
-	    // {
-	    //     hash += ((long)(digest[i*4 + 3]&0xFF) << 24)
-	    //           | ((long)(digest[i*4 + 2]&0xFF) << 16)
-	    //           | ((long)(digest[i*4 + 1]&0xFF) <<  8)
-	    //           | ((long)(digest[i*4 + 0]&0xFF));
-	    // }
-	    // return hash;
-
-
-	    return 1;
+	    for(int i = 0; i < 4; i++)
+	    {
+	        hashcode += ((long)(digestBuffer[i*4 + 3]&0xFF) << 24)
+	              | ((long)(digestBuffer[i*4 + 2]&0xFF) << 16)
+	              | ((long)(digestBuffer[i*4 + 1]&0xFF) <<  8)
+	              | ((long)(digestBuffer[i*4 + 0]&0xFF));
+	    }
+	    return hashcode;
 	}
 
 };
