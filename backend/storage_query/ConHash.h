@@ -75,7 +75,7 @@ std::vector<std::string> ConHash::addNode(std::string addr) {
 		std::pair<std::map<long, VNode>::iterator, bool> p = map.insert(std::pair<long, VNode>(hashVal, v));
 
 		/* same hash val exists */
-		if(!p->seconde) {
+		if(!p->second) {
 			throw std::exception("Failed to add the node.");
 		}
 
@@ -88,7 +88,7 @@ std::vector<std::string> ConHash::addNode(std::string addr) {
 			next = itr->second;
 		}
 
-		
+
 
 	}
 
