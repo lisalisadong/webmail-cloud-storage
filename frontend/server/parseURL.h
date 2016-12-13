@@ -24,13 +24,15 @@
 #include <algorithm>
 #include <fstream>
 #include <grpc++/grpc++.h>
+
+#include "constants.h"
+
 using namespace std;
 #ifndef PARSEURL_H_
 #define PARSEURL_H_
 
 #define BUFF_SIZE 8192
 
-const static char* HTTP_HEADER = "HTTP/1.0 200 OK\nDate: Fri, 31 Dec 1999 23:59:59 GMT\nContent-Type: text/html\nContent-Length: ";
 
 int readFile(const char* fileName, char*& data) {
 	ifstream in;
@@ -129,6 +131,20 @@ string getEmailResponse(string user, const char* url) {
 
 	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
 	string email = client.Get(user, emailName);
+	response += to_string(email.length()) + "\n";
+	response += "\n";
+	response += email;
+	return response;
+}
+
+string getFileResponse(string user, const char* url) {
+	string response = HTTP_HEADER_FILE;
+	string urlStr = url + 1;
+	int fileNameI = urlStr.find(' ');
+	string fileName = urlStr.substr(0, fileNameI);
+
+	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+	string email = client.Get(user, fileName);
 	response += to_string(email.length()) + "\n";
 	response += "\n";
 	response += email;

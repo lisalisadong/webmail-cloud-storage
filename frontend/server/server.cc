@@ -27,10 +27,7 @@
 #include "../../backend/storage_query/storage_client.h"
 #include "../../backend/storage_query/storage_query.grpc.pb.h"
 #include "parseURL.h"
-
-#define LINE_LIMIT 1000
-#define MAX_CON 128
-#define DEFAULT_PORT 8080
+#include "constants.h"
 
 using grpc::Channel;
 using namespace std;
@@ -47,8 +44,7 @@ using storagequery::CPutResponse;
 using storagequery::DeleteRequest;
 using storagequery::DeleteResponse;
 
-const static char* CONTENT_LEN = "Content-Length: ";
-const static char* COOKIE = "Cookie: ";
+
 class Message {
 public:
 	struct sockaddr_in clientAddr;
@@ -274,6 +270,8 @@ int generateHTML(struct Message* pM, const char* url, const char* lastLine, stri
 				response = getListResponse(user, string("files"), "frontend/sites/files_begin.html", "frontend/sites/files_end.html", string("file"));
 			} else if (!strncmp(url, "/email-", 7)) {
 				response = getEmailResponse(user, url);
+			} else if (!strncmp(url, "/file-", 6)){
+				response = getFileResponse(user, url);
 			} else response = getResponse("frontend/sites/notfound.html", "");
 		} else {
 			if (!strncmp(url, "/loginsubmit", 12)) {
