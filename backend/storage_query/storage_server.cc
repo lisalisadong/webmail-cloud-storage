@@ -112,6 +112,11 @@ private:
 	Cache cache;
 };
 
+
+void informMaster() {
+
+}
+
 void RunServer() {
   std::string server_address("0.0.0.0:50051");
   StorageServiceImpl service;
@@ -130,6 +135,8 @@ void RunServer() {
   // responsible for shutting down the server for this call to ever return.
   server->Wait();
 }
+
+
 
 
 int main(int argc, char** argv) {

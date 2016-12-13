@@ -122,24 +122,25 @@ void StorageClient::Delete(const std::string& row, const std::string& col) {
   }
 }
 
-// int main(int argc, char** argv) {	
-// 	// TODO:
-// 	// Instantiate the client. It requires a channel, out of which the actual RPCs
-//   // are created. This channel models a connection to an endpoint (in this case,
-//   // localhost at port 50051). We indicate that the channel isn't authenticated
-//   // (use of InsecureChannelCredentials()).
-//   // StorageClient client(grpc::CreateChannel(
-//   //     "localhost:50051", grpc::InsecureChannelCredentials()));
 
-//   StorageClient client(grpc::CreateChannel(
-//       "localhost:8000", grpc::InsecureChannelCredentials()));
+// int main(int argc, char** argv) {	
+	// TODO:
+	// Instantiate the client. It requires a channel, out of which the actual RPCs
+  // are created. This channel models a connection to an endpoint (in this case,
+  // localhost at port 50051). We indicate that the channel isn't authenticated
+  // (use of InsecureChannelCredentials()).
+  // StorageClient client(grpc::CreateChannel(
+  //     "localhost:50051", grpc::InsecureChannelCredentials()));
+
+  // StorageClient client(grpc::CreateChannel(
+  //     "localhost:8000", grpc::InsecureChannelCredentials()));
 
 //   std::string response = client.Get("1", "csadas");
 //   std::cout << "getting address 1: " << response << std::endl;
 //   response = client.Get("r1", "dasdasfsa");
 //   std::cout << "getting address 2: " << response << std::endl;
 
-  // std::string response = client.Get("r1", "c1");
+  // response = client.Get("r1", "c1");
   // std::cout << "getting r1||c1: " << response << std::endl;
 
   // client.Put("r1", "c1", "v1");
