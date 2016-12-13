@@ -25,9 +25,8 @@ std::string FileSystem::serialize(std::string str) {
 	return std::to_string(strLen) + ":" + str;
 }
 
-std::unordered_map<std::string, std::unordered_map<std::string, std::string> > FileSystem::read_file(std::string fileName) {
+void FileSystem::read_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries) {
 	std::ifstream file (fileName);
-	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
 	if (file.is_open()) {
 		std::string tuple;
 		while (true) {
@@ -38,15 +37,14 @@ std::unordered_map<std::string, std::unordered_map<std::string, std::string> > F
 			std::string row = deserialize_next(tuple, pos);
 			std::string col = deserialize_next(tuple, pos);
 			std::string val = deserialize_next(tuple, pos);
-			map[row][col] = val;
+			entries[row][col] = val;
 		}
 		file.close();
 	}
 	else std::cout << "Cannot open file to read!" << std::endl; //TODO: write loggers in utils
-	return map;
 }
 
-int FileSystem::write_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> > entries) {
+int FileSystem::write_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries) {
 	std::ofstream file (fileName);
 	if (!file.is_open()) {
 		std::cout << "Cannot open file to write!" << std::endl;
@@ -83,7 +81,8 @@ void FileSystem::write_entry(std::string row, std::string col, std::string val) 
 
 void FileSystem::delete_entry(std::string row, std::string col) {
 	std::string fileName = keys_to_file(row, col);
-	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map = read_file(fileName);
+	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
+	read_file(fileName, map);
 	map[row].erase(col);
 	if (map[row].size() == 0) {
 		map.erase(row);
