@@ -66,31 +66,31 @@ VNode ConHash::getVirtual(std::string addr, int i) {
 std::vector<std::string> ConHash::addNode(std::string addr) {
 	std::vector<std::string> res;
 
-	/* gnerate virtual nodes */
-	for(int i = 0; i < v_num; i++) {
-		VNode v = getVirtual(addr, i);
+	// /* gnerate virtual nodes */
+	// for(int i = 0; i < v_num; i++) {
+	// 	VNode v = getVirtual(addr, i);
 
-		long hashVal = hasher.getHashVal(v.vId);
+	// 	long hashVal = hasher.getHashVal(v.vId);
 
-		std::pair<std::map<long, VNode>::iterator, bool> p = map.insert(std::pair<long, VNode>(hashVal, v));
+	// 	std::pair<std::map<long, VNode>::iterator, bool> p = map.insert(std::pair<long, VNode>(hashVal, v));
 
-		/* same hash val exists */
-		if(!p->second) {
-			throw std::exception("Failed to add the node.");
-		}
+	// 	 same hash val exists 
+	// 	if(!p->seconde) {
+	// 		throw std::exception("Failed to add the node.");
+	// 	}
 
-		std::map<long, VNode>::iterator itr = p->first;
-		itr++;
-		Vnode next;
-		if(itr == map.end()) {
-			next = (++map.begin())->second;
-		} else {
-			next = itr->second;
-		}
+	// 	std::map<long, VNode>::iterator itr = p->first;
+	// 	itr++;
+	// 	Vnode next;
+	// 	if(itr == map.end()) {
+	// 		next = (++map.begin())->second;
+	// 	} else {
+	// 		next = itr->second;
+	// 	}
 
 
 
-	}
+	// }
 
 	return res;
 }

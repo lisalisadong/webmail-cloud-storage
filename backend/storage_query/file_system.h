@@ -10,9 +10,9 @@
 
 class FileSystem {
 public:
-	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > read_file(std::string fileName);
+	void read_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries);
 	
-	int write_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> > entries);
+	int write_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries);
 	
 	void write_entry(std::string row, std::string col, std::string val);
 	
