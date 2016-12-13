@@ -25,7 +25,6 @@
 #include <grpc++/grpc++.h>
 
 #include "../../backend/storage_query/storage_client.h"
-#include "../../backend/storage_query/storage_query.grpc.pb.h"
 #include "parseURL.h"
 
 #define LINE_LIMIT 1000
