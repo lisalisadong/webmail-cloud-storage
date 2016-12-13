@@ -12,7 +12,7 @@ PROTOS_PATH = ../protos
 
 vpath %.proto $(PROTOS_PATH)
 
-all: system-check  storage_server storage_client master
+all: system-check  storage_server storage_client
 
 master: storage_query.pb.o storage_query.grpc.pb.o master.o
 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@

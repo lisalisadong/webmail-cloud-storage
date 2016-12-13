@@ -63,7 +63,7 @@ private:
       std::cout << f->first << " write succeeded" << std::endl;
     }
 
-    logger.emptyTempLog();
+    fs.clear_temp_log();
 
   }
 
@@ -189,7 +189,7 @@ public:
 
     fs.get_mappings(fileToKeys, keysToFile);
 
-    logger.replay(fs);
+    fs.replay();
 
     // std::unordered_set<std::pair<std::string, std::string>, Hash> set;
     // std::pair<std::string, std::string> p("lisa", "emails");
@@ -249,7 +249,7 @@ public:
 
     if(fileToKeys.size() > CACHE_SIZE) evict();
 
-    logger.log(row, col, val, '+');
+    fs.write_log(row, col, val, "PUT");
 
     return true;
   }
@@ -267,7 +267,7 @@ public:
 
     writeSnapshot();
 
-    logger.log(row, col, val2, '+');
+    fs.write_log(row, col, val2, "PUT");
 
     return true;
   }
@@ -292,7 +292,7 @@ public:
 
     writeSnapshot();
 
-    logger.log(row, col, "", '-');
+    fs.write_log(row, col, "", "DELETE");
 
     return true;
   }

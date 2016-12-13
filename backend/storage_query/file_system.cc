@@ -9,6 +9,9 @@
 
 #define STORE_DIR "./../store/"
 #define MAPPING "mapping"
+#define FULL_LOG "full_log.txt"
+#define TEMP_LOG "temp_log.txt"
+#define LOG_DIR "./../log/"
 
 // std::string md5_string(const std::string& str) {
 // 	unsigned char buf[MD5_DIGEST_LENGTH];
@@ -155,7 +158,7 @@ std::string FileSystem::deserialize_next(std::string str, int& pos) {
 
 void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile) {
 	std::ifstream file (std::string(STORE_DIR) + MAPPING);
-	std::cout <<"opening file " << MAPPING << " for get mapping" << std::endl;
+	std::cout <<"opening file " << MAPPING << " for get mapp" << std::endl;
 	if (file.is_open()) {
 		std::string tuple;
 		while (true) {
@@ -176,7 +179,58 @@ void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set
 }
 
 
+void FileSystem::write_log(std::string row, std::string col, std::string val, std::string operation) {
+	if (row.empty() || col.empty()) return;
 
+	std::string tuple = serialize(serialize(row) + serialize(col) + serialize(val) + serialize(operation));
+
+	std::ofstream full_log, temp_log;
+	full_log.open(std::string(LOG_DIR) + FULL_LOG, std::ofstream::app);
+	temp_log.open(std::string(LOG_DIR) + TEMP_LOG, std::ofstream::app);
+
+	if (!full_log.is_open() || !temp_log.is_open()) {
+		std::cout << "cannot open log(s)" << std::endl;
+		return;
+	}
+
+	full_log << tuple << endl; //write to full log
+	temp_log << tuple << endl; //write to temp log
+
+	full_log.close();
+	temp_log.close();
+}
+
+void FileSystem::replay() {
+
+	std::ifstream file (std::string(LOG_DIR) + TEMP_LOG);
+	if (file.is_open()) {
+		std::string tuple;
+		while (true) {
+			tuple = get_next_tuple(file);
+			if (tuple.length() == 0)
+				break;
+			int pos = 0;
+			std::string row = deserialize_next(tuple, pos);
+			std::string col = deserialize_next(tuple, pos);
+			std::string val = deserialize_next(tuple, pos);
+			std::string operation = deserialize_next(tuple, pos);
+			
+			if (operation == "PUT") {
+				write_entry(row, col, val);
+			} else if (operation == "DELETE") {
+				delete_entry(row, col);
+			}
+		}
+		file.close();
+	}
+	else std::cout << "Cannot open file to read!" << std::endl; //TODO: write loggers in utils
+}
+
+void FileSystem::clear_temp_log() {
+	std::ofstream temp_log;
+	temp_log.open(std::string(LOG_DIR) + TEMP_LOG,std::ofstream::out);
+	temp_log.close();
+}
 
 
 // int main() {

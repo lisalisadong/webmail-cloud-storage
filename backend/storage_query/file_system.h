@@ -26,6 +26,12 @@ public:
 
 	void get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile);
 
+	void write_log(std::string row, std::string col, std::string val, std::string operation);
+
+	void replay();
+
+	void clear_temp_log();
+
 private:
 	std::string serialize(std::string str);
 	std::string get_next_tuple(std::ifstream& stream);
