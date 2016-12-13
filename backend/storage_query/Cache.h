@@ -54,7 +54,7 @@ private:
 
   /* write meta data into file system */
   void writeMeta() {
-    fs.write_file("./../store/mapping", keysToFile);
+    fs.write_file("mapping", keysToFile);
 
     // std::cout << "Meta data write succeeded" << std::endl;
   }
@@ -229,7 +229,12 @@ public:
     // 2. update the keys->file, file->keys mapping
     // 3. update file->cnt mapping
 
-    std::string file = fs.keys_to_file(row, col);
+    std::string file;
+    if (containsKey(row, col)) {
+      file = keysToFile[row][col];
+    } else {
+      file = fs.place_new_entry();
+    }
 
     /* file counter plus 1 */
     fileCnt[file] += 1;
@@ -257,7 +262,7 @@ public:
 
     if(fileToKeys.size() > CACHE_SIZE) evict();
 
-    fs.write_log(row, col, val, "PUT");
+    fs.write_log(file, row, col, val, "PUT");
 
     return true;
   }
@@ -275,7 +280,7 @@ public:
 
     writeSnapshot();
 
-    fs.write_log(row, col, val2, "PUT");
+    fs.write_log(file, row, col, val2, "PUT");
 
     return true;
   }
@@ -300,7 +305,7 @@ public:
 
     writeSnapshot();
 
-    fs.write_log(row, col, "", "DELETE");
+    fs.write_log(file, row, col, "", "DELETE");
 
     return true;
   }

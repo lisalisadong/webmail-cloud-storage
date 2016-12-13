@@ -12,6 +12,7 @@ service StorageQuery {
   rpc Put (PutRequest) returns (PutResponse) {}
   rpc CPut (CPutRequest) returns (CPutResponse) {}
   rpc Delete (DeleteRequest) returns (DeleteResponse) {}
+  rpc Migrate (MigrateRequest) returns (MigrateResponse) {}
 }  
 
 // get
@@ -55,4 +56,13 @@ message DeleteRequest {
 
 message DeleteResponse {
 
+}
+
+// migrate
+message MigrateRequest {
+  string address = 1;
+}
+
+message MigrateResponse {
+  string data = 1;
 }

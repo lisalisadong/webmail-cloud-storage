@@ -11,6 +11,7 @@
 #define FULL_LOG "full_log.txt"
 #define TEMP_LOG "temp_log.txt"
 #define LOG_DIR "./../log/"
+#define MAX_FILE_SIZE 500
 
 // std::string md5_string(const std::string& str) {
 // 	unsigned char buf[MD5_DIGEST_LENGTH];
@@ -76,10 +77,9 @@ int FileSystem::write_file(std::string fileName, std::unordered_map<std::string,
 	return 0;
 }
 
-void FileSystem::write_entry(std::string row, std::string col, std::string val) {
+void FileSystem::write_entry(std::string fileName, std::string row, std::string col, std::string val) {
 	std::string raw = serialize(row) + serialize(col) + serialize(val);
 	std::string tuple = serialize(raw);
-	std::string fileName = keys_to_file(row, col);
 	logger.log_trace("Openning file " + fileName + " to read");
 	std::ofstream file (STORE_DIR + fileName, std::ios_base::app);
 	if (file.is_open()) {
@@ -89,8 +89,7 @@ void FileSystem::write_entry(std::string row, std::string col, std::string val) 
   	else logger.log_error("Cannot open file " + fileName + " to write entry"); //TODO: write loggers in utils
 }
 
-void FileSystem::delete_entry(std::string row, std::string col) {
-	std::string fileName = keys_to_file(row, col);
+void FileSystem::delete_entry(std::string fileName, std::string row, std::string col) {
 	logger.log_trace("Openning file " + fileName + " to delete entry");
 	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
 	read_file(STORE_DIR + fileName, map);
@@ -101,8 +100,24 @@ void FileSystem::delete_entry(std::string row, std::string col) {
 	write_file(fileName, map);
 }
 
-std::string FileSystem::keys_to_file(std::string row, std::string col) {
-	return row + col;
+std::string FileSystem::place_new_entry() {
+	logger.log_trace("current file size " + std::to_string(file_size(curr_file)));
+	if (file_size(curr_file) >= MAX_FILE_SIZE) {
+		increment_file();
+	}
+	logger.log_trace("current file is " + curr_file);
+	return curr_file;
+}
+
+void FileSystem::increment_file() {
+	int pos = curr_file.length() - 1;
+	while (pos >= 0 && (curr_file[pos] == '9' || curr_file[pos] == '.')) {
+		if (curr_file[pos] == '9') {
+			curr_file[pos] = '0';
+		}
+		pos--;
+	}
+	curr_file[pos] += 1;
 }
 
 std::string FileSystem::get_next_tuple(std::ifstream& stream) {
@@ -156,7 +171,7 @@ std::string FileSystem::deserialize_next(std::string str, int& pos) {
 // }
 
 void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile) {
-	std::ifstream file (std::string(STORE_DIR) + MAPPING);
+	std::ifstream file (MAPPING);
 	logger.log_trace("Openning mapping to read");
 	if (file.is_open()) {
 		std::string tuple;
@@ -178,13 +193,13 @@ void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set
 }
 
 
-void FileSystem::write_log(std::string row, std::string col, std::string val, std::string operation) {
+void FileSystem::write_log(std::string fileName, std::string row, std::string col, std::string val, std::string operation) {
 
 	logger.log_trace("Logging " + operation + " " + row + " " + col + " " + val);
 
 	if (row.empty() || col.empty()) return;
 
-	std::string tuple = serialize(serialize(row) + serialize(col) + serialize(val) + serialize(operation + "\n"));
+	std::string tuple = serialize(serialize(fileName) + serialize(row) + serialize(col) + serialize(val) + serialize(operation + "\n"));
 
 	std::ofstream full_log (std::string(LOG_DIR) + FULL_LOG, std::ios_base::app);
 	std::ofstream temp_log (std::string(LOG_DIR) + TEMP_LOG, std::ios_base::app);
@@ -213,15 +228,16 @@ void FileSystem::replay() {
 			if (tuple.length() == 0)
 				break;
 			int pos = 0;
+			std::string fileName = deserialize_next(tuple, pos);
 			std::string row = deserialize_next(tuple, pos);
 			std::string col = deserialize_next(tuple, pos);
 			std::string val = deserialize_next(tuple, pos);
 			std::string operation = deserialize_next(tuple, pos);
 			
 			if (operation == "PUT") {
-				write_entry(row, col, val);
+				write_entry(fileName, row, col, val);
 			} else if (operation == "DELETE") {
-				delete_entry(row, col);
+				delete_entry(fileName, row, col);
 			}
 		}
 		file.close();
@@ -235,9 +251,16 @@ void FileSystem::clear_temp_log() {
 	temp_log.close();
 }
 
+std::ifstream::pos_type FileSystem::file_size(std::string filename) {
+    std::ifstream in(std::string(STORE_DIR) + filename, std::ifstream::ate | std::ifstream::binary);
+    return in.tellg(); 
+}
+
 
 // int main() {
 // 	FileSystem fs;
+// 	std::cout << fs.file_size("./../store/r1c1") << std::endl;
+// }
 // 	fs.write_entry("lisa", "email", "123");
 // 	fs.write_entry("lis", "aemail", "456");
 // 	fs.write_entry("qingxiao", "drive", "xxx");
