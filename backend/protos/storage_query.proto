@@ -21,14 +21,14 @@ message GetRequest {
 }
 
 message GetResponse {
-  string val = 1;
+  bytes val = 1;
 }
 
 // put
 message PutRequest {
   string row = 1;
   string col = 2;
-  string val = 3;
+  bytes val = 3;
 }
 
 message PutResponse {
@@ -39,8 +39,8 @@ message PutResponse {
 message CPutRequest {
   string row = 1;
   string col = 2;
-  string val1 = 3;
-  string val2 = 4;
+  bytes val1 = 3;
+  bytes val2 = 4;
 }
 
 message CPutResponse {
