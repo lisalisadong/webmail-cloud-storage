@@ -25,12 +25,11 @@
 #include <grpc++/grpc++.h>
 
 #include "../../backend/storage_query/storage_client.h"
-#include "../../backend/storage_query/storage_query.grpc.pb.h"
 #include "parseURL.h"
 
 #define LINE_LIMIT 1000
 #define MAX_CON 128
-#define DEFAULT_PORT 8000
+#define DEFAULT_PORT 8080
 
 using grpc::Channel;
 using namespace std;
@@ -48,7 +47,7 @@ using storagequery::DeleteRequest;
 using storagequery::DeleteResponse;
 
 const static char* CONTENT_LEN = "Content-Length: ";
-
+const static char* COOKIE = "Cookie: ";
 class Message {
 public:
 	struct sockaddr_in clientAddr;
@@ -220,28 +219,20 @@ void closeClient(struct Message*& pM) {
 		fputs("QUIT\n", stderr);
 		fprintf(stderr, "[%d] Connection closed\n", pM->confd);
 	}
-//	write(pM->confd, QUIT_S, strlen(QUIT_S));
 	close(pM->confd);
 	allfd.erase(pM->confd);
 }
 
-void get() {
-	//TODO!!!
-	StorageClient client(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
-	std::string row("lisa");
-	std::string col("emails");
-	std::string val("from 1 to 2:xxx");
-	client.Put(row, col, val);
-	std::cout << "putting lisa||emails||from 1 to 2:xxx" << std::endl;
-
-	std::string response = client.Get(row, col);
-	std::cout << "getting lisa||emails: " << response << std::endl;
+string getEmail(string& urlStr) {
+	string email;
+	int emailIndex = urlStr.find("email");
+	email = urlStr.substr(emailIndex + 6, urlStr.find('&', emailIndex) - emailIndex - 6);
+	return email;
 }
 
 bool checkPWD(const char* lastLine, string& email) {
 	string urlStr = lastLine;
-	int emailIndex = urlStr.find("email");
-	email = urlStr.substr(emailIndex + 6, urlStr.find('&', emailIndex) - emailIndex - 6);
+	email = getEmail(urlStr);
 	int passwordIndex = urlStr.find("password");
 	string password = urlStr.substr(passwordIndex + 9);
 	if (isDebug) cout << "Current login user is: " << email << " with password: " << password << endl;
@@ -249,25 +240,51 @@ bool checkPWD(const char* lastLine, string& email) {
 	return true;
 }
 
-int generateHTML(struct Message* pM, const char* url, const char* lastLine) {
-	get();
+bool checkCookie(string cookie, string& email) {
+	if (cookie.length() <= 0) return false;
+	int newLineI = cookie.find_first_of("\r\n");
+	if (newLineI != string::npos) cookie.erase(newLineI);
+
+	int sessionidI = cookie.find("sessionid=");
+	int userI = cookie.find("user=");
+	string sessionid = cookie.substr(sessionidI + 10, userI - sessionidI - 12);
+	email = cookie.substr(userI + 5);
+	if (email.compare("Alice") == 0)
+		return true;
+	else return false;
+}
+
+int generateHTML(struct Message* pM, const char* url, const char* lastLine, string cookie) {
+//	get();
 	string response = "";
-	if (!strncmp(url + 1, " ", 1))
-		response = getResponse("frontend/sites/login.html", "");
-	else if (!strncmp(url, "/signup", 7))
+	if (!strncmp(url, "/signup", 7))
 		response = getResponse("frontend/sites/signup.html", "");
-	else if (!strncmp(url, "/loginsubmit", 12)) {
-		string email;
-		if (checkPWD(lastLine, email)) {
-			//Set-Cookie: sessionid=38afes7a8; httponly; Path=/
-			string headers = "Set-Cookie: sessionid=" + getSessionID(email) + "\nSet-Cookie: user=" + email + "\n";
-			response = getResponse("frontend/sites/dashboard.html", headers.c_str());
-		} else response = getResponse("frontend/sites/loginError.html", "");
-	} else if (!strncmp(url, "/emails ", 7))
-		response = getResponse("frontend/sites/emails.html", "");
-	else if (!strncmp(url, "/files ", 6))
-		response = getResponse("frontend/sites/files.html", "");
-	else response = getResponse("frontend/sites/notfound.html", "");
+	else {
+		string user;
+		if (checkCookie(cookie, user)) {
+			if (!strncmp(url + 1, " ", 1)) {
+				response = getResponse("frontend/sites/dashboard.html", "");
+			} else if (!strncmp(url, "/emails ", 8)) {
+//				response = getResponse("frontend/sites/emails.html", "");
+//				response = getEmailsResponse("frontend/sites/emails.html", email);
+				response = getListResponse(user, string("emails"), "frontend/sites/emails_begin.html", "frontend/sites/emails_end.html", string("email"));
+			} else if (!strncmp(url, "/files ", 7)) {
+//				response = getResponse("frontend/sites/files.html", "");
+				response = getListResponse(user, string("files"), "frontend/sites/files_begin.html", "frontend/sites/files_end.html", string("file"));
+			} else if (!strncmp(url, "/email-", 7)) {
+				response = getEmailResponse(user, url);
+			} else response = getResponse("frontend/sites/notfound.html", "");
+		} else {
+			if (!strncmp(url, "/loginsubmit", 12)) {
+				if (checkPWD(lastLine, user)) {
+					string headers = "Set-Cookie: sessionid=" + getSessionID(user) + "\nSet-Cookie: user=" + user + "\n";
+					response = getResponse("frontend/sites/dashboard.html", headers.c_str());
+				} else response = getResponse("frontend/sites/loginError.html", "");
+			} else if (!strncmp(url + 1, " ", 1))
+				response = getResponse("frontend/sites/login.html", "");
+			else response = getResponse("frontend/sites/notfound.html", "");
+		}
+	}
 	write(pM->confd, response.c_str(), response.length());
 	return 0;
 }
@@ -283,6 +300,7 @@ void* threadFun(void* arg) {
 	bool isLastLine = false;
 	string url;
 	string lastLine;
+	string cookie;
 	int contentLen = 0;
 	while (true) {
 		if (isLastLine) {
@@ -313,18 +331,21 @@ void* threadFun(void* arg) {
 		} else if (!strncmp(line, "POST", 4)) {
 			isGet = false;
 			url = line + 5;
-		} else if (!strncmp(line, CONTENT_LEN, strlen(CONTENT_LEN))) contentLen = atoi(line + strlen(CONTENT_LEN));
+		} else if (!strncmp(line, CONTENT_LEN, strlen(CONTENT_LEN)))
+			contentLen = atoi(line + strlen(CONTENT_LEN));
+		else if (!strncmp(line, COOKIE, strlen(COOKIE))) cookie = line + strlen(COOKIE);
 		free(line);
 	}
 	cout << "url: " << url << endl;
 	cout << "lastLine: " << lastLine << endl;
-	generateHTML(pM, url.c_str(), lastLine.c_str());
+	generateHTML(pM, url.c_str(), lastLine.c_str(), cookie.c_str());
 	close(pM->confd);
 	return (void*) 0;
 }
 
 int main(int argc, char *argv[]) {
 	bzero(remainingChars, (LINE_LIMIT + 1) * 2);
+	testInitialize();
 // parse arguments
 	char arg_char;
 	int port = DEFAULT_PORT;
@@ -344,7 +365,7 @@ int main(int argc, char *argv[]) {
 			fprintf(stderr, "Not supported option.\n");
 			exit(3);
 		}
-
+	cout << "Now Listening to port: " << port << endl;
 	struct sockaddr_in serverAddr;
 	char* ipStr = (char*) malloc(sizeof(char) * 16);
 	openSocket(sockfd, serverAddr, port);

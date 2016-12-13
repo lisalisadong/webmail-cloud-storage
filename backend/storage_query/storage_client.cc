@@ -1,9 +1,4 @@
 #include <iostream>
-#include <memory>
-#include <string>
-
-#include <grpc++/grpc++.h>
-#include "storage_query.grpc.pb.h"
 #include "storage_client.h"
 
 using grpc::Channel;
@@ -127,61 +122,62 @@ void StorageClient::Delete(const std::string& row, const std::string& col) {
   }
 }
 
-int main(int argc, char** argv) {	
+
+// int main(int argc, char** argv) {	
 	// TODO:
 	// Instantiate the client. It requires a channel, out of which the actual RPCs
   // are created. This channel models a connection to an endpoint (in this case,
   // localhost at port 50051). We indicate that the channel isn't authenticated
   // (use of InsecureChannelCredentials()).
-  StorageClient client(grpc::CreateChannel(
-      "localhost:50051", grpc::InsecureChannelCredentials()));
+  // StorageClient client(grpc::CreateChannel(
+  //     "localhost:50051", grpc::InsecureChannelCredentials()));
 
   // StorageClient client(grpc::CreateChannel(
   //     "localhost:8000", grpc::InsecureChannelCredentials()));
 
-  std::string response = client.Get("1", "csadas");
-  std::cout << "getting address 1: " << response << std::endl;
-  response = client.Get("r1", "dasdasfsa");
-  std::cout << "getting address 2: " << response << std::endl;
+//   std::string response = client.Get("1", "csadas");
+//   std::cout << "getting address 1: " << response << std::endl;
+//   response = client.Get("r1", "dasdasfsa");
+//   std::cout << "getting address 2: " << response << std::endl;
 
-  response = client.Get("r1", "c1");
-  std::cout << "getting r1||c1: " << response << std::endl;
+  // response = client.Get("r1", "c1");
+  // std::cout << "getting r1||c1: " << response << std::endl;
 
-  client.Put("r1", "c1", "v1");
-  std::cout << "put r1||c1||v1" << std::endl;
+  // client.Put("r1", "c1", "v1");
+  // std::cout << "put r1||c1||v1" << std::endl;
 
-  response = client.Get("r1", "c1");
-  std::cout << "getting r1||c1: " << response << std::endl;
+  // response = client.Get("r1", "c1");
+  // std::cout << "getting r1||c1: " << response << std::endl;
 
-  std::cout << "=================================" << std::endl;
-  std::cout  << std::endl;
+  // std::cout << "=================================" << std::endl;
+  // std::cout  << std::endl;
 
-  client.Put("r2", "c2", "v2");
-  std::cout << "put r2||c2||v2" << std::endl;
+  // client.Put("r2", "c2", "v2");
+  // std::cout << "put r2||c2||v2" << std::endl;
   
-  response = client.Get("r2", "c2");
-  std::cout << "getting r2||c2: " << response << std::endl;
+  // response = client.Get("r2", "c2");
+  // std::cout << "getting r2||c2: " << response << std::endl;
 
-  response = client.Get("r2", "c2");
-  std::cout << "getting r2||c2: " << response << std::endl;
+  // response = client.Get("r2", "c2");
+  // std::cout << "getting r2||c2: " << response << std::endl;
 
-  std::cout << "=================================" << std::endl;
-  std::cout  << std::endl;
+  // std::cout << "=================================" << std::endl;
+  // std::cout  << std::endl;
 
-  client.Put("r3", "c3", "v3");
-  std::cout << "put r3||c3||v3" << std::endl;
+  // client.Put("r3", "c3", "v3");
+  // std::cout << "put r3||c3||v3" << std::endl;
   
-  response = client.Get("r3", "c3");
-  std::cout << "getting r3||c3: " << response << std::endl;
+  // response = client.Get("r3", "c3");
+  // std::cout << "getting r3||c3: " << response << std::endl;
 
-  std::cout << "=================================" << std::endl;
-  std::cout  << std::endl;
+  // std::cout << "=================================" << std::endl;
+  // std::cout  << std::endl;
 
-  client.Delete("r1", "c1");
-  std::cout << "delete r1||c1||v1" << std::endl;
+  // client.Delete("r1", "c1");
+  // std::cout << "delete r1||c1||v1" << std::endl;
 
-  response = client.Get("r1", "c1");
-  std::cout << "getting r1||c1: " << response << std::endl;
+  // response = client.Get("r1", "c1");
+  // std::cout << "getting r1||c1: " << response << std::endl;
 
 
 
@@ -242,5 +238,5 @@ int main(int argc, char** argv) {
 // 	// response = client.Get(row, col);
 //  //  std::cout << "getting lisa||emails: " << response << std::endl;
 
-  return 0;
-}
+//   return 0;
+// }
