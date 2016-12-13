@@ -1,3 +1,6 @@
+#ifndef CACHE_H_
+#define CACHE_H_
+
 #include <unordered_map>
 #include <unordered_set>
 #include <string>
@@ -6,8 +9,8 @@
 #include <limits.h>
 #include <vector>
 #include <utility>
-#include "utils.h"
 #include "file_system.h"
+#include "logger.h"
 
 #define CACHE_SIZE 2
 #define WRT_OP 1
@@ -32,6 +35,8 @@ private:
 
   int wrtCnt;
 
+  Logger logger;
+
   /************************************ methods ***********************************************/
   bool writeSnapshot() {
     wrtCnt++;
@@ -40,11 +45,11 @@ private:
 
     wrtCnt = 0;
 
-    std::cout << "start writing snapshot..." << std::endl;
+    logger.log_trace("start writing snapshot...");
     writeMeta();
     writeData();
 
-    std::cout<< "Snapshot finished writing" << std::endl;
+    logger.log_trace("Snapshot finished writing");
   } 
 
   /* write meta data into file system */
@@ -75,7 +80,7 @@ private:
 
     std::string lrFile = getLRFile();
 
-    std::cout<< "Evict: " << lrFile << std::endl;
+    logger.log_trace("Evict: " + lrFile);
 
     writeFileToFs(lrFile, true);
   }
@@ -97,7 +102,7 @@ private:
 
       tmpMap[row][col] = val;
 
-      std::cout << "========<" << row << ", " << col << ">: " << val << std::endl;
+      logger.log_trace("========<" + row + ", " + col + ">: " + val);
 
       if(isDelete) {
         map[row].erase(col); 
@@ -110,8 +115,7 @@ private:
 
     if(isDelete) fileCnt.erase(file);
     
-    std::cout << "Write " << file << " into disk." << std::endl;
-
+    logger.log_trace("Write " + file + " into disk.");
     fs.write_file(file, tmpMap);
   }
 
@@ -175,7 +179,7 @@ private:
 
       fs.read_file(file, map);
       
-      std::cout << "read " << file << " into cache " << std::endl;
+      logger.log_trace("read " + file + " into cache ");
 
       
 
@@ -197,6 +201,8 @@ public:
 
     fs.replay();
 
+    logger.log_config("Cache");
+
     // std::unordered_set<std::pair<std::string, std::string>, Hash> set;
     // std::pair<std::string, std::string> p("lisa", "emails");
     // set.insert(p);
@@ -207,7 +213,7 @@ public:
   *
   */
   std::string get(std::string row, std::string col) {
-    std::cout<< "=========================================" <<std::endl;
+    logger.log_trace("=========================================");
     if(!containsKey(row, col)) {
       throw std::exception();
     }
@@ -222,7 +228,7 @@ public:
   }
 
   bool put(std::string row, std::string col, std::string val) {
-    std::cout<< "=========================================" <<std::endl;
+    logger.log_trace("=========================================");
     // 1. add to map
     // 2. update the keys->file, file->keys mapping
     // 3. update file->cnt mapping
@@ -308,3 +314,4 @@ public:
 
 
 
+#endif

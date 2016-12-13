@@ -8,10 +8,13 @@
 #include <utility>
 #include <unordered_set>
 #include "hash.h"
+#include "logger.h"
 
 
 class FileSystem {
 public:
+	FileSystem() {logger.log_config("FileSystem");}
+
 	void read_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries);
 	
 	int write_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries);
@@ -33,6 +36,8 @@ public:
 	void clear_temp_log();
 
 private:
+
+	Logger logger;
 	std::string serialize(std::string str);
 	std::string get_next_tuple(std::ifstream& stream);
 	std::string deserialize_next(std::string str, int& pos);
