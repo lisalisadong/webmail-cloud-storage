@@ -242,10 +242,10 @@ void protobuf_AddDesc_storage_5fquery_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\023storage_query.proto\022\014storagequery\"&\n\nG"
     "etRequest\022\013\n\003row\030\001 \001(\t\022\013\n\003col\030\002 \001(\t\"\032\n\013G"
-    "etResponse\022\013\n\003val\030\001 \001(\t\"3\n\nPutRequest\022\013\n"
-    "\003row\030\001 \001(\t\022\013\n\003col\030\002 \001(\t\022\013\n\003val\030\003 \001(\t\"\r\n\013"
+    "etResponse\022\013\n\003val\030\001 \001(\014\"3\n\nPutRequest\022\013\n"
+    "\003row\030\001 \001(\t\022\013\n\003col\030\002 \001(\t\022\013\n\003val\030\003 \001(\014\"\r\n\013"
     "PutResponse\"C\n\013CPutRequest\022\013\n\003row\030\001 \001(\t\022"
-    "\013\n\003col\030\002 \001(\t\022\014\n\004val1\030\003 \001(\t\022\014\n\004val2\030\004 \001(\t"
+    "\013\n\003col\030\002 \001(\t\022\014\n\004val1\030\003 \001(\014\022\014\n\004val2\030\004 \001(\014"
     "\"\016\n\014CPutResponse\")\n\rDeleteRequest\022\013\n\003row"
     "\030\001 \001(\t\022\013\n\003col\030\002 \001(\t\"\020\n\016DeleteResponse2\222\002"
     "\n\014StorageQuery\022<\n\003Get\022\030.storagequery.Get"
@@ -748,15 +748,11 @@ bool GetResponse::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional string val = 1;
+      // optional bytes val = 1;
       case 1: {
         if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_val()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-            this->val().data(), this->val().length(),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
-            "storagequery.GetResponse.val"));
         } else {
           goto handle_unusual;
         }
@@ -788,13 +784,9 @@ failure:
 void GetResponse::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:storagequery.GetResponse)
-  // optional string val = 1;
+  // optional bytes val = 1;
   if (this->val().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->val().data(), this->val().length(),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "storagequery.GetResponse.val");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
       1, this->val(), output);
   }
 
@@ -804,14 +796,10 @@ void GetResponse::SerializeWithCachedSizes(
 ::google::protobuf::uint8* GetResponse::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:storagequery.GetResponse)
-  // optional string val = 1;
+  // optional bytes val = 1;
   if (this->val().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->val().data(), this->val().length(),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "storagequery.GetResponse.val");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
         1, this->val(), target);
   }
 
@@ -823,10 +811,10 @@ int GetResponse::ByteSize() const {
 // @@protoc_insertion_point(message_byte_size_start:storagequery.GetResponse)
   int total_size = 0;
 
-  // optional string val = 1;
+  // optional bytes val = 1;
   if (this->val().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::google::protobuf::internal::WireFormatLite::BytesSize(
         this->val());
   }
 
@@ -904,7 +892,7 @@ void GetResponse::InternalSwap(GetResponse* other) {
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
 // GetResponse
 
-// optional string val = 1;
+// optional bytes val = 1;
 void GetResponse::clear_val() {
   val_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -922,7 +910,7 @@ void GetResponse::clear_val() {
   val_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:storagequery.GetResponse.val)
 }
- void GetResponse::set_val(const char* value, size_t size) {
+ void GetResponse::set_val(const void* value, size_t size) {
   
   val_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
@@ -1073,16 +1061,12 @@ bool PutRequest::MergePartialFromCodedStream(
         break;
       }
 
-      // optional string val = 3;
+      // optional bytes val = 3;
       case 3: {
         if (tag == 26) {
          parse_val:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_val()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-            this->val().data(), this->val().length(),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
-            "storagequery.PutRequest.val"));
         } else {
           goto handle_unusual;
         }
@@ -1134,13 +1118,9 @@ void PutRequest::SerializeWithCachedSizes(
       2, this->col(), output);
   }
 
-  // optional string val = 3;
+  // optional bytes val = 3;
   if (this->val().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->val().data(), this->val().length(),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "storagequery.PutRequest.val");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
       3, this->val(), output);
   }
 
@@ -1172,14 +1152,10 @@ void PutRequest::SerializeWithCachedSizes(
         2, this->col(), target);
   }
 
-  // optional string val = 3;
+  // optional bytes val = 3;
   if (this->val().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->val().data(), this->val().length(),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "storagequery.PutRequest.val");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
         3, this->val(), target);
   }
 
@@ -1205,10 +1181,10 @@ int PutRequest::ByteSize() const {
         this->col());
   }
 
-  // optional string val = 3;
+  // optional bytes val = 3;
   if (this->val().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::google::protobuf::internal::WireFormatLite::BytesSize(
         this->val());
   }
 
@@ -1384,7 +1360,7 @@ void PutRequest::clear_col() {
   // @@protoc_insertion_point(field_set_allocated:storagequery.PutRequest.col)
 }
 
-// optional string val = 3;
+// optional bytes val = 3;
 void PutRequest::clear_val() {
   val_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -1402,7 +1378,7 @@ void PutRequest::clear_val() {
   val_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:storagequery.PutRequest.val)
 }
- void PutRequest::set_val(const char* value, size_t size) {
+ void PutRequest::set_val(const void* value, size_t size) {
   
   val_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
@@ -1738,16 +1714,12 @@ bool CPutRequest::MergePartialFromCodedStream(
         break;
       }
 
-      // optional string val1 = 3;
+      // optional bytes val1 = 3;
       case 3: {
         if (tag == 26) {
          parse_val1:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_val1()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-            this->val1().data(), this->val1().length(),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
-            "storagequery.CPutRequest.val1"));
         } else {
           goto handle_unusual;
         }
@@ -1755,16 +1727,12 @@ bool CPutRequest::MergePartialFromCodedStream(
         break;
       }
 
-      // optional string val2 = 4;
+      // optional bytes val2 = 4;
       case 4: {
         if (tag == 34) {
          parse_val2:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_val2()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-            this->val2().data(), this->val2().length(),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
-            "storagequery.CPutRequest.val2"));
         } else {
           goto handle_unusual;
         }
@@ -1816,23 +1784,15 @@ void CPutRequest::SerializeWithCachedSizes(
       2, this->col(), output);
   }
 
-  // optional string val1 = 3;
+  // optional bytes val1 = 3;
   if (this->val1().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->val1().data(), this->val1().length(),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "storagequery.CPutRequest.val1");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
       3, this->val1(), output);
   }
 
-  // optional string val2 = 4;
+  // optional bytes val2 = 4;
   if (this->val2().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->val2().data(), this->val2().length(),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "storagequery.CPutRequest.val2");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
       4, this->val2(), output);
   }
 
@@ -1864,25 +1824,17 @@ void CPutRequest::SerializeWithCachedSizes(
         2, this->col(), target);
   }
 
-  // optional string val1 = 3;
+  // optional bytes val1 = 3;
   if (this->val1().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->val1().data(), this->val1().length(),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "storagequery.CPutRequest.val1");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
         3, this->val1(), target);
   }
 
-  // optional string val2 = 4;
+  // optional bytes val2 = 4;
   if (this->val2().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->val2().data(), this->val2().length(),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "storagequery.CPutRequest.val2");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
         4, this->val2(), target);
   }
 
@@ -1908,17 +1860,17 @@ int CPutRequest::ByteSize() const {
         this->col());
   }
 
-  // optional string val1 = 3;
+  // optional bytes val1 = 3;
   if (this->val1().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::google::protobuf::internal::WireFormatLite::BytesSize(
         this->val1());
   }
 
-  // optional string val2 = 4;
+  // optional bytes val2 = 4;
   if (this->val2().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::google::protobuf::internal::WireFormatLite::BytesSize(
         this->val2());
   }
 
@@ -2099,7 +2051,7 @@ void CPutRequest::clear_col() {
   // @@protoc_insertion_point(field_set_allocated:storagequery.CPutRequest.col)
 }
 
-// optional string val1 = 3;
+// optional bytes val1 = 3;
 void CPutRequest::clear_val1() {
   val1_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -2117,7 +2069,7 @@ void CPutRequest::clear_val1() {
   val1_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:storagequery.CPutRequest.val1)
 }
- void CPutRequest::set_val1(const char* value, size_t size) {
+ void CPutRequest::set_val1(const void* value, size_t size) {
   
   val1_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
@@ -2143,7 +2095,7 @@ void CPutRequest::clear_val1() {
   // @@protoc_insertion_point(field_set_allocated:storagequery.CPutRequest.val1)
 }
 
-// optional string val2 = 4;
+// optional bytes val2 = 4;
 void CPutRequest::clear_val2() {
   val2_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -2161,7 +2113,7 @@ void CPutRequest::clear_val2() {
   val2_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:storagequery.CPutRequest.val2)
 }
- void CPutRequest::set_val2(const char* value, size_t size) {
+ void CPutRequest::set_val2(const void* value, size_t size) {
   
   val2_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));

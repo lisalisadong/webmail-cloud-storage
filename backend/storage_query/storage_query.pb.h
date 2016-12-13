@@ -206,13 +206,13 @@ class GetResponse : public ::google::protobuf::Message /* @@protoc_insertion_poi
 
   // accessors -------------------------------------------------------
 
-  // optional string val = 1;
+  // optional bytes val = 1;
   void clear_val();
   static const int kValFieldNumber = 1;
   const ::std::string& val() const;
   void set_val(const ::std::string& value);
   void set_val(const char* value);
-  void set_val(const char* value, size_t size);
+  void set_val(const void* value, size_t size);
   ::std::string* mutable_val();
   ::std::string* release_val();
   void set_allocated_val(::std::string* val);
@@ -315,13 +315,13 @@ class PutRequest : public ::google::protobuf::Message /* @@protoc_insertion_poin
   ::std::string* release_col();
   void set_allocated_col(::std::string* col);
 
-  // optional string val = 3;
+  // optional bytes val = 3;
   void clear_val();
   static const int kValFieldNumber = 3;
   const ::std::string& val() const;
   void set_val(const ::std::string& value);
   void set_val(const char* value);
-  void set_val(const char* value, size_t size);
+  void set_val(const void* value, size_t size);
   ::std::string* mutable_val();
   ::std::string* release_val();
   void set_allocated_val(::std::string* val);
@@ -501,24 +501,24 @@ class CPutRequest : public ::google::protobuf::Message /* @@protoc_insertion_poi
   ::std::string* release_col();
   void set_allocated_col(::std::string* col);
 
-  // optional string val1 = 3;
+  // optional bytes val1 = 3;
   void clear_val1();
   static const int kVal1FieldNumber = 3;
   const ::std::string& val1() const;
   void set_val1(const ::std::string& value);
   void set_val1(const char* value);
-  void set_val1(const char* value, size_t size);
+  void set_val1(const void* value, size_t size);
   ::std::string* mutable_val1();
   ::std::string* release_val1();
   void set_allocated_val1(::std::string* val1);
 
-  // optional string val2 = 4;
+  // optional bytes val2 = 4;
   void clear_val2();
   static const int kVal2FieldNumber = 4;
   const ::std::string& val2() const;
   void set_val2(const ::std::string& value);
   void set_val2(const char* value);
-  void set_val2(const char* value, size_t size);
+  void set_val2(const void* value, size_t size);
   ::std::string* mutable_val2();
   ::std::string* release_val2();
   void set_allocated_val2(::std::string* val2);
@@ -889,7 +889,7 @@ inline void GetRequest::set_allocated_col(::std::string* col) {
 
 // GetResponse
 
-// optional string val = 1;
+// optional bytes val = 1;
 inline void GetResponse::clear_val() {
   val_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -907,7 +907,7 @@ inline void GetResponse::set_val(const char* value) {
   val_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:storagequery.GetResponse.val)
 }
-inline void GetResponse::set_val(const char* value, size_t size) {
+inline void GetResponse::set_val(const void* value, size_t size) {
   
   val_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
@@ -1025,7 +1025,7 @@ inline void PutRequest::set_allocated_col(::std::string* col) {
   // @@protoc_insertion_point(field_set_allocated:storagequery.PutRequest.col)
 }
 
-// optional string val = 3;
+// optional bytes val = 3;
 inline void PutRequest::clear_val() {
   val_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -1043,7 +1043,7 @@ inline void PutRequest::set_val(const char* value) {
   val_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:storagequery.PutRequest.val)
 }
-inline void PutRequest::set_val(const char* value, size_t size) {
+inline void PutRequest::set_val(const void* value, size_t size) {
   
   val_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
@@ -1165,7 +1165,7 @@ inline void CPutRequest::set_allocated_col(::std::string* col) {
   // @@protoc_insertion_point(field_set_allocated:storagequery.CPutRequest.col)
 }
 
-// optional string val1 = 3;
+// optional bytes val1 = 3;
 inline void CPutRequest::clear_val1() {
   val1_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -1183,7 +1183,7 @@ inline void CPutRequest::set_val1(const char* value) {
   val1_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:storagequery.CPutRequest.val1)
 }
-inline void CPutRequest::set_val1(const char* value, size_t size) {
+inline void CPutRequest::set_val1(const void* value, size_t size) {
   
   val1_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
@@ -1209,7 +1209,7 @@ inline void CPutRequest::set_allocated_val1(::std::string* val1) {
   // @@protoc_insertion_point(field_set_allocated:storagequery.CPutRequest.val1)
 }
 
-// optional string val2 = 4;
+// optional bytes val2 = 4;
 inline void CPutRequest::clear_val2() {
   val2_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -1227,7 +1227,7 @@ inline void CPutRequest::set_val2(const char* value) {
   val2_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:storagequery.CPutRequest.val2)
 }
-inline void CPutRequest::set_val2(const char* value, size_t size) {
+inline void CPutRequest::set_val2(const void* value, size_t size) {
   
   val2_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));

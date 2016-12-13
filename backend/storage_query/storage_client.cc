@@ -124,60 +124,142 @@ void StorageClient::Delete(const std::string& row, const std::string& col) {
 
 
 // int main(int argc, char** argv) {	
-	// TODO:
-	// Instantiate the client. It requires a channel, out of which the actual RPCs
-  // are created. This channel models a connection to an endpoint (in this case,
-  // localhost at port 50051). We indicate that the channel isn't authenticated
-  // (use of InsecureChannelCredentials()).
-  // StorageClient client(grpc::CreateChannel(
-  //     "localhost:50051", grpc::InsecureChannelCredentials()));
+// 	// TODO:
+// 	// Instantiate the client. It requires a channel, out of which the actual RPCs
+//  //  are created. This channel models a connection to an endpoint (in this case,
+//  //  localhost at port 50051). We indicate that the channel isn't authenticated
+//  //  (use of InsecureChannelCredentials()).
+//   StorageClient client(grpc::CreateChannel(
+//       "localhost:50051", grpc::InsecureChannelCredentials()));
 
-  // StorageClient client(grpc::CreateChannel(
-  //     "localhost:8000", grpc::InsecureChannelCredentials()));
+//   // StorageClient client(grpc::CreateChannel(
+//   //     "localhost:8000", grpc::InsecureChannelCredentials()));
 
 //   std::string response = client.Get("1", "csadas");
 //   std::cout << "getting address 1: " << response << std::endl;
 //   response = client.Get("r1", "dasdasfsa");
 //   std::cout << "getting address 2: " << response << std::endl;
 
-  // response = client.Get("r1", "c1");
-  // std::cout << "getting r1||c1: " << response << std::endl;
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
 
-  // client.Put("r1", "c1", "v1");
-  // std::cout << "put r1||c1||v1" << std::endl;
+//   client.Put("r1", "c1", "v1");
+//   std::cout << "put r1||c1||v1" << std::endl;
 
-  // response = client.Get("r1", "c1");
-  // std::cout << "getting r1||c1: " << response << std::endl;
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
 
-  // std::cout << "=================================" << std::endl;
-  // std::cout  << std::endl;
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
 
-  // client.Put("r2", "c2", "v2");
-  // std::cout << "put r2||c2||v2" << std::endl;
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//   client.Put("r2", "c2", "v2");
+//   std::cout << "put r2||c2||v2" << std::endl;
   
-  // response = client.Get("r2", "c2");
-  // std::cout << "getting r2||c2: " << response << std::endl;
+//   response = client.Get("r2", "c2");
+//   std::cout << "getting r2||c2: " << response << std::endl;
 
-  // response = client.Get("r2", "c2");
-  // std::cout << "getting r2||c2: " << response << std::endl;
+//   response = client.Get("r2", "c2");
+//   std::cout << "getting r2||c2: " << response << std::endl;
 
-  // std::cout << "=================================" << std::endl;
-  // std::cout  << std::endl;
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
 
-  // client.Put("r3", "c3", "v3");
-  // std::cout << "put r3||c3||v3" << std::endl;
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//   client.Put("r3", "c3", "v3");
+//   std::cout << "put r3||c3||v3" << std::endl;
   
-  // response = client.Get("r3", "c3");
-  // std::cout << "getting r3||c3: " << response << std::endl;
+//   response = client.Get("r3", "c3");
+//   std::cout << "getting r3||c3: " << response << std::endl;
 
-  // std::cout << "=================================" << std::endl;
-  // std::cout  << std::endl;
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
 
-  // client.Delete("r1", "c1");
-  // std::cout << "delete r1||c1||v1" << std::endl;
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
 
-  // response = client.Get("r1", "c1");
-  // std::cout << "getting r1||c1: " << response << std::endl;
+//   client.Put("r4", "c4", "v4");
+//   std::cout << "put r4||c4||v4" << std::endl;
+  
+//   response = client.Get("r4", "c4");
+//   std::cout << "getting r4||c4: " << response << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//   client.Put("r5", "c5", "v5");
+//   std::cout << "put r5||c5||v5" << std::endl;
+  
+//   response = client.Get("r5", "c5");
+//   std::cout << "getting r5||c5: " << response << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//   client.Put("r6", "c6", "v6");
+//   std::cout << "put r6||c6||v6" << std::endl;
+  
+//   response = client.Get("r6", "c6");
+//   std::cout << "getting r6||c6: " << response << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//   client.Put("r7", "c7", "v7");
+//   std::cout << "put r7||c7||v7" << std::endl;
+  
+//   response = client.Get("r7", "c7");
+//   std::cout << "getting r7||c7: " << response << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//   client.Put("r8", "c8", "v8");
+//   std::cout << "put r8||c8||v8" << std::endl;
+  
+//   response = client.Get("r8", "c8");
+//   std::cout << "getting r8||c8: " << response << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//     client.Put("r9", "c9", "v9");
+//   std::cout << "put r6||c6||v6" << std::endl;
+  
+//   response = client.Get("r9", "c9");
+//   std::cout << "getting r6||c6: " << response << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//   client.Delete("r1", "c1");
+//   std::cout << "delete r1||c1||v1" << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+// }
 
 
 
@@ -239,4 +321,6 @@ void StorageClient::Delete(const std::string& row, const std::string& col) {
 //  //  std::cout << "getting lisa||emails: " << response << std::endl;
 
 //   return 0;
+// }
+
 // }

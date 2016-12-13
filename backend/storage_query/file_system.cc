@@ -5,6 +5,8 @@
 #include <sstream> 
 #include <iomanip> 
 
+#define MAPPING "mapping"
+
 // std::string md5_string(const std::string& str) {
 // 	unsigned char buf[MD5_DIGEST_LENGTH];
 // 	MD5_CTX c;
@@ -145,7 +147,7 @@ std::string FileSystem::deserialize_next(std::string str, int& pos) {
 // }
 
 void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile) {
-	std::ifstream file ("mapping");
+	std::ifstream file (MAPPING);
 	if (file.is_open()) {
 		std::string tuple;
 		while (true) {
