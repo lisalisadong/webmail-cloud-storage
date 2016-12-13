@@ -102,8 +102,6 @@ private:
 
       tmpMap[row][col] = val;
 
-      logger.log_trace("========<" + row + ", " + col + ">: " + val);
-
       if(isDelete) {
         map[row].erase(col); 
 
@@ -213,7 +211,6 @@ public:
   *
   */
   std::string get(std::string row, std::string col) {
-    logger.log_trace("=========================================");
     if(!containsKey(row, col)) {
       throw std::exception();
     }
@@ -228,7 +225,6 @@ public:
   }
 
   bool put(std::string row, std::string col, std::string val) {
-    logger.log_trace("=========================================");
     // 1. add to map
     // 2. update the keys->file, file->keys mapping
     // 3. update file->cnt mapping

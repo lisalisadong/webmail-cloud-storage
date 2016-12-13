@@ -23,6 +23,8 @@ using storagequery::CPutRequest;
 using storagequery::CPutResponse;
 using storagequery::DeleteRequest;
 using storagequery::DeleteResponse;
+using storagequery::MigrateRequest;
+using storagequery::MigrateResponse;
 
 class StorageServiceImpl final : public StorageQuery::Service{
 	// TODO: add method to migrate date
@@ -109,6 +111,14 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 		cache.remove(row, col);
 
+		return Status::OK;
+	}
+
+	Status Migrate(ServerContext* context, const MigrateRequest* request,
+						MigrateResponse* response) override {
+		// TODO: implement
+		std::string address = request->address();
+		response->set_data("123");
 		return Status::OK;
 	}
 
