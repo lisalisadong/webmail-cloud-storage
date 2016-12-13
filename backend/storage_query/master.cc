@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 #include <memory>
-
+#include "ConHash.h"
 #include <grpc++/grpc++.h>
 
 #include "storage_query.grpc.pb.h"
@@ -33,14 +33,8 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 		std::string row = request->row();
 
-		vec.push_back("addr1");
-		vec.push_back("addr2");
-
 		try {
-			int hash_code = hash(row);
-			int idx = hash_code % vec.size();
-			std::string res = vec[idx];
-			response->set_val(res);
+			response->set_val("");
 			return Status::OK;
 		} catch (std::exception &e) {
 			Status status(StatusCode::NOT_FOUND, "No corresponding keys");
@@ -68,7 +62,7 @@ class StorageServiceImpl final : public StorageQuery::Service{
 	}
 
 private:
-	std::vector<std::string> vec;
+	ConHash conHash;
 };
 
 void RunServer() {

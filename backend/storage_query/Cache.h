@@ -163,13 +163,15 @@ private:
     if (rfind == map.end() || rfind->second.find(col) == rfind->second.end()) {
       std::string file = keysToFile[row][col];
 
-      std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk = fs.read_file(file);
+      // std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk = fs.read_file(file);
+
+      fs.read_file(file, map);
       
       std::cout << "read " << file << " into cache " << std::endl;
 
       evict();
 
-      updateCache(chunk);
+      // updateCache(chunk);
     }
 
     return true;
