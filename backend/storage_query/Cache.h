@@ -119,7 +119,6 @@ private:
   /* get the least used file */
   std::string getLRFile() {
 
-    // return (++fileCnt.begin())->first;
     int cnt = INT_MAX;
     std::string lrFile;
     std::unordered_map<std::string, int>::const_iterator itr = fileCnt.begin();
