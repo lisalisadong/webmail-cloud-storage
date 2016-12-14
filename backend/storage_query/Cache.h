@@ -1,3 +1,6 @@
+#ifndef CACHE_H_
+#define CACHE_H_
+
 #include <unordered_map>
 #include <unordered_set>
 #include <string>
@@ -6,7 +9,8 @@
 #include <limits.h>
 #include <vector>
 #include <utility>
-#include "utils.h"
+#include "file_system.h"
+#include "logger.h"
 
 #define CACHE_SIZE 2
 #define WRT_OP 1
@@ -26,12 +30,12 @@ private:
 
   FileSystem fs;
 
-  Log logger;
-
   // <fileName, count>
   std::unordered_map<std::string, int> fileCnt;
 
   int wrtCnt;
+
+  Logger logger;
 
   /************************************ methods ***********************************************/
   bool writeSnapshot() {
@@ -41,16 +45,16 @@ private:
 
     wrtCnt = 0;
 
-    std::cout << "start writing snapshot..." << std::endl;
+    logger.log_trace("start writing snapshot...");
     writeMeta();
     writeData();
 
-    std::cout<< "Snapshot finished writing" << std::endl;
+    logger.log_trace("Snapshot finished writing");
   } 
 
   /* write meta data into file system */
   void writeMeta() {
-    fs.write_file("./../store/mapping", keysToFile);
+    fs.write_file("mapping", keysToFile);
 
     // std::cout << "Meta data write succeeded" << std::endl;
   }
@@ -63,7 +67,7 @@ private:
       // std::cout << f->first << " write succeeded" << std::endl;
     }
 
-    logger.emptyTempLog();
+    fs.clear_temp_log();
 
   }
 
@@ -76,7 +80,7 @@ private:
 
     std::string lrFile = getLRFile();
 
-    std::cout<< "Evict: " << lrFile << std::endl;
+    logger.log_trace("Evict: " + lrFile);
 
     writeFileToFs(lrFile, true);
   }
@@ -98,8 +102,6 @@ private:
 
       tmpMap[row][col] = val;
 
-      std::cout << "========<" << row << ", " << col << ">: " << val << std::endl;
-
       if(isDelete) {
         map[row].erase(col); 
 
@@ -111,15 +113,13 @@ private:
 
     if(isDelete) fileCnt.erase(file);
     
-    std::cout << "Write " << file << " into disk." << std::endl;
-
+    logger.log_trace("Write " + file + " into disk.");
     fs.write_file(file, tmpMap);
   }
 
   /* get the least used file */
   std::string getLRFile() {
 
-    // return (++fileCnt.begin())->first;
     int cnt = INT_MAX;
     std::string lrFile;
     std::unordered_map<std::string, int>::const_iterator itr = fileCnt.begin();
@@ -176,7 +176,7 @@ private:
 
       fs.read_file(file, map);
       
-      std::cout << "read " << file << " into cache " << std::endl;
+      logger.log_trace("read " + file + " into cache ");
 
       
 
@@ -196,7 +196,9 @@ public:
 
     fs.get_mappings(fileToKeys, keysToFile);
 
-    logger.replay(fs);
+    fs.replay();
+
+    logger.log_config("Cache");
 
     // std::unordered_set<std::pair<std::string, std::string>, Hash> set;
     // std::pair<std::string, std::string> p("lisa", "emails");
@@ -208,7 +210,6 @@ public:
   *
   */
   std::string get(std::string row, std::string col) {
-    std::cout<< "=========================================" <<std::endl;
     if(!containsKey(row, col)) {
       throw std::exception();
     }
@@ -223,12 +224,16 @@ public:
   }
 
   bool put(std::string row, std::string col, std::string val) {
-    std::cout<< "=========================================" <<std::endl;
     // 1. add to map
     // 2. update the keys->file, file->keys mapping
     // 3. update file->cnt mapping
 
-    std::string file = fs.keys_to_file(row, col);
+    std::string file;
+    if (containsKey(row, col)) {
+      file = keysToFile[row][col];
+    } else {
+      file = fs.place_new_entry();
+    }
 
     /* file counter plus 1 */
     fileCnt[file] += 1;
@@ -256,7 +261,7 @@ public:
 
     if(fileToKeys.size() > CACHE_SIZE) evict();
 
-    logger.log(row, col, val, '+');
+    fs.write_log(file, row, col, val, "PUT");
 
     return true;
   }
@@ -274,7 +279,7 @@ public:
 
     writeSnapshot();
 
-    logger.log(row, col, val2, '+');
+    fs.write_log(file, row, col, val2, "PUT");
 
     return true;
   }
@@ -299,7 +304,7 @@ public:
 
     writeSnapshot();
 
-    logger.log(row, col, "", '-');
+    fs.write_log(file, row, col, "", "DELETE");
 
     return true;
   }
@@ -309,3 +314,4 @@ public:
 
 
 
+#endif
