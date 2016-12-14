@@ -143,123 +143,125 @@ int main(int argc, char** argv) {
   response = client.Get("r1", "c1");
   std::cout << "getting r1||c1: " << response << std::endl;
 
-  client.Put("r1", "c1", "v1");
-  std::cout << "put r1||c1||v1" << std::endl;
+  for (int i = 1; i < 100; i++) {
+    std::string n = std::to_string(i);
+    client.Put("r" + n, "c" + n, "v" + 1);
+    printf("put r%d||c%d||v%d", i, i, i);
 
-  response = client.Get("r1", "c1");
-  std::cout << "getting r1||c1: " << response << std::endl;
+    response = client.Get("r" + n, "c" + n);
+    printf("getting r%d||c%d: %s", i, i, response.c_str());
 
-  response = client.Get("r1", "c1");
-  std::cout << "getting r1||c1: " << response << std::endl;
-
-  std::cout << "=================================" << std::endl;
-  std::cout  << std::endl;
-
-  client.Put("r2", "c2", "v2");
-  std::cout << "put r2||c2||v2" << std::endl;
+    std::cout << "=================================" << std::endl;
+    std::cout  << std::endl;
+  }
   
-  response = client.Get("r2", "c2");
-  std::cout << "getting r2||c2: " << response << std::endl;
-
-  response = client.Get("r2", "c2");
-  std::cout << "getting r2||c2: " << response << std::endl;
-
-  response = client.Get("r1", "c1");
-  std::cout << "getting r1||c1: " << response << std::endl;
-
-  std::cout << "=================================" << std::endl;
-  std::cout  << std::endl;
-
-  client.Put("r3", "c3", "v3");
-  std::cout << "put r3||c3||v3" << std::endl;
-  
-  response = client.Get("r3", "c3");
-  std::cout << "getting r3||c3: " << response << std::endl;
-
-  response = client.Get("r1", "c1");
-  std::cout << "getting r1||c1: " << response << std::endl;
-
-  std::cout << "=================================" << std::endl;
-  std::cout  << std::endl;
-
-  client.Put("r4", "c4", "v4");
-  std::cout << "put r4||c4||v4" << std::endl;
-  
-  response = client.Get("r4", "c4");
-  std::cout << "getting r4||c4: " << response << std::endl;
-
-  response = client.Get("r1", "c1");
-  std::cout << "getting r1||c1: " << response << std::endl;
-
-  std::cout << "=================================" << std::endl;
-  std::cout  << std::endl;
-
-  client.Put("r5", "c5", "v5");
-  std::cout << "put r5||c5||v5" << std::endl;
-  
-  response = client.Get("r5", "c5");
-  std::cout << "getting r5||c5: " << response << std::endl;
-
-  response = client.Get("r1", "c1");
-  std::cout << "getting r1||c1: " << response << std::endl;
-
-  std::cout << "=================================" << std::endl;
-  std::cout  << std::endl;
-
-  client.Put("r6", "c6", "v6");
-  std::cout << "put r6||c6||v6" << std::endl;
-  
-  response = client.Get("r6", "c6");
-  std::cout << "getting r6||c6: " << response << std::endl;
-
-  response = client.Get("r1", "c1");
-  std::cout << "getting r1||c1: " << response << std::endl;
-
-  std::cout << "=================================" << std::endl;
-  std::cout  << std::endl;
-
-  client.Put("r7", "c7", "v7");
-  std::cout << "put r7||c7||v7" << std::endl;
-  
-  response = client.Get("r7", "c7");
-  std::cout << "getting r7||c7: " << response << std::endl;
-
-  response = client.Get("r1", "c1");
-  std::cout << "getting r1||c1: " << response << std::endl;
-
-  std::cout << "=================================" << std::endl;
-  std::cout  << std::endl;
-
-  client.Put("r8", "c8", "v8");
-  std::cout << "put r8||c8||v8" << std::endl;
-  
-  response = client.Get("r8", "c8");
-  std::cout << "getting r8||c8: " << response << std::endl;
-
-  response = client.Get("r1", "c1");
-  std::cout << "getting r1||c1: " << response << std::endl;
-
-  std::cout << "=================================" << std::endl;
-  std::cout  << std::endl;
-
-    client.Put("r9", "c9", "v9");
-  std::cout << "put r6||c6||v6" << std::endl;
-  
-  response = client.Get("r9", "c9");
-  std::cout << "getting r6||c6: " << response << std::endl;
-
-  response = client.Get("r2", "c2");
-  std::cout << "getting r2||c2: " << response << std::endl;
-
-  std::cout << "=================================" << std::endl;
-  std::cout  << std::endl;
-
-  client.Delete("r1", "c1");
-  std::cout << "delete r1||c1||v1" << std::endl;
-
-  response = client.Get("r1", "c1");
-  std::cout << "getting r1||c1: " << response << std::endl;
 }
+
+//   client.Put("r2", "c2", "v2");
+//   std::cout << "put r2||c2||v2" << std::endl;
+  
+//   response = client.Get("r2", "c2");
+//   std::cout << "getting r2||c2: " << response << std::endl;
+
+//   response = client.Get("r2", "c2");
+//   std::cout << "getting r2||c2: " << response << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//   client.Put("r3", "c3", "v3");
+//   std::cout << "put r3||c3||v3" << std::endl;
+  
+//   response = client.Get("r3", "c3");
+//   std::cout << "getting r3||c3: " << response << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//   client.Put("r4", "c4", "v4");
+//   std::cout << "put r4||c4||v4" << std::endl;
+  
+//   response = client.Get("r4", "c4");
+//   std::cout << "getting r4||c4: " << response << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//   client.Put("r5", "c5", "v5");
+//   std::cout << "put r5||c5||v5" << std::endl;
+  
+//   response = client.Get("r5", "c5");
+//   std::cout << "getting r5||c5: " << response << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//   client.Put("r6", "c6", "v6");
+//   std::cout << "put r6||c6||v6" << std::endl;
+  
+//   response = client.Get("r6", "c6");
+//   std::cout << "getting r6||c6: " << response << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//   client.Put("r7", "c7", "v7");
+//   std::cout << "put r7||c7||v7" << std::endl;
+  
+//   response = client.Get("r7", "c7");
+//   std::cout << "getting r7||c7: " << response << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//   client.Put("r8", "c8", "v8");
+//   std::cout << "put r8||c8||v8" << std::endl;
+  
+//   response = client.Get("r8", "c8");
+//   std::cout << "getting r8||c8: " << response << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//     client.Put("r9", "c9", "v9");
+//   std::cout << "put r6||c6||v6" << std::endl;
+  
+//   response = client.Get("r9", "c9");
+//   std::cout << "getting r6||c6: " << response << std::endl;
+
+//   response = client.Get("r2", "c2");
+//   std::cout << "getting r2||c2: " << response << std::endl;
+
+//   std::cout << "=================================" << std::endl;
+//   std::cout  << std::endl;
+
+//   client.Delete("r1", "c1");
+//   std::cout << "delete r1||c1||v1" << std::endl;
+
+//   response = client.Get("r1", "c1");
+//   std::cout << "getting r1||c1: " << response << std::endl;
+// }
 
 
 
