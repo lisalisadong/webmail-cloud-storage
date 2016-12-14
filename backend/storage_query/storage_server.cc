@@ -136,7 +136,7 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		return Status::OK;
 	}
 
-private:
+public:
 	// std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
 	Cache cache;
 
@@ -147,15 +147,59 @@ void informMaster() {
 
 }
 
+// void RunServer() {
+
+// 	Logger logger;
+// 	logger.log_config("StorageServer");
+
+// 	std::string server_address("0.0.0.0:50051");
+// 	StorageServiceImpl service;
+
+// 	ServerBuilder builder;
+// 	// Listen on the given address without any authentication mechanism.
+// 	builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+// 	// Register "service" as the instance through which we'll communicate with
+// 	// clients. In this case it corresponds to an *synchronous* service.
+// 	builder.RegisterService(&service);
+// 	// Finally assemble the server.
+// 	std::unique_ptr<Server> server(builder.BuildAndStart());
+// 	logger.log_trace("Server listening on " + server_address);
+
+// 	// Wait for the server to shutdown. Note that some other thread must be
+// 	// responsible for shutting down the server for this call to ever return.
+// 	server->Wait();
+// }
+
+std::string server_address("0.0.0.0:50051");
+StorageServiceImpl service;
+ServerBuilder builder;
+pthread_t thread;
+
+void *worker(void *arg) {
+	std::string res;
+	try {
+		res = service.cache.get("1", "2");
+	} catch (std::exception &e) {
+		res.append("Keys not found");
+	}
+
+	std::cout << "Response: " << res << std::endl;
+
+	service.cache.put("1", "2", "3");
+	while(1) {
+		res = service.cache.get("1", "2");
+		sleep(1);
+		std::cout << "Response: " << res << std::endl;
+	}
+}
+
+
 void RunServer() {
 
 	Logger logger;
 	logger.log_config("StorageServer");
 
-	std::string server_address("0.0.0.0:50051");
-	StorageServiceImpl service;
-
-	ServerBuilder builder;
+	
 	// Listen on the given address without any authentication mechanism.
 	builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
 	// Register "service" as the instance through which we'll communicate with
@@ -165,24 +209,16 @@ void RunServer() {
 	std::unique_ptr<Server> server(builder.BuildAndStart());
 	logger.log_trace("Server listening on " + server_address);
 
+	// pthread_create(&thread, NULL, worker, NULL);
+
 	// Wait for the server to shutdown. Note that some other thread must be
 	// responsible for shutting down the server for this call to ever return.
 	server->Wait();
 }
 
-void *worker(void *arg) {
-	while(1) {
-		sleep(1);
-		std::cout << "Hi" << std::endl;
-	}
-}
-
 
 
 int main(int argc, char** argv) {
-
-	pthread_t thread;
-	pthread_create(&thread, NULL, worker, NULL);
 	
 	RunServer();
 
