@@ -1,6 +1,6 @@
-frontend/server/server
-backend/storage_query/storage_server
-backend/storage_query/file_system.o
-backend/storage_query/full_log.txt
-backend/storage_query/temp_log.txt
-backend/storage_query/full_log.txt
+#frontend/server/server
+#backend/storage_query/storage_server
+#backend/storage_query/file_system.o
+#backend/storage_query/full_log.txt
+#backend/storage_query/temp_log.txt
+#backend/storage_query/full_log.txt
