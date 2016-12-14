@@ -46,11 +46,16 @@ class StorageQuery GRPC_FINAL {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::DeleteResponse>> AsyncDelete(::grpc::ClientContext* context, const ::storagequery::DeleteRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::DeleteResponse>>(AsyncDeleteRaw(context, request, cq));
     }
+    virtual ::grpc::Status Migrate(::grpc::ClientContext* context, const ::storagequery::MigrateRequest& request, ::storagequery::MigrateResponse* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::MigrateResponse>> AsyncMigrate(::grpc::ClientContext* context, const ::storagequery::MigrateRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::MigrateResponse>>(AsyncMigrateRaw(context, request, cq));
+    }
   private:
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::GetResponse>* AsyncGetRaw(::grpc::ClientContext* context, const ::storagequery::GetRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::PutResponse>* AsyncPutRaw(::grpc::ClientContext* context, const ::storagequery::PutRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::CPutResponse>* AsyncCPutRaw(::grpc::ClientContext* context, const ::storagequery::CPutRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::DeleteResponse>* AsyncDeleteRaw(::grpc::ClientContext* context, const ::storagequery::DeleteRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::MigrateResponse>* AsyncMigrateRaw(::grpc::ClientContext* context, const ::storagequery::MigrateRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub GRPC_FINAL : public StubInterface {
    public:
@@ -71,6 +76,10 @@ class StorageQuery GRPC_FINAL {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::storagequery::DeleteResponse>> AsyncDelete(::grpc::ClientContext* context, const ::storagequery::DeleteRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::storagequery::DeleteResponse>>(AsyncDeleteRaw(context, request, cq));
     }
+    ::grpc::Status Migrate(::grpc::ClientContext* context, const ::storagequery::MigrateRequest& request, ::storagequery::MigrateResponse* response) GRPC_OVERRIDE;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::storagequery::MigrateResponse>> AsyncMigrate(::grpc::ClientContext* context, const ::storagequery::MigrateRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::storagequery::MigrateResponse>>(AsyncMigrateRaw(context, request, cq));
+    }
 
    private:
     std::shared_ptr< ::grpc::ChannelInterface> channel_;
@@ -78,10 +87,12 @@ class StorageQuery GRPC_FINAL {
     ::grpc::ClientAsyncResponseReader< ::storagequery::PutResponse>* AsyncPutRaw(::grpc::ClientContext* context, const ::storagequery::PutRequest& request, ::grpc::CompletionQueue* cq) GRPC_OVERRIDE;
     ::grpc::ClientAsyncResponseReader< ::storagequery::CPutResponse>* AsyncCPutRaw(::grpc::ClientContext* context, const ::storagequery::CPutRequest& request, ::grpc::CompletionQueue* cq) GRPC_OVERRIDE;
     ::grpc::ClientAsyncResponseReader< ::storagequery::DeleteResponse>* AsyncDeleteRaw(::grpc::ClientContext* context, const ::storagequery::DeleteRequest& request, ::grpc::CompletionQueue* cq) GRPC_OVERRIDE;
+    ::grpc::ClientAsyncResponseReader< ::storagequery::MigrateResponse>* AsyncMigrateRaw(::grpc::ClientContext* context, const ::storagequery::MigrateRequest& request, ::grpc::CompletionQueue* cq) GRPC_OVERRIDE;
     const ::grpc::RpcMethod rpcmethod_Get_;
     const ::grpc::RpcMethod rpcmethod_Put_;
     const ::grpc::RpcMethod rpcmethod_CPut_;
     const ::grpc::RpcMethod rpcmethod_Delete_;
+    const ::grpc::RpcMethod rpcmethod_Migrate_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -93,6 +104,7 @@ class StorageQuery GRPC_FINAL {
     virtual ::grpc::Status Put(::grpc::ServerContext* context, const ::storagequery::PutRequest* request, ::storagequery::PutResponse* response);
     virtual ::grpc::Status CPut(::grpc::ServerContext* context, const ::storagequery::CPutRequest* request, ::storagequery::CPutResponse* response);
     virtual ::grpc::Status Delete(::grpc::ServerContext* context, const ::storagequery::DeleteRequest* request, ::storagequery::DeleteResponse* response);
+    virtual ::grpc::Status Migrate(::grpc::ServerContext* context, const ::storagequery::MigrateRequest* request, ::storagequery::MigrateResponse* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_Get : public BaseClass {
@@ -174,7 +186,27 @@ class StorageQuery GRPC_FINAL {
       ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_Get<WithAsyncMethod_Put<WithAsyncMethod_CPut<WithAsyncMethod_Delete<Service > > > > AsyncService;
+  template <class BaseClass>
+  class WithAsyncMethod_Migrate : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithAsyncMethod_Migrate() {
+      ::grpc::Service::MarkMethodAsync(4);
+    }
+    ~WithAsyncMethod_Migrate() GRPC_OVERRIDE {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status Migrate(::grpc::ServerContext* context, const ::storagequery::MigrateRequest* request, ::storagequery::MigrateResponse* response) GRPC_FINAL GRPC_OVERRIDE {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestMigrate(::grpc::ServerContext* context, ::storagequery::MigrateRequest* request, ::grpc::ServerAsyncResponseWriter< ::storagequery::MigrateResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  typedef WithAsyncMethod_Get<WithAsyncMethod_Put<WithAsyncMethod_CPut<WithAsyncMethod_Delete<WithAsyncMethod_Migrate<Service > > > > > AsyncService;
   template <class BaseClass>
   class WithGenericMethod_Get : public BaseClass {
    private:
@@ -239,6 +271,23 @@ class StorageQuery GRPC_FINAL {
     }
     // disable synchronous version of this method
     ::grpc::Status Delete(::grpc::ServerContext* context, const ::storagequery::DeleteRequest* request, ::storagequery::DeleteResponse* response) GRPC_FINAL GRPC_OVERRIDE {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_Migrate : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithGenericMethod_Migrate() {
+      ::grpc::Service::MarkMethodGeneric(4);
+    }
+    ~WithGenericMethod_Migrate() GRPC_OVERRIDE {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status Migrate(::grpc::ServerContext* context, const ::storagequery::MigrateRequest* request, ::storagequery::MigrateResponse* response) GRPC_FINAL GRPC_OVERRIDE {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }

@@ -20,6 +20,7 @@ static const char* StorageQuery_method_names[] = {
   "/storagequery.StorageQuery/Put",
   "/storagequery.StorageQuery/CPut",
   "/storagequery.StorageQuery/Delete",
+  "/storagequery.StorageQuery/Migrate",
 };
 
 std::unique_ptr< StorageQuery::Stub> StorageQuery::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -32,6 +33,7 @@ StorageQuery::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& chann
   , rpcmethod_Put_(StorageQuery_method_names[1], ::grpc::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_CPut_(StorageQuery_method_names[2], ::grpc::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_Delete_(StorageQuery_method_names[3], ::grpc::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_Migrate_(StorageQuery_method_names[4], ::grpc::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status StorageQuery::Stub::Get(::grpc::ClientContext* context, const ::storagequery::GetRequest& request, ::storagequery::GetResponse* response) {
@@ -66,6 +68,14 @@ StorageQuery::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& chann
   return new ::grpc::ClientAsyncResponseReader< ::storagequery::DeleteResponse>(channel_.get(), cq, rpcmethod_Delete_, context, request);
 }
 
+::grpc::Status StorageQuery::Stub::Migrate(::grpc::ClientContext* context, const ::storagequery::MigrateRequest& request, ::storagequery::MigrateResponse* response) {
+  return ::grpc::BlockingUnaryCall(channel_.get(), rpcmethod_Migrate_, context, request, response);
+}
+
+::grpc::ClientAsyncResponseReader< ::storagequery::MigrateResponse>* StorageQuery::Stub::AsyncMigrateRaw(::grpc::ClientContext* context, const ::storagequery::MigrateRequest& request, ::grpc::CompletionQueue* cq) {
+  return new ::grpc::ClientAsyncResponseReader< ::storagequery::MigrateResponse>(channel_.get(), cq, rpcmethod_Migrate_, context, request);
+}
+
 StorageQuery::Service::Service() {
   (void)StorageQuery_method_names;
   AddMethod(new ::grpc::RpcServiceMethod(
@@ -88,6 +98,11 @@ StorageQuery::Service::Service() {
       ::grpc::RpcMethod::NORMAL_RPC,
       new ::grpc::RpcMethodHandler< StorageQuery::Service, ::storagequery::DeleteRequest, ::storagequery::DeleteResponse>(
           std::mem_fn(&StorageQuery::Service::Delete), this)));
+  AddMethod(new ::grpc::RpcServiceMethod(
+      StorageQuery_method_names[4],
+      ::grpc::RpcMethod::NORMAL_RPC,
+      new ::grpc::RpcMethodHandler< StorageQuery::Service, ::storagequery::MigrateRequest, ::storagequery::MigrateResponse>(
+          std::mem_fn(&StorageQuery::Service::Migrate), this)));
 }
 
 StorageQuery::Service::~Service() {
@@ -115,6 +130,13 @@ StorageQuery::Service::~Service() {
 }
 
 ::grpc::Status StorageQuery::Service::Delete(::grpc::ServerContext* context, const ::storagequery::DeleteRequest* request, ::storagequery::DeleteResponse* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status StorageQuery::Service::Migrate(::grpc::ServerContext* context, const ::storagequery::MigrateRequest* request, ::storagequery::MigrateResponse* response) {
   (void) context;
   (void) request;
   (void) response;

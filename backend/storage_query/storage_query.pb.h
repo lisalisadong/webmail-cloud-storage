@@ -42,6 +42,8 @@ class DeleteRequest;
 class DeleteResponse;
 class GetRequest;
 class GetResponse;
+class MigrateRequest;
+class MigrateResponse;
 class PutRequest;
 class PutResponse;
 
@@ -789,6 +791,180 @@ class DeleteResponse : public ::google::protobuf::Message /* @@protoc_insertion_
   void InitAsDefaultInstance();
   static DeleteResponse* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class MigrateRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:storagequery.MigrateRequest) */ {
+ public:
+  MigrateRequest();
+  virtual ~MigrateRequest();
+
+  MigrateRequest(const MigrateRequest& from);
+
+  inline MigrateRequest& operator=(const MigrateRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const MigrateRequest& default_instance();
+
+  void Swap(MigrateRequest* other);
+
+  // implements Message ----------------------------------------------
+
+  inline MigrateRequest* New() const { return New(NULL); }
+
+  MigrateRequest* New(::google::protobuf::Arena* arena) const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const MigrateRequest& from);
+  void MergeFrom(const MigrateRequest& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const {
+    return InternalSerializeWithCachedSizesToArray(false, output);
+  }
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(MigrateRequest* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return _internal_metadata_.arena();
+  }
+  inline void* MaybeArenaPtr() const {
+    return _internal_metadata_.raw_arena_ptr();
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string address = 1;
+  void clear_address();
+  static const int kAddressFieldNumber = 1;
+  const ::std::string& address() const;
+  void set_address(const ::std::string& value);
+  void set_address(const char* value);
+  void set_address(const char* value, size_t size);
+  ::std::string* mutable_address();
+  ::std::string* release_address();
+  void set_allocated_address(::std::string* address);
+
+  // @@protoc_insertion_point(class_scope:storagequery.MigrateRequest)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  bool _is_default_instance_;
+  ::google::protobuf::internal::ArenaStringPtr address_;
+  mutable int _cached_size_;
+  friend void  protobuf_AddDesc_storage_5fquery_2eproto();
+  friend void protobuf_AssignDesc_storage_5fquery_2eproto();
+  friend void protobuf_ShutdownFile_storage_5fquery_2eproto();
+
+  void InitAsDefaultInstance();
+  static MigrateRequest* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class MigrateResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:storagequery.MigrateResponse) */ {
+ public:
+  MigrateResponse();
+  virtual ~MigrateResponse();
+
+  MigrateResponse(const MigrateResponse& from);
+
+  inline MigrateResponse& operator=(const MigrateResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const MigrateResponse& default_instance();
+
+  void Swap(MigrateResponse* other);
+
+  // implements Message ----------------------------------------------
+
+  inline MigrateResponse* New() const { return New(NULL); }
+
+  MigrateResponse* New(::google::protobuf::Arena* arena) const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const MigrateResponse& from);
+  void MergeFrom(const MigrateResponse& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const {
+    return InternalSerializeWithCachedSizesToArray(false, output);
+  }
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(MigrateResponse* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return _internal_metadata_.arena();
+  }
+  inline void* MaybeArenaPtr() const {
+    return _internal_metadata_.raw_arena_ptr();
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string data = 1;
+  void clear_data();
+  static const int kDataFieldNumber = 1;
+  const ::std::string& data() const;
+  void set_data(const ::std::string& value);
+  void set_data(const char* value);
+  void set_data(const char* value, size_t size);
+  ::std::string* mutable_data();
+  ::std::string* release_data();
+  void set_allocated_data(::std::string* data);
+
+  // @@protoc_insertion_point(class_scope:storagequery.MigrateResponse)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  bool _is_default_instance_;
+  ::google::protobuf::internal::ArenaStringPtr data_;
+  mutable int _cached_size_;
+  friend void  protobuf_AddDesc_storage_5fquery_2eproto();
+  friend void protobuf_AssignDesc_storage_5fquery_2eproto();
+  friend void protobuf_ShutdownFile_storage_5fquery_2eproto();
+
+  void InitAsDefaultInstance();
+  static MigrateResponse* default_instance_;
+};
 // ===================================================================
 
 
@@ -1353,7 +1529,107 @@ inline void DeleteRequest::set_allocated_col(::std::string* col) {
 
 // DeleteResponse
 
+// -------------------------------------------------------------------
+
+// MigrateRequest
+
+// optional string address = 1;
+inline void MigrateRequest::clear_address() {
+  address_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& MigrateRequest::address() const {
+  // @@protoc_insertion_point(field_get:storagequery.MigrateRequest.address)
+  return address_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void MigrateRequest::set_address(const ::std::string& value) {
+  
+  address_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:storagequery.MigrateRequest.address)
+}
+inline void MigrateRequest::set_address(const char* value) {
+  
+  address_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:storagequery.MigrateRequest.address)
+}
+inline void MigrateRequest::set_address(const char* value, size_t size) {
+  
+  address_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:storagequery.MigrateRequest.address)
+}
+inline ::std::string* MigrateRequest::mutable_address() {
+  
+  // @@protoc_insertion_point(field_mutable:storagequery.MigrateRequest.address)
+  return address_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* MigrateRequest::release_address() {
+  // @@protoc_insertion_point(field_release:storagequery.MigrateRequest.address)
+  
+  return address_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void MigrateRequest::set_allocated_address(::std::string* address) {
+  if (address != NULL) {
+    
+  } else {
+    
+  }
+  address_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), address);
+  // @@protoc_insertion_point(field_set_allocated:storagequery.MigrateRequest.address)
+}
+
+// -------------------------------------------------------------------
+
+// MigrateResponse
+
+// optional string data = 1;
+inline void MigrateResponse::clear_data() {
+  data_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& MigrateResponse::data() const {
+  // @@protoc_insertion_point(field_get:storagequery.MigrateResponse.data)
+  return data_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void MigrateResponse::set_data(const ::std::string& value) {
+  
+  data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:storagequery.MigrateResponse.data)
+}
+inline void MigrateResponse::set_data(const char* value) {
+  
+  data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:storagequery.MigrateResponse.data)
+}
+inline void MigrateResponse::set_data(const char* value, size_t size) {
+  
+  data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:storagequery.MigrateResponse.data)
+}
+inline ::std::string* MigrateResponse::mutable_data() {
+  
+  // @@protoc_insertion_point(field_mutable:storagequery.MigrateResponse.data)
+  return data_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* MigrateResponse::release_data() {
+  // @@protoc_insertion_point(field_release:storagequery.MigrateResponse.data)
+  
+  return data_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void MigrateResponse::set_allocated_data(::std::string* data) {
+  if (data != NULL) {
+    
+  } else {
+    
+  }
+  data_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), data);
+  // @@protoc_insertion_point(field_set_allocated:storagequery.MigrateResponse.data)
+}
+
 #endif  // !PROTOBUF_INLINE_NOT_IN_HEADERS
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
