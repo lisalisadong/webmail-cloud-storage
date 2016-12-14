@@ -112,9 +112,11 @@ void testInitialize() {
 	client.Put(row, "email-2", "bbbbbbbbbbbbbbb");
 	client.Put(row, "email-4", "ddddddddddddddd");
 
-	string files = "1\nhomework1\n2\nhomework1\n5\nhomework1-sol\n";
+	string files = "folder-aaa\nfolder-bbb\nfile-homework1\nfile-homework2\n";
 	string filesCol("files");
 	client.Put(row, filesCol, files);
+	client.Put(row, "folder-aaa", "file-aaa/homework3\nfolder-aaa/solution\n");
+	client.Put(row, "folder-aaa/solution", "file-aaa/solution/homework3\n");
 
 	string file1;
 	string file2;
