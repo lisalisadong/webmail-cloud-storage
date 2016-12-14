@@ -3,6 +3,20 @@
 #include <iostream>
 #include <memory>
 
+#include <stdlib.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <errno.h>
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <pthread.h>
+#include <sstream>
+#include <signal.h>
+#include <fcntl.h>
+
 #include <grpc++/grpc++.h>
 
 #include "storage_query.grpc.pb.h"
@@ -156,10 +170,20 @@ void RunServer() {
 	server->Wait();
 }
 
+void *worker(void *arg) {
+	while(1) {
+		sleep(1);
+		std::cout << "Hi" << std::endl;
+	}
+}
 
 
 
 int main(int argc, char** argv) {
+
+	pthread_t thread;
+	pthread_create(&thread, NULL, worker, NULL);
+	
 	RunServer();
 
   	return 0;
