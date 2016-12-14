@@ -43,23 +43,6 @@ using storagequery::CPutResponse;
 using storagequery::DeleteRequest;
 using storagequery::DeleteResponse;
 
-class Message {
-public:
-	struct sockaddr_in clientAddr;
-	unsigned int addrLen;
-	int confd;
-
-	Message() {
-
-	}
-
-	Message(struct sockaddr_in addr, unsigned int len, int fd) {
-		clientAddr = addr;
-		addrLen = len;
-		confd = fd;
-	}
-};
-
 #include "parseURL.h"
 
 /* threads & fds */
@@ -260,16 +243,14 @@ int generateHTML(struct Message* pM, const char* url, const char* lastLine, stri
 			if (!strncmp(url + 1, " ", 1)) {
 				response = getResponse("frontend/sites/dashboard.html", "");
 			} else if (!strncmp(url, EMAILS, strlen(EMAILS))) {
-//				response = getResponse("frontend/sites/emails.html", "");
-//				response = getEmailsResponse("frontend/sites/emails.html", email);
 				response = getListResponse(user, string("emails"), "frontend/sites/emails_begin.html", "frontend/sites/emails_end.html", string("email"));
 			} else if (!strncmp(url, FILES, strlen(FILES))) {
-//				response = getResponse("frontend/sites/files.html", "");
 				response = getListResponse(user, string("files"), "frontend/sites/files_begin.html", "frontend/sites/files_end.html", string("file"));
 			} else if (!strncmp(url, EMAIL_, strlen(EMAIL_))) {
 				response = getEmailResponse(user, url);
 			} else if (!strncmp(url, FILE_, strlen(FILE_))) {
-				response = getFileResponse(user, url);
+				getFileResponse(user, url, pM);
+				return 0;
 			} else if (!strncmp(url, WRITE_EMAIL, strlen(WRITE_EMAIL))) {
 				response = getResponse("frontend/sites/writeEmail.html", "");
 			} else if (!strncmp(url, SEND_EMAIL, strlen(SEND_EMAIL))) {

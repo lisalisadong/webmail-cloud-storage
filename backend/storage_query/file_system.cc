@@ -4,7 +4,10 @@
 #include <cstddef>  
 #include <sstream> 
 #include <iomanip> 
+#include <string>
+#include "utils.h"
 
+#define STORE_DIR "./../store/"
 #define MAPPING "mapping"
 
 // std::string md5_string(const std::string& str) {
@@ -28,7 +31,8 @@ std::string FileSystem::serialize(std::string str) {
 }
 
 void FileSystem::read_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries) {
-	std::ifstream file (fileName);
+	// std::cout <<"opening file " << fileName << " for read" << std::endl;
+	std::ifstream file (STORE_DIR + fileName);
 	if (file.is_open()) {
 		std::string tuple;
 		while (true) {
@@ -47,7 +51,8 @@ void FileSystem::read_file(std::string fileName, std::unordered_map<std::string,
 }
 
 int FileSystem::write_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries) {
-	std::ofstream file (fileName);
+	// std::cout <<"opening file " << fileName << " for write" << std::endl;
+	std::ofstream file (STORE_DIR + fileName);
 	if (!file.is_open()) {
 		std::cout << "Cannot open file to write!" << std::endl;
 		return 1;
@@ -70,10 +75,12 @@ int FileSystem::write_file(std::string fileName, std::unordered_map<std::string,
 }
 
 void FileSystem::write_entry(std::string row, std::string col, std::string val) {
+	// std::cout <<"writting entry " << row << col << std::endl;
 	std::string raw = serialize(row) + serialize(col) + serialize(val);
 	std::string tuple = serialize(raw);
 	std::string fileName = keys_to_file(row, col);
-	std::ofstream file (fileName, std::ios_base::app);
+	// std::cout <<"opening file " << row << col << " for write entry" << std::endl;
+	std::ofstream file (STORE_DIR + fileName, std::ios_base::app);
 	if (file.is_open()) {
 	    file << tuple;
 	    file.close();
@@ -84,7 +91,7 @@ void FileSystem::write_entry(std::string row, std::string col, std::string val) 
 void FileSystem::delete_entry(std::string row, std::string col) {
 	std::string fileName = keys_to_file(row, col);
 	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
-	read_file(fileName, map);
+	read_file(STORE_DIR + fileName, map);
 	map[row].erase(col);
 	if (map[row].size() == 0) {
 		map.erase(row);
@@ -147,7 +154,8 @@ std::string FileSystem::deserialize_next(std::string str, int& pos) {
 // }
 
 void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile) {
-	std::ifstream file (MAPPING);
+	std::ifstream file (std::string(STORE_DIR) + MAPPING);
+	// std::cout <<"opening file " << MAPPING << " for get mapping" << std::endl;
 	if (file.is_open()) {
 		std::string tuple;
 		while (true) {

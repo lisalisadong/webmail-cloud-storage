@@ -5,7 +5,10 @@
 
 #define FULL_LOG "full_log.txt"
 #define TEMP_LOG "temp_log.txt"
+#define LOG_DIR "./../store/"
 #define DELIMITER "\t"
+
+bool log_verbose = true;
 
 void Log::log(string row, string col, string val, char operation) {
 	if (row.empty() || col.empty()) return;
@@ -15,8 +18,8 @@ void Log::log(string row, string col, string val, char operation) {
 	//cout << new_info << endl;
 
 	ofstream full_log, temp_log;
-	full_log.open(FULL_LOG, ofstream::app);
-	temp_log.open(TEMP_LOG, ofstream::app);
+	full_log.open(std::string(LOG_DIR) + FULL_LOG, ofstream::app);
+	temp_log.open(std::string(LOG_DIR) + TEMP_LOG, ofstream::app);
 
 	full_log << new_info << endl; //write to full log
 	temp_log << new_info << endl; //write to temp log
@@ -28,7 +31,7 @@ void Log::log(string row, string col, string val, char operation) {
 
 void Log::emptyTempLog() {
 	ofstream temp_log;
-	temp_log.open(TEMP_LOG, ofstream::out);
+	temp_log.open(std::string(LOG_DIR) + TEMP_LOG, ofstream::out);
 	temp_log.close();
 }
 
@@ -36,7 +39,7 @@ void Log::emptyTempLog() {
 void Log::replay(FileSystem &fs) {
 	string line;
 	string operation, row, col, value;
-	ifstream temp_log(TEMP_LOG);
+	ifstream temp_log(std::string(LOG_DIR) + TEMP_LOG);
 
 	if (!temp_log.is_open()) return; //TO DO: print error message
 
@@ -72,6 +75,29 @@ void Log::replay(FileSystem &fs) {
 	temp_log.close();
 }
 
+// void log_error(const string& message) {
+// 	fprintf(stderr, "%s %s %d [ERROR] %s\n", timestamp_string().c_str(), log_location.c_str(), getpid(), message.c_str());
+// 	exit(1);
+// }
+
+// void log_assert(bool cond, string message) {
+// 	if (!cond) {
+// 		log_error(message);
+// 	}
+// }
+
+// void log_warn(const string& message) {
+// 	if (log_verbose) {
+// 		fprintf(stderr, "%s %s %d [WARN] %s\n", timestamp_string().c_str(), log_location.c_str(), getpid(), message.c_str());
+// 	}
+// }
+
+// void log_trace(const string& message) {
+// 	if (log_verbose) {
+// 		fprintf(stderr, "%s %s %d [TRACE] %s\n", timestamp_string().c_str(), log_location.c_str(), getpid(), message.c_str());
+// 	}
+// }
+
 /*
 int main() {
 	Log log_file;
@@ -87,5 +113,6 @@ int main() {
 	log_file.replay(fs);
 }
 */
+
 
 

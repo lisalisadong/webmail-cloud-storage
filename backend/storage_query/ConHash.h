@@ -4,6 +4,7 @@
 #include <limits.h>
 #include <vector>
 #include <map>
+#include <unordered_set>
 #include "Hasher.h"
 
 #define V_NUM 3
@@ -20,6 +21,10 @@ public:
 		this->id = id;
 		this->hashVal = hashVal;
 	}
+
+	VNode() {
+		VNode("", "", 0);
+	}
 };
 
 class ConHash {
@@ -27,7 +32,7 @@ public:
 
 	ConHash();
 
-	std::vector<std::string> addNode(std::string addr);
+	std::vector<std::pair<std::string, std::string> > addNode(std::string addr);
 
 	bool deleteNode(std::string addr);
 
@@ -63,37 +68,50 @@ VNode ConHash::getVirtual(std::string addr, int i) {
 }
 
 
-std::vector<std::string> ConHash::addNode(std::string addr) {
-	std::vector<std::string> res;
+std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string addr) {
+	std::vector<std::pair<std::string, std::string> > res;
 
-	// /* gnerate virtual nodes */
-	// for(int i = 0; i < v_num; i++) {
-	// 	VNode v = getVirtual(addr, i);
+	std::unordered_set<std::string> set;
 
-	// 	long hashVal = hasher.getHashVal(v.vId);
+	/* gnerate virtual nodes */
+	for(int i = 0; i < v_num; i++) {
+		VNode v = getVirtual(addr, i);
 
-	// 	std::pair<std::map<long, VNode>::iterator, bool> p = map.insert(std::pair<long, VNode>(hashVal, v));
+		long hashVal = hasher.getHashVal(v.vId);
 
-	// 	 same hash val exists 
-	// 	if(!p->seconde) {
-	// 		throw std::exception("Failed to add the node.");
-	// 	}
+		std::pair<std::map<long, VNode>::iterator, bool> p = map.insert(std::pair<long, VNode>(hashVal, v));
 
-	// 	std::map<long, VNode>::iterator itr = p->first;
-	// 	itr++;
-	// 	Vnode next;
-	// 	if(itr == map.end()) {
-	// 		next = (++map.begin())->second;
-	// 	} else {
-	// 		next = itr->second;
-	// 	}
+		 /* same hash val exists */
+		if(!p.second) {
+			throw std::exception();
+		}
+
+		auto itr = p.first;
+		itr++;
+		VNode next;
+		if(itr == map.end()) {
+			next = (++map.begin())->second;
+		} else {
+			next = itr->second;
+		}
+
+		// if next node is the node itself
+		if(next.id == v.id) continue;
+
+		// if the physical node of next node has been there
+		if(set.find(next.id) != set.end()) continue;
 
 
+		std::pair<std::string, std::string> tmp(next.vId, v.vId);
+		res.push_back(tmp);
 
-	// }
+		set.insert(next.id);
+	}
 
 	return res;
 }
+
+
 
 
 
