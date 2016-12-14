@@ -86,7 +86,24 @@ void RunServer() {
 
 
 int main(int argc, char** argv) {
-	RunServer();
+	// RunServer();
+	ConHash conHash;
+
+	conHash.addNode("127.0.0.1:8000");
+
+	conHash.getReplicaNode("127.0.0.1:8000");
+
+	conHash.addNode("127.0.0.1:8001");
+
+	conHash.addNode("127.0.0.1:8002");
+
+	conHash.addNode("127.0.0.1:8003");
+
+	conHash.addNode("127.0.0.1:8004");
+
+	conHash.addNode("127.0.0.1:8005");
+
+	conHash.getReplicaNode("127.0.0.1:8000");
 
   	return 0;
 }

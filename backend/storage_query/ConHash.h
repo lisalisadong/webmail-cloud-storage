@@ -7,7 +7,7 @@
 #include <unordered_set>
 #include "Hasher.h"
 
-#define V_NUM 3
+#define V_NUM 1
 
 class VNode{
 public:
@@ -16,7 +16,7 @@ public:
 	long hashVal;
 
 public:
-	VNode(std::string vId, std::string id, int hashVal) {
+	VNode(std::string vId, std::string id, long hashVal) {
 		this->vId = vId;
 		this->id = id;
 		this->hashVal = hashVal;
@@ -37,6 +37,8 @@ public:
 	bool deleteNode(std::string addr);
 
 	std::string getNode(std::string key);
+
+	std::vector<std::string> getReplicaNode(std::string addr);
 
 private:
 
@@ -69,9 +71,10 @@ VNode ConHash::getVirtual(std::string addr, int i) {
 
 
 std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string addr) {
+
 	std::vector<std::pair<std::string, std::string> > res;
 
-	std::unordered_set<std::string> set;
+	std::unordered_set<std::string> ids;
 
 	/* gnerate virtual nodes */
 	for(int i = 0; i < v_num; i++) {
@@ -79,37 +82,92 @@ std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string a
 
 		long hashVal = hasher.getHashVal(v.vId);
 
-		std::pair<std::map<long, VNode>::iterator, bool> p = map.insert(std::pair<long, VNode>(hashVal, v));
+		std::cout << "hash value of" << v.vId << " is: " << hashVal << std::endl;
 
-		 /* same hash val exists */
-		if(!p.second) {
+		/* same hash val exists */
+		if(map.find(hashVal) != map.end()) {
 			throw std::exception();
 		}
 
-		auto itr = p.first;
-		itr++;
-		VNode next;
+		map.insert(std::pair<long, VNode>(hashVal, v));
+		std::map<long, VNode>::iterator itr = map.upper_bound(hashVal);
+
 		if(itr == map.end()) {
-			next = (++map.begin())->second;
-		} else {
-			next = itr->second;
+			itr = map.begin();
 		}
+
+		VNode next = itr->second;
+
+		std::cout << "next node is: " << next.id << std::endl;
 
 		// if next node is the node itself
 		if(next.id == v.id) continue;
 
 		// if the physical node of next node has been there
-		if(set.find(next.id) != set.end()) continue;
+		if(ids.find(next.id) != ids.end()) continue;
 
 
 		std::pair<std::string, std::string> tmp(next.vId, v.vId);
 		res.push_back(tmp);
 
-		set.insert(next.id);
+		ids.insert(next.id);
 	}
 
 	return res;
 }
+
+std::string ConHash::getNode(std::string key) {
+	/* No node yet */
+	if(map.size() == 0) {
+		throw std::exception();
+	}
+
+	long hashVal = hasher.getHashVal(key);
+
+	std::cout << "Hash value of " << key << " is: " << hashVal << std::endl;
+
+	std::map<long, VNode>::iterator itr = map.upper_bound(hashVal);
+
+	if(itr == map.end()) {
+		itr = map.begin();
+	}
+
+	std::cout << key << " is in node: " << itr->second.vId << std::endl;
+
+	return itr->second.id;
+}
+
+std::vector<std::string> ConHash::getReplicaNode(std::string addr) {
+	std::vector<std::string> res;
+
+	if(map.size() == 0) return res;
+
+	long hashVal = hasher.getHashVal(addr);
+	std::map<long, VNode>::iterator itr = map.upper_bound(hashVal);
+
+	if(itr == map.end()) {
+		itr = map.begin();
+	}
+
+	if(itr->second.id != addr) {
+		std::cout << "Replica node for " << addr << ": " << itr->second.id << std::endl;
+		res.push_back(itr->second.id);
+	}
+
+	itr++;
+	if(itr == map.end()) {
+		itr = map.begin();
+	}
+
+	if(itr->second.id != addr && (res.size() == 0 || res[0] != itr->second.id)) {
+		std::cout << "Replica node for " << addr << ": " << itr->second.id << std::endl;
+		res.push_back(itr->second.id);
+	}
+
+	return res;
+}
+
+
 
 
 
