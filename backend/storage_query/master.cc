@@ -63,6 +63,8 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 private:
 	ConHash conHash;
+
+
 };
 
 void RunServer() {
@@ -86,7 +88,7 @@ void RunServer() {
 
 
 int main(int argc, char** argv) {
-	// RunServer();
+	RunServer();
 	ConHash conHash;
 
 	conHash.addNode("127.0.0.1:8000");
