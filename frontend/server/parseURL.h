@@ -24,34 +24,67 @@
 #include <algorithm>
 #include <fstream>
 #include <grpc++/grpc++.h>
+#include <iomanip>
+
+#include "constants.h"
+
 using namespace std;
 #ifndef PARSEURL_H_
 #define PARSEURL_H_
 
 #define BUFF_SIZE 8192
 
-const static char* HTTP_HEADER = "HTTP/1.0 200 OK\nDate: Fri, 31 Dec 1999 23:59:59 GMT\nContent-Type: text/html\nContent-Length: ";
+class Message {
+public:
+	struct sockaddr_in clientAddr;
+	unsigned int addrLen;
+	int confd;
 
-int readFile(const char* fileName, char*& data) {
+	Message() {
+
+	}
+
+	Message(struct sockaddr_in addr, unsigned int len, int fd) {
+		clientAddr = addr;
+		addrLen = len;
+		confd = fd;
+	}
+};
+
+int readFile(const char* fileName, string& data) {
 	ifstream in;
 	in.open(fileName, ios::in | ios::binary | ios::ate);
 	int size = in.tellg();
-	data = (char*) malloc(sizeof(char) * (size + 1));
+	char* dataTmp = (char*) malloc(sizeof(char) * (size + 1));
 	in.seekg(ios::beg);
 	cout << size << endl;
-	data[size] = 0;
-	if (!in.read(data, size)) {
-		cout << "error" << endl;
+	dataTmp[size] = 0;
+	if (!in.read(dataTmp, size)) {
+		cout << "read file error" << endl;
 	}
+	std::stringstream ss;
+	for (int i = 0; i < size; ++i) {
+		ss << std::hex << std::setw(2) << std::setfill('0') << (unsigned int) (unsigned char) dataTmp[i];
+	}
+	data = ss.str();
 	in.close();
+	free(dataTmp);
 	return size;
 }
 
-void writeFile(const char* fileName, int size, char* data) {
-	ofstream out;
-	out.open(fileName, ios::out | ios::binary | ios::trunc);
-	out.write(data, size);
-	out.close();
+void writeFile(string data, Message* pM) {
+	stringstream ss;
+	vector<char> hexChars;
+	int tmp;
+	int index = 0;
+	while (index < data.length()) {
+		ss.clear();
+		ss << std::hex << data.substr(index, 2);
+		ss >> tmp;
+		hexChars.push_back((char) (unsigned char) (unsigned int) (tmp));
+		index += 2;
+	}
+	write(pM->confd, &hexChars[0], data.length() / 2);
 }
 
 void get() {
@@ -74,8 +107,6 @@ void testInitialize() {
 	string col("emails");
 	client.Put(row, col, emails);
 	cout << "Put Alice emails: " << endl << emails << endl;
-	string response = client.Get(row, col);
-	cout << "Get Alice emails: " << endl << response << endl;
 
 	client.Put(row, "email-1", "aaaaaaaaaaaaaaa");
 	client.Put(row, "email-2", "bbbbbbbbbbbbbbb");
@@ -85,19 +116,20 @@ void testInitialize() {
 	string filesCol("files");
 	client.Put(row, filesCol, files);
 
-	char* data1;
-	char* data2;
-	char* data5;
-	readFile("a.png", data1);
-	readFile("1.txt", data2);
-	readFile("2.txt", data5);
-	string file1 = data1;
-	string file2 = data2;
-	string file5 = data5;
+	string file1;
+	string file2;
+	string file5;
+	readFile("a.png", file1);
+	readFile("1.txt", file2);
+	readFile("2.txt", file5);
 	client.Put(row, "file-1", file1);
 	client.Put(row, "file-2", file2);
 	client.Put(row, "file-5", file5);
 
+	string response = client.Get(row, col);
+	cout << "Get Alice emails: " << endl << response << endl;
+	string fileResponse = client.Get(row, "file-1");
+	cout << "Get file-1: " << endl << fileResponse << endl;
 }
 
 string readHTMLFile(const char* fileLoc) {
@@ -133,6 +165,20 @@ string getEmailResponse(string user, const char* url) {
 	response += "\n";
 	response += email;
 	return response;
+}
+
+void getFileResponse(string user, const char* url, Message* pM) {
+	string response = HTTP_HEADER_FILE;
+	string urlStr = url + 1;
+	int fileNameI = urlStr.find(' ');
+	string fileName = urlStr.substr(0, fileNameI);
+
+	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+	string email = client.Get(user, fileName);
+	response += to_string(email.length()) + "\n";
+	response += "\n";
+	write(pM->confd, response.c_str(), response.length());
+	writeFile(email, pM);
 }
 
 string generateLI(string num, string title, string url) {

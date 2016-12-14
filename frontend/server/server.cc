@@ -26,10 +26,7 @@
 
 #include "../../backend/storage_query/storage_client.h"
 #include "parseURL.h"
-
-#define LINE_LIMIT 1000
-#define MAX_CON 128
-#define DEFAULT_PORT 8080
+#include "constants.h"
 
 using grpc::Channel;
 using namespace std;
@@ -45,25 +42,6 @@ using storagequery::CPutRequest;
 using storagequery::CPutResponse;
 using storagequery::DeleteRequest;
 using storagequery::DeleteResponse;
-
-const static char* CONTENT_LEN = "Content-Length: ";
-const static char* COOKIE = "Cookie: ";
-class Message {
-public:
-	struct sockaddr_in clientAddr;
-	unsigned int addrLen;
-	int confd;
-
-	Message() {
-
-	}
-
-	Message(struct sockaddr_in addr, unsigned int len, int fd) {
-		clientAddr = addr;
-		addrLen = len;
-		confd = fd;
-	}
-};
 
 #include "parseURL.h"
 
@@ -257,25 +235,29 @@ bool checkCookie(string cookie, string& email) {
 int generateHTML(struct Message* pM, const char* url, const char* lastLine, string cookie) {
 //	get();
 	string response = "";
-	if (!strncmp(url, "/signup", 7))
+	if (!strncmp(url, SIGNUP, strlen(SIGNUP)))
 		response = getResponse("frontend/sites/signup.html", "");
 	else {
 		string user;
 		if (checkCookie(cookie, user)) {
 			if (!strncmp(url + 1, " ", 1)) {
 				response = getResponse("frontend/sites/dashboard.html", "");
-			} else if (!strncmp(url, "/emails ", 8)) {
-//				response = getResponse("frontend/sites/emails.html", "");
-//				response = getEmailsResponse("frontend/sites/emails.html", email);
+			} else if (!strncmp(url, EMAILS, strlen(EMAILS))) {
 				response = getListResponse(user, string("emails"), "frontend/sites/emails_begin.html", "frontend/sites/emails_end.html", string("email"));
-			} else if (!strncmp(url, "/files ", 7)) {
-//				response = getResponse("frontend/sites/files.html", "");
+			} else if (!strncmp(url, FILES, strlen(FILES))) {
 				response = getListResponse(user, string("files"), "frontend/sites/files_begin.html", "frontend/sites/files_end.html", string("file"));
-			} else if (!strncmp(url, "/email-", 7)) {
+			} else if (!strncmp(url, EMAIL_, strlen(EMAIL_))) {
 				response = getEmailResponse(user, url);
+			} else if (!strncmp(url, FILE_, strlen(FILE_))) {
+				getFileResponse(user, url, pM);
+				return 0;
+			} else if (!strncmp(url, WRITE_EMAIL, strlen(WRITE_EMAIL))) {
+				response = getResponse("frontend/sites/writeEmail.html", "");
+			} else if (!strncmp(url, SEND_EMAIL, strlen(SEND_EMAIL))) {
+
 			} else response = getResponse("frontend/sites/notfound.html", "");
 		} else {
-			if (!strncmp(url, "/loginsubmit", 12)) {
+			if (!strncmp(url, LOGINSUBMIT, strlen(LOGINSUBMIT))) {
 				if (checkPWD(lastLine, user)) {
 					string headers = "Set-Cookie: sessionid=" + getSessionID(user) + "\nSet-Cookie: user=" + user + "\n";
 					response = getResponse("frontend/sites/dashboard.html", headers.c_str());
