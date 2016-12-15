@@ -23,7 +23,7 @@
 
 #include "storage_query.grpc.pb.h"
 
-#include "Cache.h"
+#include "cache.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -41,6 +41,8 @@ using storagequery::DeleteRequest;
 using storagequery::DeleteResponse;
 using storagequery::MigrateRequest;
 using storagequery::MigrateResponse;
+using storagequery::PingRequest;
+using storagequery::PingResponse;
 
 class StorageServiceImpl final : public StorageQuery::Service{
 	// TODO: add method to migrate date
@@ -135,6 +137,11 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		// TODO: implement
 		std::string address = request->address();
 		response->set_data("123");
+		return Status::OK;
+	}
+
+	Status Ping(ServerContext* context, const PingRequest* request,
+						PingResponse* response) override {
 		return Status::OK;
 	}
 
