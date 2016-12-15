@@ -7,8 +7,9 @@
 #include <string>
 #include "ConHash.h"
 #include "logger.h"
-#include "storage_client.h"
 #include <grpc++/grpc++.h>
+
+#include "storage_client.h"
 
 #include "storage_query.grpc.pb.h"
 
@@ -26,10 +27,15 @@ using storagequery::CPutRequest;
 using storagequery::CPutResponse;
 using storagequery::DeleteRequest;
 using storagequery::DeleteResponse;
+using storagequery::MigrateRequest;
+using storagequery::MigrateResponse;
+using storagequery::PingRequest;
+using storagequery::PingResponse;
 
 #define SERVER_CONFIG "./../config/servers.config"
 
 Logger mLogger;
+ConHash conHash;
 
 class StorageServiceImpl final : public StorageQuery::Service{
 
@@ -70,27 +76,31 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		return Status::OK;
 	}
 
-private:
-	ConHash conHash;
+	Status Migrate(ServerContext* context, const MigrateRequest* request,
+						MigrateResponse* response) override {
+		std::string address = request->address();
+		response->set_data("123");
+		return Status::OK;
+	}
 
 };
 
 // read server config files to get all server addresses
 
-void load_servers() {
-	std::ifstream file (SERVER_CONFIG);
-	if (file.is_open()) {
-		std::string server;
-		while (std::getline(file, server)) {
-			servers.push_back(server);
-		}
-		file.close();
-	}
-	else mLogger.log_error("Cannot open file " + std::string(SERVER_CONFIG) + " to read");
-}
+// void load_servers() {
+// 	std::ifstream file (SERVER_CONFIG);
+// 	if (file.is_open()) {
+// 		std::string server;
+// 		while (std::getline(file, server)) {
+// 			servers.push_back(server);
+// 		}
+// 		file.close();
+// 	}
+// 	else mLogger.log_error("Cannot open file " + std::string(SERVER_CONFIG) + " to read");
+// }
 
 void check_servers() {
-	std::vector<std::string> servers = conHash.getAllNode();
+	std::vector<std::string> servers = conHash.getAllNodes();
 	for (std::string server : servers) {
 		mLogger.log_trace("Checking " + server);
 		StorageClient client(grpc::CreateChannel(server, grpc::InsecureChannelCredentials()));
@@ -128,7 +138,7 @@ void RunServer() {
 int main(int argc, char** argv) {
 	mLogger.log_config("Master");
 
-	load_servers();
+	// load_servers();
 
 	check_servers();
 

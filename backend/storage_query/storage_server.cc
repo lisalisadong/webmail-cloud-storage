@@ -17,6 +17,8 @@
 #include <signal.h>
 #include <fcntl.h>
 
+#include "storage_client.h"
+
 #include <grpc++/grpc++.h>
 
 #include "storage_query.grpc.pb.h"
