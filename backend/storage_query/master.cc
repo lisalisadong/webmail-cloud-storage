@@ -3,7 +3,10 @@
 #include <iostream>
 #include <memory>
 #include "ConHash.h"
+#include "logger.h"
 #include <grpc++/grpc++.h>
+
+#include "storage_client.h"
 
 #include "storage_query.grpc.pb.h"
 
@@ -21,6 +24,8 @@ using storagequery::CPutRequest;
 using storagequery::CPutResponse;
 using storagequery::DeleteRequest;
 using storagequery::DeleteResponse;
+
+ConHash conHash;
 
 class StorageServiceImpl final : public StorageQuery::Service{
 
@@ -61,11 +66,16 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		return Status::OK;
 	}
 
-private:
-	ConHash conHash;
+	Status Migrate(ServerContext* context, const MigrateRequest* request,
+						MigrateResponse* response) override {
+		std::string address = request->address();
+		response->set_data("123");
+		return Status::OK;
+	}
 
 
 };
+
 
 void RunServer() {
   std::string server_address("0.0.0.0:8000");

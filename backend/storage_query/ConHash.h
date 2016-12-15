@@ -40,6 +40,12 @@ public:
 
 	std::vector<std::string> getReplicaNode(std::string addr);
 
+	std::vector<std::string> getAllNodes();
+
+	void notifyUp(std::string addr);
+
+	void notifyDown(std::string addr);
+
 private:
 
 	std::map<long, VNode> map;
@@ -47,6 +53,10 @@ private:
 	Hasher hasher;
 
 	int v_num;
+
+	std::unordered_set<std::string> upServers;
+
+	std::unordered_set<std::string> downServers;
 
 
 private:
