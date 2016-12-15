@@ -1,8 +1,13 @@
 #include <unordered_map>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <memory>
+#include <vector>
+#include <string>
 #include "ConHash.h"
+#include "logger.h"
+#include "storage_client.h"
 #include <grpc++/grpc++.h>
 
 #include "storage_query.grpc.pb.h"
@@ -21,6 +26,10 @@ using storagequery::CPutRequest;
 using storagequery::CPutResponse;
 using storagequery::DeleteRequest;
 using storagequery::DeleteResponse;
+
+#define SERVER_CONFIG "./../config/servers.config"
+
+Logger mLogger;
 
 class StorageServiceImpl final : public StorageQuery::Service{
 
@@ -64,8 +73,37 @@ class StorageServiceImpl final : public StorageQuery::Service{
 private:
 	ConHash conHash;
 
-
 };
+
+// read server config files to get all server addresses
+
+void load_servers() {
+	std::ifstream file (SERVER_CONFIG);
+	if (file.is_open()) {
+		std::string server;
+		while (std::getline(file, server)) {
+			servers.push_back(server);
+		}
+		file.close();
+	}
+	else mLogger.log_error("Cannot open file " + std::string(SERVER_CONFIG) + " to read");
+}
+
+void check_servers() {
+	std::vector<std::string> servers = conHash.getAllNode();
+	for (std::string server : servers) {
+		mLogger.log_trace("Checking " + server);
+		StorageClient client(grpc::CreateChannel(server, grpc::InsecureChannelCredentials()));
+		if (client.Ping()) {
+			mLogger.log_trace("Server " + server + " is up");
+			conHash.notifyUp(server);
+		} else {
+			mLogger.log_trace("Server " + server + " is down");
+			conHash.notifyDown(server);
+		}
+	}
+	
+}
 
 void RunServer() {
   std::string server_address("0.0.0.0:8000");
@@ -88,7 +126,14 @@ void RunServer() {
 
 
 int main(int argc, char** argv) {
+	mLogger.log_config("Master");
+
+	load_servers();
+
+	check_servers();
+
 	RunServer();
+	//TODO: start a thread to check connections with servers
 	ConHash conHash;
 
 	conHash.addNode("127.0.0.1:8000");

@@ -1,3 +1,6 @@
+#ifndef S_C_
+#define S_C_
+
 #include <memory>
 #include <string>
 
@@ -150,3 +153,5 @@ private:
 // 		return;
 // 	}
 // }
+
+#endif
