@@ -24,7 +24,7 @@ storage_client: storage_query.pb.o storage_query.grpc.pb.o storage_client.cc sto
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) $^ -c $(LDFLAGS) -o $@
 
-storage_server: storage_query.pb.o storage_query.grpc.pb.o logger.o file_system.o hash.o storage_server.o 
+storage_server: storage_query.pb.o storage_query.grpc.pb.o logger.o file_system.o hash.o cache.o storage_server.o 
 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 
 .PRECIOUS: %.grpc.pb.cc

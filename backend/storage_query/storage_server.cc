@@ -21,7 +21,7 @@
 
 #include "storage_query.grpc.pb.h"
 
-#include "Cache.h"
+#include "cache.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
