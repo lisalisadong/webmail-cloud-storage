@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <memory>
+#include <unordered_map>
 
 #include <stdlib.h>
 #include <string.h>
@@ -17,13 +18,13 @@
 #include <signal.h>
 #include <fcntl.h>
 
-#include "storage_client.h"
-
 #include <grpc++/grpc++.h>
 
 #include "storage_query.grpc.pb.h"
 
 #include "cache.h"
+#include "storage_client.h"
+#include "master_client.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -43,6 +44,11 @@ using storagequery::MigrateRequest;
 using storagequery::MigrateResponse;
 using storagequery::PingRequest;
 using storagequery::PingResponse;
+
+#define MASTER_ADDR "0.0.0.0:8000"
+#define WORKER_ADDR "0.0.0.0:50051"
+
+Logger wLogger;
 
 class StorageServiceImpl final : public StorageQuery::Service{
 	// TODO: add method to migrate date
@@ -151,64 +157,43 @@ public:
 
 };
 
-
-void informMaster() {
+std::string get_real_addr(std::string virtual_addr) {
 
 }
 
-// void RunServer() {
+void get_data() {
+	MasterClient master(grpc::CreateChannel(MASTER_ADDR, grpc::InsecureChannelCredentials()));
+	if (master.Ping()) {
+		wLogger.log_trace("master is ready, requesting data");
+		std::vector<std::pair<std::string, std::string> > pairs;
+		if (master.Get(WORKER_ADDR, NULL, pairs)) {
+			for (std::pair<std::string, std::string> p : pairs) {
+				std::string other = get_real_addr(p.first);
+				StorageClient worker(grpc::CreateChannel(other, grpc::InsecureChannelCredentials()));
+				StorageClient self(grpc::CreateChannel(WORKER_ADDR, grpc::InsecureChannelCredentials()));
+				std::unordered_map<std::string, std::unordered_map<std::string, std::string> > data;
+				worker.Migrate(p.second, data);
+				for (auto it = data.begin(); it != data.end(); it++) {
+					for (auto itr = it->second.begin(); itr != it->second.end(); itr++) {
+						self.Put(it->first, itr->first, itr->second);
+					}
+				}
+			}
+		}
 
-// 	Logger logger;
-// 	logger.log_config("StorageServer");
-
-// 	std::string server_address("0.0.0.0:50051");
-// 	StorageServiceImpl service;
-
-// 	ServerBuilder builder;
-// 	// Listen on the given address without any authentication mechanism.
-// 	builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-// 	// Register "service" as the instance through which we'll communicate with
-// 	// clients. In this case it corresponds to an *synchronous* service.
-// 	builder.RegisterService(&service);
-// 	// Finally assemble the server.
-// 	std::unique_ptr<Server> server(builder.BuildAndStart());
-// 	logger.log_trace("Server listening on " + server_address);
-
-// 	// Wait for the server to shutdown. Note that some other thread must be
-// 	// responsible for shutting down the server for this call to ever return.
-// 	server->Wait();
-// }
-
-std::string server_address("0.0.0.0:50051");
-StorageServiceImpl service;
-ServerBuilder builder;
-pthread_t thread;
-
-void *worker(void *arg) {
-	std::string res;
-	try {
-		res = service.cache.get("1", "2");
-	} catch (std::exception &e) {
-		res.append("Keys not found");
-	}
-
-	std::cout << "Response: " << res << std::endl;
-
-	service.cache.put("1", "2", "3");
-	while(1) {
-		res = service.cache.get("1", "2");
-		sleep(1);
-		std::cout << "Response: " << res << std::endl;
+	} else {
+		wLogger.log_error("master is down");
 	}
 }
 
 
 void RunServer() {
 
-	Logger logger;
-	logger.log_config("StorageServer");
+	std::string server_address(WORKER_ADDR);
+	StorageServiceImpl service;
 
-	
+	ServerBuilder builder;
+
 	// Listen on the given address without any authentication mechanism.
 	builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
 	// Register "service" as the instance through which we'll communicate with
@@ -216,7 +201,7 @@ void RunServer() {
 	builder.RegisterService(&service);
 	// Finally assemble the server.
 	std::unique_ptr<Server> server(builder.BuildAndStart());
-	logger.log_trace("Server listening on " + server_address);
+	wLogger.log_trace("Server listening on " + server_address);
 
 	// pthread_create(&thread, NULL, worker, NULL);
 
@@ -228,8 +213,13 @@ void RunServer() {
 
 
 int main(int argc, char** argv) {
+	wLogger.log_config("StorageServer");
+
+	get_data();
 	
 	RunServer();
+
+	std::cout << "test" << std::endl;
 
   	return 0;
 }

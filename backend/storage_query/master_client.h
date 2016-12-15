@@ -1,9 +1,9 @@
-#ifndef S_C_
-#define S_C_
+#ifndef M_C_
+#define M_C_
 
 #include <memory>
 #include <string>
-#include <unordered_map>
+
 #include <grpc++/grpc++.h>
 #include "storage_query.grpc.pb.h"
 #include "logger.h"
@@ -22,12 +22,12 @@ using storagequery::CPutResponse;
 using storagequery::DeleteRequest;
 using storagequery::DeleteResponse;
 
-class StorageClient {
+class MasterClient {
 public:
-	StorageClient(std::shared_ptr<Channel> channel) :
-			stub_(StorageQuery::NewStub(channel)) {logger.log_config("StorageClient");}
+	MasterClient(std::shared_ptr<Channel> channel) :
+			stub_(StorageQuery::NewStub(channel)) {logger.log_config("MasterClient");}
 
-	bool Get(const std::string& row, const std::string& col, std::string& val);
+	bool Get(const std::string& row, const std::string& col, std::vector<std::pair<std::string, std::string> >& val);
 
 	bool Put(const std::string& row, const std::string& col,
 			const std::string& val);
@@ -38,8 +38,6 @@ public:
 	bool Delete(const std::string& row, const std::string& col);
 
 	bool Ping();
-
-	bool Migrate(std::string virtualAddr, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& data);
 
 private:
 	Logger logger;
