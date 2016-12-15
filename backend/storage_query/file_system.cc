@@ -13,9 +13,7 @@
 #define TEMP_LOG "temp_log"
 #define MAX_FILE_SIZE 500
 
-/**
- * Public methods:
- */
+/************************public methods********************/
 
 void FileSystem::read_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries) {
 	logger.log_trace("Openning file " + fileName + " to read");
@@ -152,9 +150,7 @@ void FileSystem::clear_temp_log() {
 }
 
 
-/**
- * Private methods:
- */
+/************************private methods********************/
 
 void FileSystem::write_entry(std::string fileName, std::string row, std::string col, std::string val) {
 	std::string raw = serialize(row) + serialize(col) + serialize(val);
