@@ -13,6 +13,10 @@ using storagequery::CPutRequest;
 using storagequery::CPutResponse;
 using storagequery::DeleteRequest;
 using storagequery::DeleteResponse;
+using storagequery::MigrateRequest;
+using storagequery::MigrateResponse;
+using storagequery::PingRequest;
+using storagequery::PingResponse;
 
 std::string StorageClient::Get(const std::string& row, const std::string& col) {
 	// Data we are sending to the server.
@@ -122,6 +126,13 @@ void StorageClient::Delete(const std::string& row, const std::string& col) {
   }
 }
 
+bool StorageClient::Ping() {
+  ClientContext context;
+  PingRequest request;
+  PingResponse response;
+  Status status = stub_->Ping(&context, request, &response);
+  return status.ok();
+}
 
 int main(int argc, char** argv) {
 	// TODO:
@@ -129,8 +140,21 @@ int main(int argc, char** argv) {
 //  are created. This channel models a connection to an endpoint (in this case,
 //  localhost at port 50051). We indicate that the channel isn't authenticated
 //  (use of InsecureChannelCredentials()).
+  Logger logger;
+  logger.log_config("StorageClient");
+
+  std::string serverAddr = "localhost:50051";
+
  StorageClient client(grpc::CreateChannel(
-     "localhost:50051", grpc::InsecureChannelCredentials()));
+     serverAddr, grpc::InsecureChannelCredentials()));
+
+ if (client.Ping()) {
+  logger.log_trace("Channel created. Server " + serverAddr + " is ready to accept rpcs.");
+ } else {
+  logger.log_warn("Channel cannot be created. Server " + serverAddr + " is down.");
+  // rehashing
+  return 0;
+ }
 
  // StorageClient client(grpc::CreateChannel(
  //     "localhost:8000", grpc::InsecureChannelCredentials()));

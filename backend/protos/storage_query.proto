@@ -13,6 +13,7 @@ service StorageQuery {
   rpc CPut (CPutRequest) returns (CPutResponse) {}
   rpc Delete (DeleteRequest) returns (DeleteResponse) {}
   rpc Migrate (MigrateRequest) returns (MigrateResponse) {}
+  rpc Ping (PingRequest) returns (PingResponse) {}
 }  
 
 // get
@@ -65,4 +66,13 @@ message MigrateRequest {
 
 message MigrateResponse {
   string data = 1;
+}
+
+// ping
+message PingRequest {
+  
+}
+
+message PingResponse {
+
 }

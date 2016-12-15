@@ -3,6 +3,7 @@
 
 #include <grpc++/grpc++.h>
 #include "storage_query.grpc.pb.h"
+#include "logger.h"
 
 using grpc::Channel;
 using storagequery::StorageQuery;
@@ -21,8 +22,7 @@ using storagequery::DeleteResponse;
 class StorageClient {
 public:
 	StorageClient(std::shared_ptr<Channel> channel) :
-			stub_(StorageQuery::NewStub(channel)) {
-	}
+			stub_(StorageQuery::NewStub(channel)) {logger.log_config("StorageClient");}
 
 	std::string Get(const std::string& row, const std::string& col);
 
@@ -34,7 +34,10 @@ public:
 
 	void Delete(const std::string& row, const std::string& col);
 
+	bool Ping();
+
 private:
+	Logger logger;
 	std::unique_ptr<StorageQuery::Stub> stub_;
 
 };
