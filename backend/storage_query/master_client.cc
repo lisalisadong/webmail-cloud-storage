@@ -1,5 +1,5 @@
 #include <iostream>
-#include "storage_client.h"
+#include "master_client.h"
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -18,11 +18,11 @@ using storagequery::MigrateResponse;
 using storagequery::PingRequest;
 using storagequery::PingResponse;
 
-bool StorageClient::Get(const std::string& row, const std::string& col, std::string& val) {
+bool MasterClient::Get(const std::string& row, const std::string& col, std::vector<std::pair<std::string, std::string> >& val) {
 	// Data we are sending to the server.
 	GetRequest request;
 	request.set_row(row);
-	request.set_col(col);
+	//request.set_col(col);
 
 	// Container for the data we expect from the server.
 	GetResponse response;
@@ -36,7 +36,8 @@ bool StorageClient::Get(const std::string& row, const std::string& col, std::str
 
   // Act upon its status.
   if (status.ok()) {
-    val = response.val();
+    //for testing
+    val.push_back(std::make_pair("localhost:50051_2", "localhost:50051_1"));
     return true;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
@@ -45,7 +46,7 @@ bool StorageClient::Get(const std::string& row, const std::string& col, std::str
   }
 }
 
-bool StorageClient::Put(const std::string& row, const std::string& col, const std::string& val) {
+bool MasterClient::Put(const std::string& row, const std::string& col, const std::string& val) {
 	// Data we are sending to the server.
 	PutRequest request;
 	request.set_row(row);
@@ -72,7 +73,7 @@ bool StorageClient::Put(const std::string& row, const std::string& col, const st
   }
 }
 
-bool StorageClient::CPut(const std::string& row, const std::string& col, 
+bool MasterClient::CPut(const std::string& row, const std::string& col, 
 					const std::string& val1, const std::string& val2) {
 	// Data we are sending to the server.
 	CPutRequest request;
@@ -101,7 +102,7 @@ bool StorageClient::CPut(const std::string& row, const std::string& col,
   }
 }
 
-bool StorageClient::Delete(const std::string& row, const std::string& col) {
+bool MasterClient::Delete(const std::string& row, const std::string& col) {
 	// Data we are sending to the server.
 	DeleteRequest request;
 	request.set_row(row);
@@ -127,27 +128,12 @@ bool StorageClient::Delete(const std::string& row, const std::string& col) {
   }
 }
 
-bool StorageClient::Ping() {
+bool MasterClient::Ping() {
   ClientContext context;
   PingRequest request;
   PingResponse response;
   Status status = stub_->Ping(&context, request, &response);
   return status.ok();
-}
-
-bool StorageClient::Migrate(std::string virtualAddr, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& data) {
-  ClientContext context;
-  MigrateRequest request;
-  MigrateResponse response;
-  Status status = stub_->Migrate(&context, request, &response);
-  // TODO: get data
-  if (status.ok()) {
-    return true;
-  } else {
-    std::cout << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    return false;
-  }
 }
 
 // int main(int argc, char** argv) {
