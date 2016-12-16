@@ -14,7 +14,12 @@ using storagequery::GetReplicaResponse;
 using storagequery::PingRequest;
 using storagequery::PingResponse;
 
-bool MasterClient::GetNode(const std::string& row, const std::string& col, std::string& addr) {
+std::pair<std::string, std::string> getPair(std::string str);
+void deserialize(std::vector<std::pair<std::string, std::string> >& pairs, std::string nodes);
+void getNodes(std::vector<std::string>& addr, std::string str);
+
+// addr should be a vector or set of addr?
+bool MasterClient::GetNode(const std::string& row, const std::string& col, std::vector<std::string>& addr) {
   // Data we are sending to the server.
   GetNodeRequest request;
   request.set_row(row);
@@ -32,7 +37,10 @@ bool MasterClient::GetNode(const std::string& row, const std::string& col, std::
 
   // Act upon its status.
   if (status.ok()) {
-    addr = response.addr();
+    std::string s = response.addr();
+
+    getNodes(addr, s);
+
     return true;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
@@ -87,7 +95,10 @@ bool MasterClient::AddNode(const std::string& addr, std::vector<std::pair<std::s
   if (status.ok()) {
     std::string dataMap = response.data_map();
     //for testing
-    val.push_back(std::make_pair("localhost:50051_2", "localhost:50051_1"));
+    // val.push_back(std::make_pair("localhost:50051_2", "localhost:50051_1"));
+
+    deserialize(val, dataMap);
+
     return true;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
@@ -125,12 +136,21 @@ void deserialize(std::vector<std::pair<std::string, std::string> >& pairs, std::
   }
 }
 
+void getNodes(std::vector<std::string>& addr, std::string str) {
+  int start = 0;
+  for(int i = 0; i < str.length(); i++) {
+    if(str[i] != ' ') continue;
+    addr.push_back(str.substr(start, i - start));
+    start = i + 1;
+  }
+}
+
 // int main(int argc, char** argv) {
 	// TODO:
 	// Instantiate the client. It requires a channel, out of which the actual RPCs
-//  are created. This channel models a connection to an endpoint (in this case,
-//  localhost at port 50051). We indicate that the channel isn't authenticated
-//  (use of InsecureChannelCredentials()).
+ // are created. This channel models a connection to an endpoint (in this case,
+ // localhost at port 50051). We indicate that the channel isn't authenticated
+ // (use of InsecureChannelCredentials()).
  //  Logger logger;
  //  logger.log_config("StorageClient");
 
@@ -146,7 +166,7 @@ void deserialize(std::vector<std::pair<std::string, std::string> >& pairs, std::
  //  // rehashing
  //  return 0;
  // }
-  // std::vector<std::pair<std::string, std::string> > pairs;
-  // deserialize(pairs, "a1 b1,a2 b2,");
+ //  std::vector<std::pair<std::string, std::string> > pairs;
+ //  deserialize(pairs, "a1 b1,a2 b2,");
 
 // }

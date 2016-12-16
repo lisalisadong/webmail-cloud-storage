@@ -19,7 +19,7 @@ public:
 	MasterClient(std::shared_ptr<Channel> channel) :
 			stub_(StorageQuery::NewStub(channel)) {logger.log_config("MasterClient");}
 
-	bool GetNode(const std::string& row, const std::string& col, std::string& addr);
+	bool GetNode(const std::string& row, const std::string& col, std::vector<std::string>& addr);
 
 	bool GetReplica(const std::string& row, const std::string& col, std::string& addr);
 

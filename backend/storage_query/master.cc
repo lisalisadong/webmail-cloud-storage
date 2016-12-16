@@ -65,7 +65,11 @@ class StorageServiceImpl final : public StorageQuery::Service{
 	Status GetReplica(ServerContext* context, const GetReplicaRequest* request, 
 						GetReplicaResponse* response) override {
 
-		// TODO:
+		std::string key = request->row();
+
+		std::string replica = conHash.getReplica(key);
+		response->set_addr(replica);		
+
 		return Status::OK;
 	}
 

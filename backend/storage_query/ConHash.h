@@ -45,6 +45,8 @@ public:
 
 	void notifyDown(std::string addr);
 
+	std::string getReplica(std::string addr);
+
 public:
 
 	std::map<long, VNode> map;
@@ -152,15 +154,8 @@ std::unordered_set<std::string> ConHash::getNodes(std::string key) {
 
 	res.insert(primary);
 
-	//=============second hash==================
-	hashVal = hasher.hash2(key);
-	itr = map.upper_bound(hashVal);
-
-	if(itr == map.end()) {
-		itr = map.begin();
-	}
-
-	std::string secondary = itr->second.id;
+	//=============get replica==================
+	std::string secondary = getReplica(key);
 
 	if(res.find(secondary) == res.end()) res.insert(secondary);
 
@@ -204,6 +199,16 @@ void ConHash::notifyDown(std::string addr) {
 	}
 }
 
+std::string ConHash::getReplica(std::string key) {
+	long hashVal = hasher.hash2(key);
+	std::map<long, VNode>::iterator itr = map.upper_bound(hashVal);
+
+	if(itr == map.end()) {
+		itr = map.begin();
+	}
+
+	return itr->second.id;
+}
 
 
 
