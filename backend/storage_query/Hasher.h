@@ -1,5 +1,6 @@
 #include <string>
 #include <openssl/md5.h>
+#include <limits.h>
 
 
 /* Define the state of the MD5 Algorithm. */
@@ -44,6 +45,21 @@ public:
 	              | ((long)(digestBuffer[i*4 + 0]&0xFF));
 	    }
 	    return hashcode;
+	}
+
+	long hash2(std::string addr) {
+		long hash1 = getHashVal(addr);
+
+		long half = LONG_MAX / 2;
+		long full = LONG_MAX;
+
+		half = half - (full - hash1);
+
+		if(half < 0) half += full;
+
+		return half;
+
+		// return hash1 / 2;
 	}
 
 };

@@ -13,25 +13,17 @@ using storagequery::StorageQuery;
 using grpc::ClientContext;
 using grpc::Status;
 using storagequery::StorageQuery;
-using storagequery::GetRequest;
-using storagequery::GetResponse;
-using storagequery::PutRequest;
-using storagequery::PutResponse;
-using storagequery::CPutRequest;
-using storagequery::CPutResponse;
-using storagequery::DeleteRequest;
-using storagequery::DeleteResponse;
 
 class MasterClient {
 public:
 	MasterClient(std::shared_ptr<Channel> channel) :
 			stub_(StorageQuery::NewStub(channel)) {logger.log_config("MasterClient");}
 
-	bool Get(const std::string& row, const std::string& col, const std::string& addr);
+	bool GetNode(const std::string& row, const std::string& col, std::string& addr);
+
+	bool GetReplica(const std::string& row, const std::string& col, std::string& addr);
 
 	bool AddNode(const std::string& addr, std::vector<std::pair<std::string, std::string> >& val);
-
-	bool DeleteNode(const std::string& addr);
 
 	bool Ping();
 

@@ -21,16 +21,12 @@ using grpc::ServerContext;
 using grpc::Status;
 using grpc::StatusCode;
 using storagequery::StorageQuery;
-using storagequery::GetRequest;
-using storagequery::GetResponse;
-using storagequery::PutRequest;
-using storagequery::PutResponse;
-using storagequery::CPutRequest;
-using storagequery::CPutResponse;
-using storagequery::DeleteRequest;
-using storagequery::DeleteResponse;
-using storagequery::MigrateRequest;
-using storagequery::MigrateResponse;
+using storagequery::GetNodeRequest;
+using storagequery::GetNodeResponse;
+using storagequery::AddNodeRequest;
+using storagequery::AddNodeResponse;
+using storagequery::GetReplicaRequest;
+using storagequery::GetReplicaResponse;
 using storagequery::PingRequest;
 using storagequery::PingResponse;
 
@@ -46,13 +42,18 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		return str.length() - 1;
 	}
 
-	Status Get(ServerContext* context, const GetRequest* request, 
-						GetResponse* response) override {
+	Status GetNode(ServerContext* context, const GetNodeRequest* request, 
+						GetNodeResponse* response) override {
 
-		std::string row = request->row();
+		std::string key = request->row();
 
 		try {
-			response->set_val("");
+			std::unordered_set<std::string> nodes = conHash.getNodes(key);	// get nodes that stores the key
+			std::string res;
+			for(std::string node: nodes) {
+				res.append(node).append(" ");
+			}
+			response->set_addr(res);
 			return Status::OK;
 		} catch (std::exception &e) {
 			Status status(StatusCode::NOT_FOUND, "No corresponding keys");
@@ -61,28 +62,29 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		
 	}
 
-	Status Put(ServerContext* context, const PutRequest* request, 
-						PutResponse* response) override {
+	Status GetReplica(ServerContext* context, const GetReplicaRequest* request, 
+						GetReplicaResponse* response) override {
 
+		// TODO:
 		return Status::OK;
 	}
 
-	Status CPut(ServerContext* context, const CPutRequest* request, 
-						CPutResponse* response) override {
+	Status AddNode(ServerContext* context, const AddNodeRequest* request, 
+						AddNodeResponse* response) override {
+		std::string addr = request->addr();
 
-		return Status::OK;
-	}
+		std::vector<std::pair<std::string, std::string> > pairs = conHash.addNode(addr);
 
-	Status Delete(ServerContext* context, const DeleteRequest* request, 
-						DeleteResponse* response) override {
+		std::string res;
 
-		return Status::OK;
-	}
+		for(int i = 0; i < pairs.size(); i++) {
+			std::pair<std::string, std::string> p = pairs[i];
 
-	Status Migrate(ServerContext* context, const MigrateRequest* request,
-						MigrateResponse* response) override {
-		std::string address = request->address();
-		response->set_data("123");
+			res.append(p.first).append(" ").append(p.second).append(",");
+		}
+
+		response->set_data_map(res);
+
 		return Status::OK;
 	}
 
@@ -92,22 +94,8 @@ class StorageServiceImpl final : public StorageQuery::Service{
 	}
 };
 
-// read server config files to get all server addresses
-
-void load_servers() {
-	std::ifstream file (SERVER_CONFIG);
-	if (file.is_open()) {
-		std::string server;
-		while (std::getline(file, server)) {
-			servers.push_back(server);
-		}
-		file.close();
-	}
-	else mLogger.log_error("Cannot open file " + std::string(SERVER_CONFIG) + " to read");
-}
-
 void* check_servers(void*) {
-	//std::vector<std::string> servers = conHash.getAllNodes();
+	std::vector<std::string> servers = conHash.getAllNodes();
 	while (true) {
 		for (std::string server : servers) {
 			mLogger.log_trace("Checking " + server);
@@ -148,20 +136,17 @@ void RunServer() {
 int main(int argc, char** argv) {
 	mLogger.log_config("Master");
 
-	load_servers();
 
 	pthread_t ping_thread;
 	if (0 != pthread_create(&ping_thread, NULL, &check_servers, NULL)) {
 		mLogger.log_error("ping thread create failure");
 	}
 
-	RunServer();
+	// RunServer();
 	//TODO: start a thread to check connections with servers
 	ConHash conHash;
 
 	conHash.addNode("127.0.0.1:8000");
-
-	conHash.getReplicaNode("127.0.0.1:8000");
 
 	conHash.addNode("127.0.0.1:8001");
 
@@ -173,7 +158,7 @@ int main(int argc, char** argv) {
 
 	conHash.addNode("127.0.0.1:8005");
 
-	conHash.getReplicaNode("127.0.0.1:8000");
+	conHash.getNodes("123");
 
   	return 0;
 }
