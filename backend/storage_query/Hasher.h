@@ -46,6 +46,20 @@ public:
 	    return hashcode;
 	}
 
+	　
+	long hash2(std::string addr) {
+		long hash1 = getHashVal(addr);
+
+		long half = (1 << 63);
+		long full = (1 << 64);
+
+		half = half - (full - hash1);
+
+		if(half < 0) half += full;
+
+		return half;
+	}
+
 };
 
 

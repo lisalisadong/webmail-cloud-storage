@@ -140,15 +140,15 @@ int main(int argc, char** argv) {
 
 	// load_servers();
 
-	check_servers();
+	// check_servers();
 
-	RunServer();
+	// RunServer();
 	//TODO: start a thread to check connections with servers
 	ConHash conHash;
 
 	conHash.addNode("127.0.0.1:8000");
 
-	conHash.getReplicaNode("127.0.0.1:8000");
+	// conHash.getReplicaNodes("127.0.0.1:8000");
 
 	conHash.addNode("127.0.0.1:8001");
 
@@ -160,7 +160,9 @@ int main(int argc, char** argv) {
 
 	conHash.addNode("127.0.0.1:8005");
 
-	conHash.getReplicaNode("127.0.0.1:8000");
+	conHash.getReplicaNodes("127.0.0.1:8002");
+
+	conHash.getNodes("123");
 
   	return 0;
 }

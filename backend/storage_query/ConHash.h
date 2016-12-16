@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <unordered_set>
+#include <unordered_map>
 #include "Hasher.h"
 
 #define V_NUM 1
@@ -36,9 +37,7 @@ public:
 
 	bool deleteNode(std::string addr);
 
-	std::string getNode(std::string key);
-
-	std::vector<std::string> getReplicaNode(std::string addr);
+	std::unordered_set<std::string> getNodes(std::string key);
 
 	std::vector<std::string> getAllNodes();
 
@@ -46,7 +45,7 @@ public:
 
 	void notifyDown(std::string addr);
 
-private:
+public:
 
 	std::map<long, VNode> map;
 
@@ -57,7 +56,6 @@ private:
 	std::unordered_set<std::string> upServers;
 
 	std::unordered_set<std::string> downServers;
-
 
 private:
 
@@ -80,8 +78,13 @@ VNode ConHash::getVirtual(std::string addr, int i) {
 }
 
 
+// return all the virtual nodes that's clockwisely next to the node added
 std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string addr) {
 
+	// add to working server set
+	upServers.insert(addr);
+
+	// return the nodes that new nodes should ask for data.
 	std::vector<std::pair<std::string, std::string> > res;
 
 	std::unordered_set<std::string> ids;
@@ -122,16 +125,19 @@ std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string a
 
 		ids.insert(next.id);
 	}
+	std::cout << "===========================Node " << addr << " added.============================" << std::endl;
 
 	return res;
 }
 
-std::string ConHash::getNode(std::string key) {
+std::unordered_set<std::string> ConHash::getNodes(std::string key) {
 	/* No node yet */
 	if(map.size() == 0) {
 		throw std::exception();
 	}
 
+	std::unordered_set<std::string> res;
+	//============first hash====================
 	long hashVal = hasher.getHashVal(key);
 
 	std::cout << "Hash value of " << key << " is: " << hashVal << std::endl;
@@ -142,50 +148,56 @@ std::string ConHash::getNode(std::string key) {
 		itr = map.begin();
 	}
 
-	std::cout << key << " is in node: " << itr->second.vId << std::endl;
+	std::string primary = itr->second.id;
 
-	return itr->second.id;
-}
+	res.insert(primary);
 
-std::vector<std::string> ConHash::getReplicaNode(std::string addr) {
-	std::vector<std::string> res;
-
-	if(map.size() == 0) return res;
-
-	long hashVal = hasher.getHashVal(addr);
-	std::map<long, VNode>::iterator itr = map.upper_bound(hashVal);
+	//=============second hash==================
+	hashVal = hasher.hash2(key);
+	itr = map.upper_bound(hashVal);
 
 	if(itr == map.end()) {
 		itr = map.begin();
 	}
 
-	if(itr->second.id != addr) {
-		std::cout << "Replica node for " << addr << ": " << itr->second.id << std::endl;
-		res.push_back(itr->second.id);
-	}
+	std::string secondary = itr->second.id;
 
-	itr++;
-	if(itr == map.end()) {
-		itr = map.begin();
-	}
-
-	if(itr->second.id != addr && (res.size() == 0 || res[0] != itr->second.id)) {
-		std::cout << "Replica node for " << addr << ": " << itr->second.id << std::endl;
-		res.push_back(itr->second.id);
-	}
+	if(res.find(secondary) == map.end()) res.insert(secondary);
 
 	return res;
 }
 
+// returns all the nodes.
 std::vector<std::string> ConHash::getAllNodes() {
+	std::vector<std::string> res;
+	for(std::string server: upServers) {
+		res.push_back(server);
+	}
+
+	for(std::string server: downServers) {
+		res.push_back(server);
+	}
+	return res;
 }
 
 void ConHash::notifyUp(std::string addr) {
+	if(upServers.find(addr) == upServers.end()) {
+		upServers.insert(addr);
+	}
 
+	if(downServers.find(addr) != downServers.end()) {
+		downServers.erase(addr);
+	}
 }
 
 void ConHash::notifyDown(std::string addr) {
+	if(upServers.find(addr) != upServers.end()) {
+		upServers.insert(addr);
+	}
 
+	if(downServers.find(addr) == downServers.end()) {
+		downServers.erase(addr);
+	}
 }
 
 
