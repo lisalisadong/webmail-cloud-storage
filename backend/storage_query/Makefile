@@ -40,7 +40,7 @@ storage_server: storage_query.pb.o storage_query.grpc.pb.o logger.o file_system.
 	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
 
 clean:
-	rm -f *.o *.pb.cc *.pb.h storage_client storage_server master
+	rm -f *.o *.pb.cc *.pb.h storage_client storage_server master_client master
 
 
 # The following is to test your system and ensure a smoother experience.

@@ -95,8 +95,8 @@ class StorageServiceImpl final : public StorageQuery::Service{
 };
 
 void* check_servers(void*) {
-	std::vector<std::string> servers = conHash.getAllNodes();
 	while (true) {
+		std::vector<std::string> servers = conHash.getAllNodes();
 		for (std::string server : servers) {
 			mLogger.log_trace("Checking " + server);
 			StorageClient client(grpc::CreateChannel(server, grpc::InsecureChannelCredentials()));
@@ -142,8 +142,8 @@ int main(int argc, char** argv) {
 		mLogger.log_error("ping thread create failure");
 	}
 
-	// RunServer();
-	//TODO: start a thread to check connections with servers
+	RunServer();
+
 	ConHash conHash;
 
 	conHash.addNode("127.0.0.1:8000");
