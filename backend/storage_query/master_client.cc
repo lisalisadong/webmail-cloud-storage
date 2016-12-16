@@ -136,215 +136,49 @@ bool MasterClient::Ping() {
   return status.ok();
 }
 
+std::pair<std::string, std::string> getPair(std::string str) {
+  int i = 0;
+  while(str[i] != ' ') { i++; }
+
+  std::cout << "(" << str.substr(0, i) << ", " << str.substr(i + 1, str.length() - i) << ")" << std::endl;
+
+  return std::make_pair(str.substr(0, i), str.substr(i + 1, str.length() - i));
+}
+
+void deserialize(std::vector<std::pair<std::string, std::string> >& pairs, std::string nodes) {
+  int start = 0, end = 0;
+  for (int end = 0; end < nodes.length(); end++) {
+    if(nodes[end] != ',') continue;
+    std::string pair = nodes.substr(start, end - start);
+    start = end + 1;
+
+    pairs.push_back(getPair(pair));
+
+  }
+}
+
 // int main(int argc, char** argv) {
-// 	// TODO:
-// 	// Instantiate the client. It requires a channel, out of which the actual RPCs
-// //  are created. This channel models a connection to an endpoint (in this case,
-// //  localhost at port 50051). We indicate that the channel isn't authenticated
-// //  (use of InsecureChannelCredentials()).
-//   Logger logger;
-//   logger.log_config("StorageClient");
-
-//   std::string serverAddr = "localhost:50051";
-
-//  StorageClient client(grpc::CreateChannel(
-//      serverAddr, grpc::InsecureChannelCredentials()));
-
-//  if (client.Ping()) {
-//   logger.log_trace("Channel created. Server " + serverAddr + " is ready to accept rpcs.");
-//  } else {
-//   logger.log_warn("Channel cannot be created. Server " + serverAddr + " is down.");
-//   // rehashing
-//   return 0;
-//  }
-
-//  // StorageClient client(grpc::CreateChannel(
-//  //     "localhost:8000", grpc::InsecureChannelCredentials()));
-
-//  std::string response = client.Get("1", "csadas");
-//  std::cout << "getting address 1: " << response << std::endl;
-//  // response = client.Get("r1", "dasdasfsa");
-//  // std::cout << "getting address 2: " << response << std::endl;
-
-//  response = client.Get("r1", "c1");
-//  std::cout << "getting r1||c1: " << response << std::endl;
-
-//  client.Put("r1", "c1", "v1");
-//  std::cout << "put r1||c1||v1" << std::endl;
-
-//  response = client.Get("r1", "c1");
-//  std::cout << "getting r1||c1: " << response << std::endl;
-
-//  response = client.Get("r1", "c1");
-//  std::cout << "getting r1||c1: " << response << std::endl;
-
-//  std::cout << "=================================" << std::endl;
-//  std::cout  << std::endl;
-
-//  client.Put("r2", "c2", "v2");
-//  std::cout << "put r2||c2||v2" << std::endl;
-
-//  response = client.Get("r2", "c2");
-//  std::cout << "getting r2||c2: " << response << std::endl;
-
-//  response = client.Get("r2", "c2");
-//  std::cout << "getting r2||c2: " << response << std::endl;
-
-//  response = client.Get("r1", "c1");
-//  std::cout << "getting r1||c1: " << response << std::endl;
-
-//  std::cout << "=================================" << std::endl;
-//  std::cout  << std::endl;
-
-//  client.Put("r3", "c3", "v3");
-//  std::cout << "put r3||c3||v3" << std::endl;
-
-//  response = client.Get("r3", "c3");
-//  std::cout << "getting r3||c3: " << response << std::endl;
-
-//  response = client.Get("r1", "c1");
-//  std::cout << "getting r1||c1: " << response << std::endl;
-
-//  std::cout << "=================================" << std::endl;
-//  std::cout  << std::endl;
-
-//  client.Put("r4", "c4", "v4");
-//  std::cout << "put r4||c4||v4" << std::endl;
-
-//  response = client.Get("r4", "c4");
-//  std::cout << "getting r4||c4: " << response << std::endl;
-
-//  response = client.Get("r1", "c1");
-//  std::cout << "getting r1||c1: " << response << std::endl;
-
-//  std::cout << "=================================" << std::endl;
-//  std::cout  << std::endl;
-
-//  client.Put("r5", "c5", "v5");
-//  std::cout << "put r5||c5||v5" << std::endl;
-
-//  response = client.Get("r5", "c5");
-//  std::cout << "getting r5||c5: " << response << std::endl;
-
-//  response = client.Get("r1", "c1");
-//  std::cout << "getting r1||c1: " << response << std::endl;
-
-//  std::cout << "=================================" << std::endl;
-//  std::cout  << std::endl;
-
-//  client.Put("r6", "c6", "v6");
-//  std::cout << "put r6||c6||v6" << std::endl;
-
-//  response = client.Get("r6", "c6");
-//  std::cout << "getting r6||c6: " << response << std::endl;
-
-//  response = client.Get("r1", "c1");
-//  std::cout << "getting r1||c1: " << response << std::endl;
-
-//  std::cout << "=================================" << std::endl;
-//  std::cout  << std::endl;
-
-//  client.Put("r7", "c7", "v7");
-//  std::cout << "put r7||c7||v7" << std::endl;
-
-//  response = client.Get("r7", "c7");
-//  std::cout << "getting r7||c7: " << response << std::endl;
-
-//  response = client.Get("r1", "c1");
-//  std::cout << "getting r1||c1: " << response << std::endl;
-
-//  std::cout << "=================================" << std::endl;
-//  std::cout  << std::endl;
-
-//  client.Put("r8", "c8", "v8");
-//  std::cout << "put r8||c8||v8" << std::endl;
-
-//  response = client.Get("r8", "c8");
-//  std::cout << "getting r8||c8: " << response << std::endl;
-
-//  response = client.Get("r1", "c1");
-//  std::cout << "getting r1||c1: " << response << std::endl;
-
-//  std::cout << "=================================" << std::endl;
-//  std::cout  << std::endl;
-
-//    client.Put("r9", "c9", "v9");
-//  std::cout << "put r6||c6||v6" << std::endl;
-
-//  response = client.Get("r9", "c9");
-//  std::cout << "getting r6||c6: " << response << std::endl;
-
-//  response = client.Get("r2", "c2");
-//  std::cout << "getting r2||c2: " << response << std::endl;
-
-//  std::cout << "=================================" << std::endl;
-//  std::cout  << std::endl;
-
-//  client.Delete("r1", "c1");
-//  std::cout << "delete r1||c1||v1" << std::endl;
-
-//  response = client.Get("r1", "c1");
-//  std::cout << "getting r1||c1: " << response << std::endl;
-// }
-
-  // client.CPut(row, col, "val", "abc");
-  // std::cout << "c putting lisa||emails||abc" << std::endl;
-
-  // std::cout << "=================================" << std::endl;
-  // std::cout  << std::endl;
-
-  // response = client.Get(row, col);
-  // std::cout << "getting lisa||emails: " << response << std::endl;
-
-  // std::cout << "=================================" << std::endl;
-  // std::cout  << std::endl;
-
-  // client.CPut(row, col, "from 1 to 2:xxx", "abc");
-  // std::cout << "c putting lisa||emails||abc" << std::endl;
-
-  // std::cout << "=================================" << std::endl;
-  // std::cout  << std::endl;
-
-  // response = client.Get(row, col);
-  // std::cout << "getting lisa||emails: " << response << std::endl;
-
-  // std::cout << "=================================" << std::endl;
-  // std::cout  << std::endl;
-
-
-  // response = client.Get(row, col);
-  // std::cout << "getting lisa||emails: " << response << std::endl;
-
-
-  // row = "Tom"; col = "Cruise"; val = "wow";
-  // client.Put(row, col, val);
-  // std::cout << "putting Tom||Cruise||wow" << std::endl;
-
-  // response = client.Get(row, col);
-  // std::cout << "getting Tom||Cruise: " << response << std::endl;
-
-  
-
-//  //  std::string val_new("from 1 to 2:ooo");
-//  //  client.CPut(row, col, val_new, val_new);
-//  //  std::cout << "cputting lisa||emails||from 1 to 2:ooo||from 1 to 2:ooo" << std::endl;
-
-//  //  response = client.Get(row, col);
-//  //  std::cout << "getting lisa||emails: " << response << std::endl;
-
-//  //  client.CPut(row, col, val, val_new);
-//  //  std::cout << "cputting lisa||emails||from 1 to 2:xxx||from 1 to 2:ooo" << std::endl;
-
-//  //  response = client.Get(row, col);
-//  //  std::cout << "getting lisa||emails: " << response << std::endl;
-
-//  //  client.Delete(row, col);
-//  //  std::cout << "deleting lisa||emails: " << response << std::endl;
-
-// 	// response = client.Get(row, col);
-//  //  std::cout << "getting lisa||emails: " << response << std::endl;
-
-//   return 0;
-// }
+	// TODO:
+	// Instantiate the client. It requires a channel, out of which the actual RPCs
+//  are created. This channel models a connection to an endpoint (in this case,
+//  localhost at port 50051). We indicate that the channel isn't authenticated
+//  (use of InsecureChannelCredentials()).
+ //  Logger logger;
+ //  logger.log_config("StorageClient");
+
+ //  std::string serverAddr = "localhost:50051";
+
+ // StorageClient client(grpc::CreateChannel(
+ //     serverAddr, grpc::InsecureChannelCredentials()));
+
+ // if (client.Ping()) {
+ //  logger.log_trace("Channel created. Server " + serverAddr + " is ready to accept rpcs.");
+ // } else {
+ //  logger.log_warn("Channel cannot be created. Server " + serverAddr + " is down.");
+ //  // rehashing
+ //  return 0;
+ // }
+  // std::vector<std::pair<std::string, std::string> > pairs;
+  // deserialize(pairs, "a1 b1,a2 b2,");
 
 // }

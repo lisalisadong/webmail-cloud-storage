@@ -162,7 +162,11 @@ std::unordered_set<std::string> ConHash::getNodes(std::string key) {
 
 	std::string secondary = itr->second.id;
 
-	if(res.find(secondary) == map.end()) res.insert(secondary);
+	if(res.find(secondary) == res.end()) res.insert(secondary);
+
+	for(std::string node: res) {
+		std::cout << "Node for " << key << " is: " << node << std::endl;
+	}
 
 	return res;
 }

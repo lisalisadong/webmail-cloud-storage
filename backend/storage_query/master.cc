@@ -49,10 +49,15 @@ class StorageServiceImpl final : public StorageQuery::Service{
 	Status Get(ServerContext* context, const GetRequest* request, 
 						GetResponse* response) override {
 
-		std::string row = request->row();
+		std::string key = request->row();
 
 		try {
-			response->set_val("");
+			std::unordered_set<std::string> nodes = conHash.getNodes(key);	// get nodes that stores the key
+			std::string res;
+			for(std::string node: nodes) {
+				res.append(node).append(" ");
+			}
+			response->set_val(res);
 			return Status::OK;
 		} catch (std::exception &e) {
 			Status status(StatusCode::NOT_FOUND, "No corresponding keys");
@@ -63,6 +68,17 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 	Status Put(ServerContext* context, const PutRequest* request, 
 						PutResponse* response) override {
+		std::string addr = request->row();
+
+		std::vector<std::pair<std::string, std::string> > pairs = conHash.addNode(addr);
+
+		std::string res;
+
+		for(int i = 0; i < pairs.size(); i++) {
+			std::pair<std::string, std::string> p = pairs[i];
+
+			res.append(p.first).append(" ").append(p.second).append(",");
+		}
 
 		return Status::OK;
 	}
@@ -107,7 +123,7 @@ void load_servers() {
 }
 
 void* check_servers(void*) {
-	//std::vector<std::string> servers = conHash.getAllNodes();
+	std::vector<std::string> servers = conHash.getAllNodes();
 	while (true) {
 		for (std::string server : servers) {
 			mLogger.log_trace("Checking " + server);
@@ -148,7 +164,7 @@ void RunServer() {
 int main(int argc, char** argv) {
 	mLogger.log_config("Master");
 
-	load_servers();
+	// load_servers();
 
 	pthread_t ping_thread;
 	if (0 != pthread_create(&ping_thread, NULL, &check_servers, NULL)) {
@@ -161,8 +177,6 @@ int main(int argc, char** argv) {
 
 	conHash.addNode("127.0.0.1:8000");
 
-	// conHash.getReplicaNodes("127.0.0.1:8000");
-
 	conHash.addNode("127.0.0.1:8001");
 
 	conHash.addNode("127.0.0.1:8002");
@@ -172,8 +186,6 @@ int main(int argc, char** argv) {
 	conHash.addNode("127.0.0.1:8004");
 
 	conHash.addNode("127.0.0.1:8005");
-
-	conHash.getReplicaNodes("127.0.0.1:8002");
 
 	conHash.getNodes("123");
 
