@@ -86,6 +86,10 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		return Status::OK;
 	}
 
+	Status Ping(ServerContext* context, const PingRequest* request,
+						PingResponse* response) override {
+		return Status::OK;
+	}
 };
 
 // read server config files to get all server addresses
@@ -112,7 +116,7 @@ void* check_servers(void*) {
 				// mLogger.log_trace("Server " + server + " is up");
 				conHash.notifyUp(server);
 			} else {
-				// mLogger.log_trace("Server " + server + " is down");
+				mLogger.log_trace("Server " + server + " is down");
 				conHash.notifyDown(server);
 			}
 		}
@@ -133,7 +137,7 @@ void RunServer() {
 	builder.RegisterService(&service);
 	// Finally assemble the server.
 	std::unique_ptr<Server> server(builder.BuildAndStart());
-	std::cout << "Server listening on " << server_address << std::endl;
+	mLogger.log_trace("Server listening on " + server_address);
 
 	// Wait for the server to shutdown. Note that some other thread must be
 	// responsible for shutting down the server for this call to ever return.

@@ -45,8 +45,8 @@ using storagequery::MigrateResponse;
 using storagequery::PingRequest;
 using storagequery::PingResponse;
 
-#define MASTER_ADDR "0.0.0.0:8000"
-#define WORKER_ADDR "0.0.0.0:50051"
+#define MASTER_ADDR "localhost:8000"
+#define WORKER_ADDR "localhost:50051"
 
 Logger wLogger;
 
@@ -158,25 +158,30 @@ public:
 };
 
 std::string get_real_addr(std::string virtual_addr) {
-
+	std::size_t found = virtual_addr.find("_");
+	return virtual_addr.substr(0, found);
 }
 
-void get_data() {
+void* get_data(void*) {
+	sleep(3);
 	MasterClient master(grpc::CreateChannel(MASTER_ADDR, grpc::InsecureChannelCredentials()));
 	if (master.Ping()) {
 		wLogger.log_trace("master is ready, requesting data");
 		std::vector<std::pair<std::string, std::string> > pairs;
-		if (master.Get(WORKER_ADDR, NULL, pairs)) {
+		if (master.Get(WORKER_ADDR, WORKER_ADDR, pairs)) {
 			for (std::pair<std::string, std::string> p : pairs) {
 				std::string other = get_real_addr(p.first);
 				StorageClient worker(grpc::CreateChannel(other, grpc::InsecureChannelCredentials()));
 				StorageClient self(grpc::CreateChannel(WORKER_ADDR, grpc::InsecureChannelCredentials()));
 				std::unordered_map<std::string, std::unordered_map<std::string, std::string> > data;
-				worker.Migrate(p.second, data);
-				for (auto it = data.begin(); it != data.end(); it++) {
-					for (auto itr = it->second.begin(); itr != it->second.end(); itr++) {
-						self.Put(it->first, itr->first, itr->second);
+				if (worker.Migrate(p.second, data)) {
+					wLogger.log_trace("migrating data...");
+					for (auto it = data.begin(); it != data.end(); it++) {
+						for (auto itr = it->second.begin(); itr != it->second.end(); itr++) {
+							self.Put(it->first, itr->first, itr->second);
+						}
 					}
+					wLogger.log_trace("migrating done");
 				}
 			}
 		}
@@ -214,9 +219,10 @@ void RunServer() {
 
 int main(int argc, char** argv) {
 	wLogger.log_config("StorageServer");
-
-	get_data();
-	
+	pthread_t server_thread;
+	if (0 != pthread_create(&server_thread, NULL, &get_data, NULL)) {
+		wLogger.log_error("failed to start thread to get data");
+	}
 	RunServer();
 
 	std::cout << "test" << std::endl;

@@ -22,7 +22,7 @@ bool MasterClient::Get(const std::string& row, const std::string& col, std::vect
 	// Data we are sending to the server.
 	GetRequest request;
 	request.set_row(row);
-	request.set_col(col);
+	//request.set_col(col);
 
 	// Container for the data we expect from the server.
 	GetResponse response;
@@ -36,7 +36,8 @@ bool MasterClient::Get(const std::string& row, const std::string& col, std::vect
 
   // Act upon its status.
   if (status.ok()) {
-    //val = response.val();
+    //for testing
+    val.push_back(std::make_pair("localhost:50051_2", "localhost:50051_1"));
     return true;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
