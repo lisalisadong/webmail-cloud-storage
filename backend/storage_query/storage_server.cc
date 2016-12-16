@@ -51,10 +51,6 @@ using storagequery::PingResponse;
 Logger wLogger;
 
 class StorageServiceImpl final : public StorageQuery::Service{
-	// TODO: add method to migrate date
-	// Status Migrate(context, request, response)
-	// request: address (hash(address) -> long)
-	// response: string serialized map
 	
 	Status Get(ServerContext* context, const GetRequest* request, 
 						GetResponse* response) override {
@@ -168,7 +164,7 @@ void* get_data(void*) {
 	if (master.Ping()) {
 		wLogger.log_trace("master is ready, requesting data");
 		std::vector<std::pair<std::string, std::string> > pairs;
-		if (master.Get(WORKER_ADDR, WORKER_ADDR, pairs)) {
+		if (master.AddNode(WORKER_ADDR, pairs)) {
 			for (std::pair<std::string, std::string> p : pairs) {
 				std::string other = get_real_addr(p.first);
 				StorageClient worker(grpc::CreateChannel(other, grpc::InsecureChannelCredentials()));

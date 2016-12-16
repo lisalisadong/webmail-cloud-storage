@@ -14,6 +14,8 @@ service StorageQuery {
   rpc Delete (DeleteRequest) returns (DeleteResponse) {}
   rpc Migrate (MigrateRequest) returns (MigrateResponse) {}
   rpc Ping (PingRequest) returns (PingResponse) {}
+  rpc AddNode (AddNodeRequest) returns (AddNodeResponse) {}
+  rpc DeleteNode (GetNodeRequest) returns (GetNodeResponse) {}
 }  
 
 // get
@@ -74,5 +76,22 @@ message PingRequest {
 }
 
 message PingResponse {
+
+}
+
+// add node
+message AddNodeRequest {
+  string addr = 1;
+}
+
+message AddNodeResponse {
+  string data_map = 1;
+}
+
+message DeleteNodeRequest {
+  string addr = 1;
+}
+
+message DeleteNodeResponse {
 
 }

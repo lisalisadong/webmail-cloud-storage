@@ -27,15 +27,11 @@ public:
 	MasterClient(std::shared_ptr<Channel> channel) :
 			stub_(StorageQuery::NewStub(channel)) {logger.log_config("MasterClient");}
 
-	bool Get(const std::string& row, const std::string& col, std::vector<std::pair<std::string, std::string> >& val);
+	bool Get(const std::string& row, const std::string& col, const std::string& addr);
 
-	bool Put(const std::string& row, const std::string& col,
-			const std::string& val);
+	bool AddNode(const std::string& addr, std::vector<std::pair<std::string, std::string> >& val);
 
-	bool CPut(const std::string& row, const std::string& col,
-			const std::string& val1, const std::string& val2);
-
-	bool Delete(const std::string& row, const std::string& col);
+	bool DeleteNode(const std::string& addr);
 
 	bool Ping();
 
