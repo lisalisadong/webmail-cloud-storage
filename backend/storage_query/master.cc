@@ -76,19 +76,21 @@ class StorageServiceImpl final : public StorageQuery::Service{
 	Status AddNode(ServerContext* context, const AddNodeRequest* request, 
 						AddNodeResponse* response) override {
 		std::string addr = request->addr();
+		try {
+			std::vector<std::pair<std::string, std::string> > pairs = conHash.addNode(addr);
 
-		std::vector<std::pair<std::string, std::string> > pairs = conHash.addNode(addr);
+			std::string res;
 
-		std::string res;
+			for(int i = 0; i < pairs.size(); i++) {
+				std::pair<std::string, std::string> p = pairs[i];
 
-		for(int i = 0; i < pairs.size(); i++) {
-			std::pair<std::string, std::string> p = pairs[i];
+				res.append(p.first).append(" ").append(p.second).append(",");
+			}
 
-			res.append(p.first).append(" ").append(p.second).append(",");
-		}
+			response->set_data_map(res);
+		} catch (std::exception& e) { }
 
-		response->set_data_map(res);
-
+		mLogger.log_trace("Node " + addr + " added successfully.");
 		return Status::OK;
 	}
 
@@ -105,10 +107,10 @@ void* check_servers(void*) {
 			mLogger.log_trace("Checking " + server);
 			StorageClient client(grpc::CreateChannel(server, grpc::InsecureChannelCredentials()));
 			if (client.Ping()) {
-				// mLogger.log_trace("Server " + server + " is up");
+				mLogger.log_trace("Server " + server + " OK.");
 				conHash.notifyUp(server);
 			} else {
-				mLogger.log_trace("Server " + server + " is down");
+				mLogger.log_warn("Server " + server + " is down.");
 				conHash.notifyDown(server);
 			}
 		}
@@ -148,21 +150,21 @@ int main(int argc, char** argv) {
 
 	RunServer();
 
-	ConHash conHash;
+	// ConHash conHash;
 
-	conHash.addNode("127.0.0.1:8000");
+	// conHash.addNode("127.0.0.1:8000");
 
-	conHash.addNode("127.0.0.1:8001");
+	// conHash.addNode("127.0.0.1:8001");
 
-	conHash.addNode("127.0.0.1:8002");
+	// conHash.addNode("127.0.0.1:8002");
 
-	conHash.addNode("127.0.0.1:8003");
+	// conHash.addNode("127.0.0.1:8003");
 
-	conHash.addNode("127.0.0.1:8004");
+	// conHash.addNode("127.0.0.1:8004");
 
-	conHash.addNode("127.0.0.1:8005");
+	// conHash.addNode("127.0.0.1:8005");
 
-	conHash.getNodes("123");
+	
 
   	return 0;
 }

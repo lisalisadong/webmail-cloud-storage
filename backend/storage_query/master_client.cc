@@ -146,27 +146,52 @@ void getNodes(std::vector<std::string>& addr, std::string str) {
 }
 
 // int main(int argc, char** argv) {
-	// TODO:
-	// Instantiate the client. It requires a channel, out of which the actual RPCs
- // are created. This channel models a connection to an endpoint (in this case,
- // localhost at port 50051). We indicate that the channel isn't authenticated
- // (use of InsecureChannelCredentials()).
- //  Logger logger;
- //  logger.log_config("StorageClient");
+// 	// TODO:
+// 	// Instantiate the client. It requires a channel, out of which the actual RPCs
+//  // are created. This channel models a connection to an endpoint (in this case,
+//  // localhost at port 50051). We indicate that the channel isn't authenticated
+//  // (use of InsecureChannelCredentials()).
+//   Logger logger;
+//   logger.log_config("StorageClient");
 
- //  std::string serverAddr = "localhost:50051";
+//   std::string serverAddr = "localhost:8000";
 
- // StorageClient client(grpc::CreateChannel(
- //     serverAddr, grpc::InsecureChannelCredentials()));
+//   MasterClient client(grpc::CreateChannel(
+//   serverAddr, grpc::InsecureChannelCredentials()));
 
- // if (client.Ping()) {
- //  logger.log_trace("Channel created. Server " + serverAddr + " is ready to accept rpcs.");
- // } else {
- //  logger.log_warn("Channel cannot be created. Server " + serverAddr + " is down.");
- //  // rehashing
- //  return 0;
- // }
- //  std::vector<std::pair<std::string, std::string> > pairs;
- //  deserialize(pairs, "a1 b1,a2 b2,");
+//   //=====================test======================
+//   std::vector<std::string> addr;
+//   if(client.GetNode("r1", "c1", addr)) {
+//     if(addr.size() == 0) {
+//       logger.log_trace("No such key (r1, c1).");
+//     } else {
+//       logger.log_trace("Addr for r1, c1: ");
+//       for(std::string n: addr) {
+//         logger.log_trace(n);
+//       }
+//     }
+//   } else {
+//     logger.log_error("Something's wrong.");
+//   }
 
 // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -49,6 +49,12 @@ using storagequery::PingResponse;
 #define WORKER_ADDR "localhost:50051"
 
 Logger wLogger;
+std::string worker_addr("localhost:");
+
+Hasher hasher;
+
+/* global master client */
+MasterClient master(grpc::CreateChannel(MASTER_ADDR, grpc::InsecureChannelCredentials()));
 
 class StorageServiceImpl final : public StorageQuery::Service{
 	
@@ -138,7 +144,15 @@ class StorageServiceImpl final : public StorageQuery::Service{
 						MigrateResponse* response) override {
 		// TODO: implement
 		std::string address = request->address();
-		response->set_data("123");
+		std::size_t found = address.find("_");
+
+		std::string self_addr = address.substr(0, found);
+
+		std::string other_addr = address.substr(found + 1, address.length() - found - 1);
+
+		std::string data = cache.getAll(self_addr, other_addr);
+
+		response->set_data(data);
 		return Status::OK;
 	}
 
@@ -160,17 +174,16 @@ std::string get_real_addr(std::string virtual_addr) {
 
 void* get_data(void*) {
 	sleep(3);
-	MasterClient master(grpc::CreateChannel(MASTER_ADDR, grpc::InsecureChannelCredentials()));
 	if (master.Ping()) {
 		wLogger.log_trace("master is ready, requesting data");
 		std::vector<std::pair<std::string, std::string> > pairs;
-		if (master.AddNode(WORKER_ADDR, pairs)) {
+		if (master.AddNode(worker_addr, pairs)) {
 			for (std::pair<std::string, std::string> p : pairs) {
 				std::string other = get_real_addr(p.first);
 				StorageClient worker(grpc::CreateChannel(other, grpc::InsecureChannelCredentials()));
-				StorageClient self(grpc::CreateChannel(WORKER_ADDR, grpc::InsecureChannelCredentials()));
+				StorageClient self(grpc::CreateChannel(worker_addr, grpc::InsecureChannelCredentials()));
 				std::unordered_map<std::string, std::unordered_map<std::string, std::string> > data;
-				if (worker.Migrate(p.second, data)) {
+				if (worker.Migrate(p.first + " " + p.second, data)) {
 					wLogger.log_trace("migrating data...");
 					for (auto it = data.begin(); it != data.end(); it++) {
 						for (auto itr = it->second.begin(); itr != it->second.end(); itr++) {
@@ -190,7 +203,8 @@ void* get_data(void*) {
 
 void RunServer() {
 
-	std::string server_address(WORKER_ADDR);
+	// std::string server_address(WORKER_ADDR);
+	std::string server_address(worker_addr);
 	StorageServiceImpl service;
 
 	ServerBuilder builder;
@@ -214,14 +228,19 @@ void RunServer() {
 
 
 int main(int argc, char** argv) {
+	if(argc != 2) {
+		wLogger.log_error("Wrong configuration, please enter a port number.");
+		return 0;
+	}
+
+	worker_addr.append(argv[1]);
+
 	wLogger.log_config("StorageServer");
 	pthread_t server_thread;
 	if (0 != pthread_create(&server_thread, NULL, &get_data, NULL)) {
 		wLogger.log_error("failed to start thread to get data");
 	}
 	RunServer();
-
-	std::cout << "test" << std::endl;
 
   	return 0;
 }

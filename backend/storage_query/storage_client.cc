@@ -18,6 +18,9 @@ using storagequery::MigrateResponse;
 using storagequery::PingRequest;
 using storagequery::PingResponse;
 
+// TODO: implement
+void deserializeMigrate(std::unordered_map<std::string, std::string> >& data, std::string rawData);
+
 bool StorageClient::Get(const std::string& row, const std::string& col, std::string& val) {
 	// Data we are sending to the server.
 	GetRequest request;
@@ -141,6 +144,9 @@ bool StorageClient::Migrate(std::string virtualAddr, std::unordered_map<std::str
   MigrateResponse response;
   Status status = stub_->Migrate(&context, request, &response);
   // TODO: get data
+
+  deserializeMigrate(data, response);
+
   if (status.ok()) {
     return true;
   } else {
@@ -148,6 +154,11 @@ bool StorageClient::Migrate(std::string virtualAddr, std::unordered_map<std::str
               << std::endl;
     return false;
   }
+}
+
+// TODO: implement
+void deserializeMigrate(std::unordered_map<std::string, std::string> >& data, std::string rawData) {
+
 }
 
 // int main(int argc, char** argv) {

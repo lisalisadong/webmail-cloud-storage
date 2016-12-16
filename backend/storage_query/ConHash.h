@@ -7,8 +7,11 @@
 #include <unordered_set>
 #include <unordered_map>
 #include "Hasher.h"
+#include "logger.h"
 
 #define V_NUM 1
+
+Logger logger;
 
 class VNode{
 public:
@@ -85,6 +88,9 @@ std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string a
 
 	// add to working server set
 	upServers.insert(addr);
+	if(downServers.find(addr) != downServers.end()) {
+		downServers.erase(addr);
+	}
 
 	// return the nodes that new nodes should ask for data.
 	std::vector<std::pair<std::string, std::string> > res;

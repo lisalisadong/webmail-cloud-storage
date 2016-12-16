@@ -252,3 +252,7 @@ bool Cache::containsKey(std::string row, std::string col) {
     return true;
 
 }
+
+std::string getAll(std::string self_addr, std::string other_addr) {
+    return "";
+}
