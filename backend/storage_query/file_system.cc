@@ -210,7 +210,8 @@ std::string FileSystem::get_next_tuple(std::ifstream& stream) {
 }
 
 std::ifstream::pos_type FileSystem::file_size(std::string filename) {
-    std::ifstream in(std::string(STORE_DIR) + filename, std::ifstream::ate | std::ifstream::binary);
+	logger.log_trace("File name: " + filename);
+    std::ifstream in(std::string(STORE_DIR) + prefix + "_" + filename, std::ifstream::ate | std::ifstream::binary);
     return in.tellg(); 
 }
 

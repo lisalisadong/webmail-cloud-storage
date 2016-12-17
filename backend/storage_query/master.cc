@@ -48,7 +48,7 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		std::string key = request->row();
 
 		try {
-			std::unordered_set<std::string> nodes = conHash.getNodes(key);	// get nodes that stores the key
+			std::vector<std::string> nodes = conHash.getNodes(key);	// get nodes that stores the key
 			std::string res;
 			for(std::string node: nodes) {
 				res.append(node).append(" ");
@@ -152,19 +152,24 @@ int main(int argc, char** argv) {
 
 	// ConHash conHash;
 
-	// conHash.addNode("127.0.0.1:8000");
+	// conHash.addNode("localhost:50051");
 
-	// conHash.addNode("127.0.0.1:8001");
+	// conHash.addNode("localhost:50052");
 
-	// conHash.addNode("127.0.0.1:8002");
+	// std::string row; 
+	// std::string col; 
+	// std::string val; 
 
-	// conHash.addNode("127.0.0.1:8003");
+	// std::vector<std::string> vec;
 
-	// conHash.addNode("127.0.0.1:8004");
+	// for(int i = 0; i < 100; i++) {
+	// 	row = "r" + std::to_string(i);
+	// 	col = "c" + std::to_string(i);
+	// 	// val = "v" + std::to_string(i);
+	// 	vec = conHash.getNodes(row);
 
-	// conHash.addNode("127.0.0.1:8005");
-
-	
+	// 	std::cout << "(" << row << ", " << col << ") is in node: " << vec[0] << std::endl;
+	// }
 
   	return 0;
 }
