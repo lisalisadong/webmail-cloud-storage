@@ -103,10 +103,13 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		// map[row][col] = val;
 		bool status = cache.put(row, col, val);
 
-		// if(!status) {
-		// 	Status status(StatusCode::ERROR, "ERROR");
-		// 	return status;
-		// }
+		// not tested yet
+		/* get replica addr from master */
+		std::string replicaAddr;
+		if(master.GetReplica(row, col, replicaAddr) && replicaAddr != worker_addr) {
+			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
+			replicaNode.Put(row, col, val);
+		}
 
 		return Status::OK;
 	}
@@ -124,6 +127,14 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 		cache.cput(row, col, val1, val2);
 
+		// not tested yet
+		/* get replica addr from master */
+		std::string replicaAddr;
+		if(master.GetReplica(row, col, replicaAddr) && replicaAddr != worker_addr) {
+			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
+			replicaNode.CPut(row, col, val1, val2);
+		}
+
 		return Status::OK;
 	}
 
@@ -135,6 +146,14 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		// map[row].erase(col);
 
 		cache.remove(row, col);
+
+		// not tested yet
+		/* get replica addr from master */
+		std::string replicaAddr;
+		if(master.GetReplica(row, col, replicaAddr) && replicaAddr != worker_addr) {
+			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
+			replicaNode.Delete(row, col);
+		}
 
 		return Status::OK;
 	}
