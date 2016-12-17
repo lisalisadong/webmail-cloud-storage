@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <memory>
+#include <unordered_map>
 
 #include <stdlib.h>
 #include <string.h>
@@ -21,7 +22,10 @@
 
 #include "storage_query.grpc.pb.h"
 
-#include "Cache.h"
+#include "cache.h"
+#include "storage_client.h"
+#include "master_client.h"
+#include "utils.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -39,12 +43,19 @@ using storagequery::DeleteRequest;
 using storagequery::DeleteResponse;
 using storagequery::MigrateRequest;
 using storagequery::MigrateResponse;
+using storagequery::PingRequest;
+using storagequery::PingResponse;
+
+#define MASTER_ADDR "localhost:8000"
+#define WORKER_ADDR "localhost:50051"
+
+Logger wLogger;
+std::string worker_addr("localhost:");
+
+/* global master client */
+MasterClient master(grpc::CreateChannel(MASTER_ADDR, grpc::InsecureChannelCredentials()));
 
 class StorageServiceImpl final : public StorageQuery::Service{
-	// TODO: add method to migrate date
-	// Status Migrate(context, request, response)
-	// request: address (hash(address) -> long)
-	// response: string serialized map
 	
 	Status Get(ServerContext* context, const GetRequest* request, 
 						GetResponse* response) override {
@@ -92,10 +103,13 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		// map[row][col] = val;
 		bool status = cache.put(row, col, val);
 
-		// if(!status) {
-		// 	Status status(StatusCode::ERROR, "ERROR");
-		// 	return status;
-		// }
+		// not tested yet
+		/* get replica addr from master */
+		std::string replicaAddr;
+		if(master.GetReplica(row, col, replicaAddr) && replicaAddr != worker_addr) {
+			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
+			replicaNode.Put(row, col, val);
+		}
 
 		return Status::OK;
 	}
@@ -113,6 +127,14 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 		cache.cput(row, col, val1, val2);
 
+		// not tested yet
+		/* get replica addr from master */
+		std::string replicaAddr;
+		if(master.GetReplica(row, col, replicaAddr) && replicaAddr != worker_addr) {
+			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
+			replicaNode.CPut(row, col, val1, val2);
+		}
+
 		return Status::OK;
 	}
 
@@ -125,37 +147,81 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 		cache.remove(row, col);
 
+		// not tested yet
+		/* get replica addr from master */
+		std::string replicaAddr;
+		if(master.GetReplica(row, col, replicaAddr) && replicaAddr != worker_addr) {
+			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
+			replicaNode.Delete(row, col);
+		}
+
 		return Status::OK;
 	}
 
 	Status Migrate(ServerContext* context, const MigrateRequest* request,
 						MigrateResponse* response) override {
-		// TODO: implement
-		std::string address = request->address();
-		response->set_data("123");
+		std::string address = request->addr();
+		std::size_t found = address.find(" ");
+
+		std::string self_addr = address.substr(0, found);
+
+		std::string other_addr = address.substr(found + 1);
+
+		std::string data;
+		cache.migrate(self_addr, other_addr, data);
+
+		response->set_data(data);
 		return Status::OK;
 	}
 
-private:
+	Status Ping(ServerContext* context, const PingRequest* request,
+						PingResponse* response) override {
+		return Status::OK;
+	}
+
+public:
 	// std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
 	Cache cache;
 
 };
 
+void* get_data(void*) {
+	sleep(3);
+	if (master.Ping()) {
+		wLogger.log_trace("master is ready, requesting data");
+		std::vector<std::pair<std::string, std::string> > pairs;
+		if (master.AddNode(worker_addr, pairs)) {
+			for (std::pair<std::string, std::string> p : pairs) {
+				std::string other = get_real_addr(p.first);
+				StorageClient worker(grpc::CreateChannel(other, grpc::InsecureChannelCredentials()));
+				StorageClient self(grpc::CreateChannel(worker_addr, grpc::InsecureChannelCredentials()));
+				std::unordered_map<std::string, std::unordered_map<std::string, std::string> > data;
+				if (worker.Migrate(p.first + " " + p.second, data)) {
+					wLogger.log_trace("migrating data...");
+					for (auto it = data.begin(); it != data.end(); it++) {
+						for (auto itr = it->second.begin(); itr != it->second.end(); itr++) {
+							self.Put(it->first, itr->first, itr->second);
+						}
+					}
+					wLogger.log_trace("migrating done");
+				}
+			}
+		}
 
-void informMaster() {
-
+	} else {
+		wLogger.log_error("master is down");
+	}
 }
+
 
 void RunServer() {
 
-	Logger logger;
-	logger.log_config("StorageServer");
-
-	std::string server_address("0.0.0.0:50051");
+	// std::string server_address(WORKER_ADDR);
+	std::string server_address(worker_addr);
 	StorageServiceImpl service;
 
 	ServerBuilder builder;
+
 	// Listen on the given address without any authentication mechanism.
 	builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
 	// Register "service" as the instance through which we'll communicate with
@@ -163,27 +229,30 @@ void RunServer() {
 	builder.RegisterService(&service);
 	// Finally assemble the server.
 	std::unique_ptr<Server> server(builder.BuildAndStart());
-	logger.log_trace("Server listening on " + server_address);
+	wLogger.log_trace("Server listening on " + server_address);
+
+	// pthread_create(&thread, NULL, worker, NULL);
 
 	// Wait for the server to shutdown. Note that some other thread must be
 	// responsible for shutting down the server for this call to ever return.
 	server->Wait();
 }
 
-void *worker(void *arg) {
-	while(1) {
-		sleep(1);
-		std::cout << "Hi" << std::endl;
-	}
-}
-
 
 
 int main(int argc, char** argv) {
+	if(argc != 2) {
+		wLogger.log_error("Wrong configuration, please enter a port number.");
+		return 0;
+	}
 
-	pthread_t thread;
-	pthread_create(&thread, NULL, worker, NULL);
-	
+	worker_addr.append(argv[1]);
+
+	wLogger.log_config("StorageServer");
+	pthread_t server_thread;
+	if (0 != pthread_create(&server_thread, NULL, &get_data, NULL)) {
+		wLogger.log_error("failed to start thread to get data");
+	}
 	RunServer();
 
   	return 0;

@@ -7,31 +7,13 @@
 #include <string>
 
 #define STORE_DIR "./../store/"
-#define MAPPING "mapping"
-#define FULL_LOG "full_log.txt"
-#define TEMP_LOG "temp_log.txt"
 #define LOG_DIR "./../log/"
+#define MAPPING "mapping"
+#define FULL_LOG "full_log"
+#define TEMP_LOG "temp_log"
 #define MAX_FILE_SIZE 500
 
-// std::string md5_string(const std::string& str) {
-// 	unsigned char buf[MD5_DIGEST_LENGTH];
-// 	MD5_CTX c;
-// 	MD5_Init(&c);
-// 	MD5_Update(&c, str.c_str(), str.length());
-// 	MD5_Final(buf, &c);
-
-// 	std::stringstream ss;
-// 	for (int i = 0; i < MD5_DIGEST_LENGTH; i++) {
-// 		ss << std::setfill('0') << std::setw(2) << std::hex << (int)buf[i];
-// 	}
-	
-// 	return ss.str();
-// }
-
-std::string FileSystem::serialize(std::string str) {
-	int strLen = str.length();
-	return std::to_string(strLen) + ":" + str;
-}
+/************************public methods********************/
 
 void FileSystem::read_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries) {
 	logger.log_trace("Openning file " + fileName + " to read");
@@ -50,7 +32,7 @@ void FileSystem::read_file(std::string fileName, std::unordered_map<std::string,
 		}
 		file.close();
 	}
-	else logger.log_error("Cannot open file " + fileName + " to read"); //TODO: write loggers in utils
+	else logger.log_error("Cannot open file " + fileName + " to read");
 }
 
 int FileSystem::write_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries) {
@@ -77,29 +59,6 @@ int FileSystem::write_file(std::string fileName, std::unordered_map<std::string,
 	return 0;
 }
 
-void FileSystem::write_entry(std::string fileName, std::string row, std::string col, std::string val) {
-	std::string raw = serialize(row) + serialize(col) + serialize(val);
-	std::string tuple = serialize(raw);
-	logger.log_trace("Openning file " + fileName + " to read");
-	std::ofstream file (STORE_DIR + fileName, std::ios_base::app);
-	if (file.is_open()) {
-	    file << tuple;
-	    file.close();
-  	}
-  	else logger.log_error("Cannot open file " + fileName + " to write entry"); //TODO: write loggers in utils
-}
-
-void FileSystem::delete_entry(std::string fileName, std::string row, std::string col) {
-	logger.log_trace("Openning file " + fileName + " to delete entry");
-	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
-	read_file(STORE_DIR + fileName, map);
-	map[row].erase(col);
-	if (map[row].size() == 0) {
-		map.erase(row);
-	}
-	write_file(fileName, map);
-}
-
 std::string FileSystem::place_new_entry() {
 	logger.log_trace("current file size " + std::to_string(file_size(curr_file)));
 	if (file_size(curr_file) >= MAX_FILE_SIZE) {
@@ -109,69 +68,8 @@ std::string FileSystem::place_new_entry() {
 	return curr_file;
 }
 
-void FileSystem::increment_file() {
-	int pos = curr_file.length() - 1;
-	while (pos >= 0 && (curr_file[pos] == '9' || curr_file[pos] == '.')) {
-		if (curr_file[pos] == '9') {
-			curr_file[pos] = '0';
-		}
-		pos--;
-	}
-	curr_file[pos] += 1;
-}
-
-std::string FileSystem::get_next_tuple(std::ifstream& stream) {
-	std::string lenStr;
-	char c;
-	while (stream.get(c)) {
-		if (c == ':')
-			break;
-		lenStr += c;
-	}
-	if (lenStr.length() == 0) {
-		return "";
-	}
-	int len = std::stoi(lenStr);
-	char buf[len + 1];
-	stream.read(buf, len);
-	buf[len] = '\0';
-	std::string ret(buf);
-	return ret;
-}
-
-std::string FileSystem::deserialize_next(std::string str, int& pos) {
-	std::size_t found = str.find(":", pos);
-	std::string lenStr = str.substr(pos, found - pos);	
-	int len = std::stoi(lenStr);
-	std::string ret = str.substr(found + 1, len);
-	pos = found + 1 + len;
-	return ret;
-}
-
-// void FileSystem::file_to_keys(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& map) {
-// 	for (std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >::iterator it = map.begin(); it != map.end(); it++) {
-// 		std::string fileName = it->first;
-// 		std::ifstream file (fileName);
-// 		if (file.is_open()) {
-// 			std::string tuple;
-// 			while (true) {
-// 				tuple = get_next_tuple(file);
-// 				if (tuple.length() == 0)
-// 					break;
-// 				int pos = 0;
-// 				std::string row = deserialize_next(tuple, pos);
-// 				std::string col = deserialize_next(tuple, pos);
-// 				std::pair<std::string, std::string> keys(row, col);
-// 				it->second.insert(keys);
-// 			}
-// 			file.close();
-// 		}
-// 		else std::cout << "Cannot open file to read!" << std::endl; //TODO: write loggers in utils
-// 	}
-// }
-
 void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile) {
-	std::ifstream file (MAPPING);
+	std::ifstream file (std::string(STORE_DIR) + MAPPING);
 	logger.log_trace("Openning mapping to read");
 	if (file.is_open()) {
 		std::string tuple;
@@ -209,8 +107,8 @@ void FileSystem::write_log(std::string fileName, std::string row, std::string co
 		return;
 	}
 
-	full_log << tuple; //write to full log
-	temp_log << tuple; //write to temp log
+	full_log << tuple;
+	temp_log << tuple;
 
 	full_log.close();
 	temp_log.close();
@@ -242,13 +140,69 @@ void FileSystem::replay() {
 		}
 		file.close();
 	}
-	else logger.log_error("Cannot open temp log to read"); //TODO: write loggers in utils
+	else logger.log_error("Cannot open temp log to read");
 }
 
 void FileSystem::clear_temp_log() {
 	logger.log_trace("Clearing temp log");
 	std::ofstream temp_log (std::string(LOG_DIR) + TEMP_LOG);
 	temp_log.close();
+}
+
+
+/************************private methods********************/
+
+void FileSystem::write_entry(std::string fileName, std::string row, std::string col, std::string val) {
+	std::string raw = serialize(row) + serialize(col) + serialize(val);
+	std::string tuple = serialize(raw);
+	logger.log_trace("Openning file " + fileName + " to read");
+	std::ofstream file (STORE_DIR + fileName, std::ios_base::app);
+	if (file.is_open()) {
+	    file << tuple;
+	    file.close();
+  	}
+  	else logger.log_error("Cannot open file " + fileName + " to write entry");
+}
+
+void FileSystem::delete_entry(std::string fileName, std::string row, std::string col) {
+	logger.log_trace("Openning file " + fileName + " to delete entry");
+	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
+	read_file(STORE_DIR + fileName, map);
+	map[row].erase(col);
+	if (map[row].size() == 0) {
+		map.erase(row);
+	}
+	write_file(fileName, map);
+}
+
+void FileSystem::increment_file() {
+	int pos = curr_file.length() - 1;
+	while (pos >= 0 && (curr_file[pos] == '9' || curr_file[pos] == '.')) {
+		if (curr_file[pos] == '9') {
+			curr_file[pos] = '0';
+		}
+		pos--;
+	}
+	curr_file[pos] += 1;
+}
+
+std::string FileSystem::get_next_tuple(std::ifstream& stream) {
+	std::string lenStr;
+	char c;
+	while (stream.get(c)) {
+		if (c == ':')
+			break;
+		lenStr += c;
+	}
+	if (lenStr.length() == 0) {
+		return "";
+	}
+	int len = std::stoi(lenStr);
+	char buf[len + 1];
+	stream.read(buf, len);
+	buf[len] = '\0';
+	std::string ret(buf);
+	return ret;
 }
 
 std::ifstream::pos_type FileSystem::file_size(std::string filename) {

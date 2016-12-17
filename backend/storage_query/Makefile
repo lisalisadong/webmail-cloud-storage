@@ -12,19 +12,23 @@ PROTOS_PATH = ../protos
 
 vpath %.proto $(PROTOS_PATH)
 
-all: system-check  storage_server master
-
-master: storage_query.pb.o storage_query.grpc.pb.o master.o
-	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
-
-# storage_client
-# storage_client: storage_query.pb.o storage_query.grpc.pb.o storage_client.cc storage_client.h
-# 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
+all: system-check storage_server master
 
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) $^ -c $(LDFLAGS) -o $@
 
-storage_server: storage_query.pb.o storage_query.grpc.pb.o logger.o file_system.o hash.o storage_server.o 
+# master_client
+# master_client: storage_query.pb.o storage_query.grpc.pb.o master_client.cc 
+# 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
+
+master: storage_query.pb.o storage_query.grpc.pb.o logger.o utils.o storage_client.o master_client.o master.o
+	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
+
+# # storage_client
+# storage_client: storage_query.pb.o storage_query.grpc.pb.o logger.o storage_client.cc storage_client.h
+# 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
+
+storage_server: storage_query.pb.o storage_query.grpc.pb.o logger.o utils.o file_system.o cache.o storage_client.o master_client.o storage_server.o 
 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 
 .PRECIOUS: %.grpc.pb.cc
@@ -36,7 +40,7 @@ storage_server: storage_query.pb.o storage_query.grpc.pb.o logger.o file_system.
 	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
 
 clean:
-	rm -f *.o *.pb.cc *.pb.h storage_client storage_server master
+	rm -f *.o *.pb.cc *.pb.h storage_client storage_server master_client master
 
 
 # The following is to test your system and ensure a smoother experience.
