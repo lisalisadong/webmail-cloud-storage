@@ -1,4 +1,5 @@
 #include "cache.h"
+#include "utils.h"
 
 /**************************public methods*******************************/
 std::string Cache::get(std::string row, std::string col) {
@@ -99,6 +100,21 @@ bool Cache::remove(std::string row, std::string col) {
     fs.write_log(file, row, col, "", "DELETE");
 
     return true;
+}
+
+void Cache::migrate(std::string selfAddr, std::string otherAddr, std::string& data) {
+    long selfHash = get_hash_val(selfAddr);
+    long otherHash = get_hash_val(otherAddr);
+    for (auto fp = keysToFile.begin(); fp != keysToFile.end(); fp++) {
+        long entryHash = get_hash_val(fp->first);
+        if (entryHash <= otherHash || entryHash > selfHash) {
+            for (auto sp = fp->second.begin(); sp != fp->second.end(); sp++) {
+                std::string val = get(fp->first, sp->first);
+                data += serialize(serialize(fp->first) + serialize(sp->first) + serialize(val));
+                remove(fp->first, sp->first);
+            }
+        }
+    }
 }
 
 
@@ -251,8 +267,4 @@ bool Cache::containsKey(std::string row, std::string col) {
 
     return true;
 
-}
-
-std::string getAll(std::string self_addr, std::string other_addr) {
-    return "";
 }

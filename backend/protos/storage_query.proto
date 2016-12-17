@@ -65,7 +65,7 @@ message DeleteResponse {
 
 // migrate
 message MigrateRequest {
-  string address = 1;
+  string addr = 1;
 }
 
 message MigrateResponse {

@@ -87,7 +87,7 @@ public:
 
   bool remove(std::string row, std::string col);
 
-  std::string getAll(std::string self_addr, std::string other_addr);
+  void migrate(std::string selfAddr, std::string otherAddr, std::string& data);
 
 };
 

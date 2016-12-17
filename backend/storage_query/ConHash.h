@@ -6,7 +6,7 @@
 #include <map>
 #include <unordered_set>
 #include <unordered_map>
-#include "Hasher.h"
+#include "utils.h"
 #include "logger.h"
 
 #define V_NUM 1
@@ -54,8 +54,6 @@ public:
 
 	std::map<long, VNode> map;
 
-	Hasher hasher;
-
 	int v_num;
 
 	std::unordered_set<std::string> upServers;
@@ -101,7 +99,7 @@ std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string a
 	for(int i = 0; i < v_num; i++) {
 		VNode v = getVirtual(addr, i);
 
-		long hashVal = hasher.getHashVal(v.vId);
+		long hashVal = get_hash_val(v.vId);
 
 		std::cout << "hash value of" << v.vId << " is: " << hashVal << std::endl;
 
@@ -146,7 +144,7 @@ std::unordered_set<std::string> ConHash::getNodes(std::string key) {
 
 	std::unordered_set<std::string> res;
 	//============first hash====================
-	long hashVal = hasher.getHashVal(key);
+	long hashVal = get_hash_val(key);
 
 	std::cout << "Hash value of " << key << " is: " << hashVal << std::endl;
 
@@ -206,7 +204,7 @@ void ConHash::notifyDown(std::string addr) {
 }
 
 std::string ConHash::getReplica(std::string key) {
-	long hashVal = hasher.hash2(key);
+	long hashVal = hash2(key);
 	std::map<long, VNode>::iterator itr = map.upper_bound(hashVal);
 
 	if(itr == map.end()) {

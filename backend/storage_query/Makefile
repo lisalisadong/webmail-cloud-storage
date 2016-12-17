@@ -12,7 +12,7 @@ PROTOS_PATH = ../protos
 
 vpath %.proto $(PROTOS_PATH)
 
-all: system-check  storage_server master
+all: system-check storage_server master
 
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) $^ -c $(LDFLAGS) -o $@
@@ -21,14 +21,14 @@ all: system-check  storage_server master
 # master_client: storage_query.pb.o storage_query.grpc.pb.o master_client.cc 
 # 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 
-master: storage_query.pb.o storage_query.grpc.pb.o logger.o storage_client.o master_client.o master.o
+master: storage_query.pb.o storage_query.grpc.pb.o logger.o utils.o storage_client.o master_client.o master.o
 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 
 # # storage_client
 # storage_client: storage_query.pb.o storage_query.grpc.pb.o logger.o storage_client.cc storage_client.h
 # 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 
-storage_server: storage_query.pb.o storage_query.grpc.pb.o logger.o file_system.o hash.o cache.o storage_client.o master_client.o storage_server.o 
+storage_server: storage_query.pb.o storage_query.grpc.pb.o logger.o utils.o file_system.o cache.o storage_client.o master_client.o storage_server.o 
 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 
 .PRECIOUS: %.grpc.pb.cc

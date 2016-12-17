@@ -186,12 +186,6 @@ void FileSystem::increment_file() {
 	curr_file[pos] += 1;
 }
 
-
-std::string FileSystem::serialize(std::string str) {
-	int strLen = str.length();
-	return std::to_string(strLen) + ":" + str;
-}
-
 std::string FileSystem::get_next_tuple(std::ifstream& stream) {
 	std::string lenStr;
 	char c;
@@ -208,17 +202,6 @@ std::string FileSystem::get_next_tuple(std::ifstream& stream) {
 	stream.read(buf, len);
 	buf[len] = '\0';
 	std::string ret(buf);
-	return ret;
-}
-
-
-
-std::string FileSystem::deserialize_next(std::string str, int& pos) {
-	std::size_t found = str.find(":", pos);
-	std::string lenStr = str.substr(pos, found - pos);	
-	int len = std::stoi(lenStr);
-	std::string ret = str.substr(found + 1, len);
-	pos = found + 1 + len;
 	return ret;
 }
 

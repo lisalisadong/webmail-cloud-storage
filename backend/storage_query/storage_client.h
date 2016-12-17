@@ -45,6 +45,8 @@ private:
 	Logger logger;
 	std::unique_ptr<StorageQuery::Stub> stub_;
 
+	void deserialize_data_to_map(std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& data, std::string rawData);
+
 };
 
 // std::string StorageClient::Get(const std::string& row, const std::string& col) {

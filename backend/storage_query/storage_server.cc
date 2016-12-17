@@ -25,6 +25,7 @@
 #include "cache.h"
 #include "storage_client.h"
 #include "master_client.h"
+#include "utils.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -50,8 +51,6 @@ using storagequery::PingResponse;
 
 Logger wLogger;
 std::string worker_addr("localhost:");
-
-Hasher hasher;
 
 /* global master client */
 MasterClient master(grpc::CreateChannel(MASTER_ADDR, grpc::InsecureChannelCredentials()));
@@ -142,15 +141,15 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 	Status Migrate(ServerContext* context, const MigrateRequest* request,
 						MigrateResponse* response) override {
-		// TODO: implement
-		std::string address = request->address();
-		std::size_t found = address.find("_");
+		std::string address = request->addr();
+		std::size_t found = address.find(" ");
 
 		std::string self_addr = address.substr(0, found);
 
-		std::string other_addr = address.substr(found + 1, address.length() - found - 1);
+		std::string other_addr = address.substr(found + 1);
 
-		std::string data = cache.getAll(self_addr, other_addr);
+		std::string data;
+		cache.migrate(self_addr, other_addr, data);
 
 		response->set_data(data);
 		return Status::OK;
@@ -166,11 +165,6 @@ public:
 	Cache cache;
 
 };
-
-std::string get_real_addr(std::string virtual_addr) {
-	std::size_t found = virtual_addr.find("_");
-	return virtual_addr.substr(0, found);
-}
 
 void* get_data(void*) {
 	sleep(3);

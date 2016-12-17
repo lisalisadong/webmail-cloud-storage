@@ -1,5 +1,6 @@
 #include <iostream>
 #include "storage_client.h"
+#include "utils.h"
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -17,9 +18,6 @@ using storagequery::MigrateRequest;
 using storagequery::MigrateResponse;
 using storagequery::PingRequest;
 using storagequery::PingResponse;
-
-// TODO: implement
-void deserializeMigrate(std::unordered_map<std::string, std::string> >& data, std::string rawData);
 
 bool StorageClient::Get(const std::string& row, const std::string& col, std::string& val) {
 	// Data we are sending to the server.
@@ -145,7 +143,7 @@ bool StorageClient::Migrate(std::string virtualAddr, std::unordered_map<std::str
   Status status = stub_->Migrate(&context, request, &response);
   // TODO: get data
 
-  deserializeMigrate(data, response);
+  deserialize_data_to_map(data, response.data());
 
   if (status.ok()) {
     return true;
@@ -156,10 +154,19 @@ bool StorageClient::Migrate(std::string virtualAddr, std::unordered_map<std::str
   }
 }
 
-// TODO: implement
-void deserializeMigrate(std::unordered_map<std::string, std::string> >& data, std::string rawData) {
-
+void StorageClient::deserialize_data_to_map(std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& data, std::string rawData) {
+  int ePos = 0;
+  while (ePos < rawData.length()) {
+    std::string entry = deserialize_next(rawData, ePos);
+    int pos = 0;
+    std::string row = deserialize_next(entry, pos);
+    std::string col = deserialize_next(entry, pos);
+    std::string val = deserialize_next(entry, pos);
+    data[row][col] = val;
+  }
 }
+
+
 
 // int main(int argc, char** argv) {
 // 	// TODO:

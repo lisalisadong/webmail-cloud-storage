@@ -7,9 +7,8 @@
 #include <fstream>
 #include <utility>
 #include <unordered_set>
-#include "hash.h"
 #include "logger.h"
-
+#include "utils.h"
 
 class FileSystem {
 public:
@@ -39,11 +38,7 @@ private:
 
 	void increment_file();
 
-	std::string serialize(std::string str);
-
 	std::string get_next_tuple(std::ifstream& stream);
-
-	std::string deserialize_next(std::string str, int& pos);
 
 	void write_entry(std::string fileName, std::string row, std::string col, std::string val);
 	
