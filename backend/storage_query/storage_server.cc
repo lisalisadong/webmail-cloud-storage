@@ -45,6 +45,8 @@ using storagequery::MigrateRequest;
 using storagequery::MigrateResponse;
 using storagequery::PingRequest;
 using storagequery::PingResponse;
+using storagequery::GetDataRequest;
+using storagequery::GetDataResponse;
 
 #define MASTER_ADDR "localhost:8000"
 
@@ -175,6 +177,20 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 	Status Ping(ServerContext* context, const PingRequest* request,
 						PingResponse* response) override {
+		return Status::OK;
+	}
+
+	Status GetData(ServerContext* context, const GetDataRequest* request, 
+						GetDataResponse* response) override {
+		int start = request->start();
+		int size = request->size();
+
+		std::string data;
+		int ret = cache.get_raw_data(start, size, data);
+
+		response->set_size(ret);
+		response->set_data(data);
+
 		return Status::OK;
 	}
 

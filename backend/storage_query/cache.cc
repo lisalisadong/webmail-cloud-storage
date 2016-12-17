@@ -122,6 +122,22 @@ void Cache::migrate(std::string selfAddr, std::string otherAddr, std::string& da
     }
 }
 
+int Cache::get_raw_data(int start, int size, std::string& data) {
+    int ret = 0;
+    for (auto fp = keysToFile.begin(); fp != keysToFile.end(); fp++) {
+        for (auto sp = fp->second.begin(); sp != fp->second.end(); sp++) {
+            if (start > 0) {
+                start--;
+                continue;
+            }
+            if (size == 0) break;
+            std::string val = get(fp->first, sp->first);
+            data += serialize(serialize(fp->first) + serialize(sp->first) + serialize(val));
+            ret++;
+        }
+    }
+    return ret;
+}
 
 
 /**************************private methods*******************************/
@@ -142,7 +158,7 @@ bool Cache::writeSnapshot() {
 
 /* write meta data into file system */
 void Cache::writeMeta() {
-    fs.write_file(serverAddress + "_mapping", keysToFile);
+    fs.write_file(serverAddress + "mapping", keysToFile);
     // std::cout << "Meta data write succeeded" << std::endl;
 }
 

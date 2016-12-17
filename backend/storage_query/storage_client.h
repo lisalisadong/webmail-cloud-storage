@@ -41,6 +41,8 @@ public:
 
 	bool Migrate(std::string virtualAddr, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& data);
 
+	int GetData(int start, int size, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& data);
+
 private:
 	Logger logger;
 	std::unique_ptr<StorageQuery::Stub> stub_;
