@@ -48,7 +48,7 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		std::string key = request->row();
 
 		try {
-			std::unordered_set<std::string> nodes = conHash.getNodes(key);	// get nodes that stores the key
+			std::vector<std::string> nodes = conHash.getNodes(key);	// get nodes that stores the key
 			std::string res;
 			for(std::string node: nodes) {
 				res.append(node).append(" ");

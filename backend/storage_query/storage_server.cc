@@ -17,6 +17,7 @@
 #include <sstream>
 #include <signal.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #include <grpc++/grpc++.h>
 
@@ -185,6 +186,7 @@ public:
 
 };
 
+/* get data when initializing the node*/
 void* get_data(void*) {
 	sleep(3);
 	if (master.Ping()) {
@@ -214,6 +216,7 @@ void* get_data(void*) {
 }
 
 
+
 void RunServer() {
 
 	// std::string server_address(WORKER_ADDR);
@@ -238,6 +241,13 @@ void RunServer() {
 	server->Wait();
 }
 
+/* hanler for "contrl + C" */
+// void sigint(int a) {
+//     wLogger.log_trace("Node is about to exit.");
+//     std::vector<std::string> nodes;
+//     master.GetNode(worker_addr, "", nodes);
+// }
+
 
 
 int main(int argc, char** argv) {
@@ -245,6 +255,8 @@ int main(int argc, char** argv) {
 		wLogger.log_error("Wrong configuration, please enter a port number.");
 		return 0;
 	}
+
+	signal(SIGINT, sigint);
 
 	worker_addr.append(argv[1]);
 

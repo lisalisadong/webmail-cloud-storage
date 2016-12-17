@@ -61,7 +61,10 @@ private:
 
   bool containsKey(std::string row, std::string col);
 
-public: 
+public:
+
+  std::string currFile;
+
   Cache() {
     wrtCnt = 0;
 

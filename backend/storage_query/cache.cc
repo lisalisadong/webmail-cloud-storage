@@ -28,6 +28,8 @@ bool Cache::put(std::string row, std::string col, std::string val) {
         file = fs.place_new_entry();
     }
 
+    currFile = file;
+
     /* file counter plus 1 */
     fileCnt[file] += 1;
     // std::cout<<file<<" is accessed "<<fileCnt[file]<<" times."<<std::endl;
@@ -63,6 +65,7 @@ bool Cache::cput(std::string row, std::string col, std::string val1, std::string
     if (!containsKey(row, col) || get(row, col) != val1) return false;
 
     std::string file = keysToFile[row][col];
+    currFile = file;
 
     fileCnt[file] += 1;
     // std::cout<<file<<" is accessed "<<fileCnt[file]<<" times."<<std::endl;
@@ -81,6 +84,7 @@ bool Cache::remove(std::string row, std::string col) {
     if(!containsKey(row, col)) return false;
 
     std::string file = keysToFile[row][col];
+    currFile = file;
     fileCnt[file] += 1;
     std::pair<std::string, std::string> p(row, col);
     fileToKeys[file].erase(p);
@@ -212,7 +216,7 @@ std::string Cache::getLRFile() {
     std::unordered_map<std::string, int>::const_iterator itr = fileCnt.begin();
 
     while(itr != fileCnt.end()) {
-        if(itr->second < cnt) {
+        if(itr->second < cnt && itr->first != currFile) {
             cnt = itr->second;
             lrFile = itr->first;
         }
@@ -223,21 +227,21 @@ std::string Cache::getLRFile() {
 }
 
 /* put a chunk into cache */
-void Cache::updateCache(std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk) {
-    if(chunk.size() <= 0) return;
+// void Cache::updateCache(std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk) {
+//     if(chunk.size() <= 0) return;
 
-    for(auto rItr = chunk.begin(); rItr != chunk.end(); ++rItr) {
+//     for(auto rItr = chunk.begin(); rItr != chunk.end(); ++rItr) {
         
-        std::string row = rItr->first;
+//         std::string row = rItr->first;
 
-        for(auto cItr = chunk[row].begin(); cItr != chunk[row].end(); ++cItr) {
-            std::string col = cItr->first;
+//         for(auto cItr = chunk[row].begin(); cItr != chunk[row].end(); ++cItr) {
+//             std::string col = cItr->first;
 
-            map[row][col] = chunk[row][col];
-        }
-    } 
+//             map[row][col] = chunk[row][col];
+//         }
+//     } 
 
-}
+// }
 
 bool Cache::containsKey(std::string row, std::string col) {
 
