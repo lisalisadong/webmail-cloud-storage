@@ -44,15 +44,9 @@ using storagequery::DeleteRequest;
 using storagequery::DeleteResponse;
 
 #include "parseURL.h"
-
-/* threads & fds */
-pthread_t threads[1000];
-int fd;
-int threadNum = -1;
-bool isDebug = false;
-static char* remainingChars = (char*) malloc(sizeof(char) * (LINE_LIMIT + 1) * 2);
-static int sockfd;
-static set<int> allfd;
+#include "handleEmails.h"
+#include "handleFiles.h"
+#include "helper.h"
 
 // encapsulate the socket creation process
 void openSocket(int& sockfd, struct sockaddr_in serverAddr, int port) {
@@ -84,20 +78,22 @@ size_t getLine(struct Message* pM, char* line) {
 	while (remainingChars[lineIndex] != 0 && remainingChars[lineIndex] != '\n') {
 		line[lineIndex] = remainingChars[lineIndex++];
 		readCnt++;
+		remainingNum--;
 	}
 	if (remainingChars[lineIndex] == '\n') {
 		//remove used chars
 		line[lineIndex] = remainingChars[lineIndex++];
 		readCnt++;
+		remainingNum--;
 		int remainingHead = 0;
-		while (remainingChars[lineIndex] != 0) {
+		while (remainingHead < remainingNum) {
 			remainingChars[remainingHead++] = remainingChars[lineIndex];
 			remainingChars[lineIndex++] = 0;
 		}
 		remainingChars[remainingHead] = 0;
 		return readCnt;
 	}
-	bzero(remainingChars, 2 * (LINE_LIMIT + 1));
+	bzero(remainingChars, 1000 * LINE_LIMIT);
 
 	char* buf = (char*) malloc(sizeof(char) * (LINE_LIMIT + 1));
 	bzero(buf, LINE_LIMIT + 1);
@@ -117,7 +113,7 @@ size_t getLine(struct Message* pM, char* line) {
 			return readCnt;
 		}
 		int i = 0;
-		while (buf[i] != 0) {
+		while (i < readCnt) {
 			line[lineIndex] = buf[i];
 			totalCnt++;
 			if (buf[i] == '\n') break;
@@ -128,9 +124,10 @@ size_t getLine(struct Message* pM, char* line) {
 			// handle joined package
 			i++;
 			int remainingCharsIndex = 0;
-			while (buf[i] != 0) {
+			while (i < readCnt) {
 				remainingChars[remainingCharsIndex] = buf[i];
 				remainingCharsIndex++;
+				remainingNum++;
 				i++;
 			}
 			break;
@@ -145,9 +142,10 @@ size_t readN(struct Message* pM, char* line, int N) {
 	int lineIndex = 0;
 	size_t readCnt = 0;
 	// save remaining chars
-	while (remainingChars[lineIndex] != 0 && readCnt < N) {
+	while (remainingNum > 0 && readCnt < N) {
 		line[lineIndex] = remainingChars[lineIndex++];
 		readCnt++;
+		remainingNum--;
 	}
 	if (readCnt == N) {
 		//remove used chars
@@ -159,12 +157,16 @@ size_t readN(struct Message* pM, char* line, int N) {
 		remainingChars[remainingHead] = 0;
 		return readCnt;
 	}
-	bzero(remainingChars, 2 * (LINE_LIMIT + 1));
+	bzero(remainingChars, 1000 * LINE_LIMIT );
 
 	char* buf = (char*) malloc(sizeof(char) * (N + 1));
 	bzero(buf, N + 1);
 	size_t totalCnt = readCnt;
 	while (true) {
+		if (totalCnt == N) {
+			free(buf);
+			return totalCnt;
+		}
 		repeat: if ((readCnt = read(pM->confd, buf, N)) < 0) {
 			//error
 			if (errno == EINTR)
@@ -179,7 +181,7 @@ size_t readN(struct Message* pM, char* line, int N) {
 			return readCnt;
 		}
 		int i = 0;
-		while (buf[i] != 0) {
+		while (i < readCnt) {
 			line[lineIndex] = buf[i];
 			totalCnt++;
 			i++;
@@ -201,76 +203,6 @@ void closeClient(struct Message*& pM) {
 	allfd.erase(pM->confd);
 }
 
-string getEmail(string& urlStr) {
-	string email;
-	int emailIndex = urlStr.find("email");
-	email = urlStr.substr(emailIndex + 6, urlStr.find('&', emailIndex) - emailIndex - 6);
-	return email;
-}
-
-bool checkPWD(const char* lastLine, string& email) {
-	string urlStr = lastLine;
-	email = getEmail(urlStr);
-	int passwordIndex = urlStr.find("password");
-	string password = urlStr.substr(passwordIndex + 9);
-	if (isDebug) cout << "Current login user is: " << email << " with password: " << password << endl;
-
-	return true;
-}
-
-bool checkCookie(string cookie, string& email) {
-	if (cookie.length() <= 0) return false;
-	int newLineI = cookie.find_first_of("\r\n");
-	if (newLineI != string::npos) cookie.erase(newLineI);
-
-	int sessionidI = cookie.find("sessionid=");
-	int userI = cookie.find("user=");
-	string sessionid = cookie.substr(sessionidI + 10, userI - sessionidI - 12);
-	email = cookie.substr(userI + 5);
-	if (email.compare("Alice") == 0)
-		return true;
-	else return false;
-}
-
-int generateHTML(struct Message* pM, const char* url, const char* lastLine, string cookie) {
-//	get();
-	string response = "";
-	if (!strncmp(url, SIGNUP, strlen(SIGNUP)))
-		response = getResponse("frontend/sites/signup.html", "");
-	else {
-		string user;
-		if (checkCookie(cookie, user)) {
-			if (!strncmp(url + 1, " ", 1)) {
-				response = getResponse("frontend/sites/dashboard.html", "");
-			} else if (!strncmp(url, EMAILS, strlen(EMAILS))) {
-				response = getListResponse(user, string("emails"), "frontend/sites/emails_begin.html", "frontend/sites/emails_end.html", string("email"));
-			} else if (!strncmp(url, FILES, strlen(FILES))) {
-				response = getListResponse(user, string("files"), "frontend/sites/files_begin.html", "frontend/sites/files_end.html", string("file"));
-			} else if (!strncmp(url, EMAIL_, strlen(EMAIL_))) {
-				response = getEmailResponse(user, url);
-			} else if (!strncmp(url, FILE_, strlen(FILE_))) {
-				getFileResponse(user, url, pM);
-				return 0;
-			} else if (!strncmp(url, WRITE_EMAIL, strlen(WRITE_EMAIL))) {
-				response = getResponse("frontend/sites/writeEmail.html", "");
-			} else if (!strncmp(url, SEND_EMAIL, strlen(SEND_EMAIL))) {
-
-			} else response = getResponse("frontend/sites/notfound.html", "");
-		} else {
-			if (!strncmp(url, LOGINSUBMIT, strlen(LOGINSUBMIT))) {
-				if (checkPWD(lastLine, user)) {
-					string headers = "Set-Cookie: sessionid=" + getSessionID(user) + "\nSet-Cookie: user=" + user + "\n";
-					response = getResponse("frontend/sites/dashboard.html", headers.c_str());
-				} else response = getResponse("frontend/sites/loginError.html", "");
-			} else if (!strncmp(url + 1, " ", 1))
-				response = getResponse("frontend/sites/login.html", "");
-			else response = getResponse("frontend/sites/notfound.html", "");
-		}
-	}
-	write(pM->confd, response.c_str(), response.length());
-	return 0;
-}
-
 // function to handle multi-thread
 void* threadFun(void* arg) {
 	struct Message* pM = (struct Message*) arg;
@@ -281,15 +213,18 @@ void* threadFun(void* arg) {
 	bool isGet = true;
 	bool isLastLine = false;
 	string url;
-	string lastLine;
 	string cookie;
+	string referer;
+	char* lastLineCharArr = (char*) malloc(sizeof(char) * 2);
+	lastLineCharArr[0] = 'a';
+	lastLineCharArr[1] = 0;
+
 	int contentLen = 0;
 	while (true) {
 		if (isLastLine) {
-			char* lastLineCharArr = (char*) malloc(sizeof(char) * (contentLen + 1));
-			readN(pM, lastLineCharArr, contentLen);
-			lastLine = lastLineCharArr;
 			free(lastLineCharArr);
+			lastLineCharArr = (char*) malloc(sizeof(char) * (contentLen + 1));
+			readN(pM, lastLineCharArr, contentLen);
 			break;
 		}
 		char* line = (char*) malloc(sizeof(char) * LINE_LIMIT);
@@ -315,13 +250,16 @@ void* threadFun(void* arg) {
 			url = line + 5;
 		} else if (!strncmp(line, CONTENT_LEN, strlen(CONTENT_LEN)))
 			contentLen = atoi(line + strlen(CONTENT_LEN));
-		else if (!strncmp(line, COOKIE, strlen(COOKIE))) cookie = line + strlen(COOKIE);
+		else if (!strncmp(line, COOKIE, strlen(COOKIE)))
+			cookie = line + strlen(COOKIE);
+		else if (!strncmp(line, REFERER, strlen(REFERER))) referer = line + strlen(REFERER);
 		free(line);
 	}
 	cout << "url: " << url << endl;
-	cout << "lastLine: " << lastLine << endl;
-	generateHTML(pM, url.c_str(), lastLine.c_str(), cookie.c_str());
+	cout << "lastLine: " << lastLineCharArr << endl;
+	generateHTML(pM, url.c_str(), lastLineCharArr, cookie, referer, contentLen);
 	close(pM->confd);
+	free(lastLineCharArr);
 	return (void*) 0;
 }
 
