@@ -105,15 +105,20 @@ bool Cache::remove(std::string row, std::string col) {
 void Cache::migrate(std::string selfAddr, std::string otherAddr, std::string& data) {
     long selfHash = get_hash_val(selfAddr);
     long otherHash = get_hash_val(otherAddr);
+    std::vector<std::pair<std::string, std::string> > toDelete;
     for (auto fp = keysToFile.begin(); fp != keysToFile.end(); fp++) {
         long entryHash = get_hash_val(fp->first);
         if (entryHash <= otherHash || entryHash > selfHash) {
             for (auto sp = fp->second.begin(); sp != fp->second.end(); sp++) {
                 std::string val = get(fp->first, sp->first);
                 data += serialize(serialize(fp->first) + serialize(sp->first) + serialize(val));
-                remove(fp->first, sp->first);
+                logger.log_trace("migrating " + data);
+                toDelete.push_back(std::make_pair(fp->first, sp->first));
             }
         }
+    }
+    for (auto p : toDelete) {
+        remove(p.first, p.second);
     }
 }
 
