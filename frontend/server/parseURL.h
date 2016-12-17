@@ -73,9 +73,11 @@ void testInitialize() {
 	client.Put(row, "file-1.txt", txt1);
 	client.Put(row, "file-aaa/solution/2.txt", txt2);
 
-	string response = client.Get(row, col);
+	string response;
+	client.Get(row, col, response);
 	cout << "Get Alice emails: " << endl << response << endl;
-	string fileResponse = client.Get(row, "file-aaa/solution/2.txt");
+	string fileResponse;
+	client.Get(row, "file-aaa/solution/2.txt", fileResponse);
 	cout << "Get file-1: " << endl << fileResponse << endl;
 }
 
