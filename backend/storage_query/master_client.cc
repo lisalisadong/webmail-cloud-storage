@@ -39,6 +39,9 @@ bool MasterClient::GetNode(const std::string& row, const std::string& col, std::
   if (status.ok()) {
     std::string s = response.addr();
 
+
+    std::cout << "In master client, (" << row << ", " << col << ") is in node: " << s << std::endl;
+
     getNodes(addr, s);
 
     return true;

@@ -12,8 +12,8 @@
 #include "file_system.h"
 #include "logger.h"
 
-#define CACHE_SIZE 2
-#define WRT_OP 1
+#define CACHE_SIZE 200
+#define WRT_OP 100
 
 class Cache {
 private:

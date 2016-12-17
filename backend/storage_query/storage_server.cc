@@ -256,7 +256,7 @@ int main(int argc, char** argv) {
 		return 0;
 	}
 
-	signal(SIGINT, sigint);
+	// signal(SIGINT, sigint);
 
 	worker_addr.append(argv[1]);
 
