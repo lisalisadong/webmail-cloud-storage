@@ -53,7 +53,8 @@ void getFileResponse(string user, const char* url, Message* pM) {
 	response += HTTP_HEADER_FILE2;
 
 	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
-	string email = client.Get(user, fileName);
+	string email;
+	client.Get(user, fileName, email);
 	response += to_string(email.length()) + "\n";
 	response += "\n";
 	write(pM->confd, response.c_str(), response.length());
@@ -95,7 +96,8 @@ string getFileListResponse(string user, const char* begin, const char* end, stri
 	string response = HTTP_HEADER;
 
 	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
-	string files = client.Get(user, url);
+	string files;
+	client.Get(user, url, files);
 	string email_begin = readHTMLFile(begin);
 	string email_end = readHTMLFile(end);
 	string email_mid = getFileMid(files);
@@ -114,7 +116,8 @@ void createNewFolder(string user, string referer, string lastLine) {
 	if (!dir.compare("files"))
 		folderName = "folder-" + folderName; // folder-aaa
 	else folderName = dir + "/" + folderName; // folder-aaa/solution/aaa
-	string preFiles = client.Get(user, dir);
+	string preFiles;
+	client.Get(user, dir, preFiles);
 	preFiles += folderName + "\n";
 	client.Put(user, dir, preFiles);
 	client.Put(user, folderName, folderName + "/..\n");
@@ -156,7 +159,8 @@ void createNewFile(string user, string referer, const char* lastLine, int conten
 		dir.replace(0, 6, "file");
 		fileName = dir + "/" + fileName; // folder-aaa/solution/aaa
 	}
-	string preFiles = client.Get(user, folder);
+	string preFiles;
+	client.Get(user, folder, preFiles);
 	if (preFiles.find(fileName) == string::npos) {
 		preFiles += fileName + "\n";
 		client.Put(user, folder, preFiles);
