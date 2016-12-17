@@ -47,7 +47,6 @@ using storagequery::PingRequest;
 using storagequery::PingResponse;
 
 #define MASTER_ADDR "localhost:8000"
-#define WORKER_ADDR "localhost:50051"
 
 Logger wLogger;
 std::string worker_addr("localhost:");
@@ -181,7 +180,8 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 public:
 	// std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
-	Cache cache;
+	Cache cache = Cache::create_cache(worker_addr);
+
 
 };
 

@@ -65,11 +65,11 @@ std::string FileSystem::place_new_entry() {
 		increment_file();
 	}
 	logger.log_trace("current file is " + curr_file);
-	return curr_file;
+	return prefix + "_" + curr_file;
 }
 
 void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile) {
-	std::ifstream file (std::string(STORE_DIR) + MAPPING);
+	std::ifstream file (std::string(STORE_DIR) + prefix + "_" + MAPPING);
 	logger.log_trace("Openning mapping to read");
 	if (file.is_open()) {
 		std::string tuple;
@@ -87,7 +87,7 @@ void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set
 		}
 		file.close();
 	}
-	else logger.log_error("Cannot open mapping to read");
+	else logger.log_warn("Cannot open mapping to read");
 }
 
 
@@ -149,6 +149,10 @@ void FileSystem::clear_temp_log() {
 	temp_log.close();
 }
 
+void FileSystem::set_prefix(std::string pre) {
+	logger.log_trace("Setting file system prefix to " + pre);
+	prefix = pre;
+}
 
 /************************private methods********************/
 

@@ -37,6 +37,8 @@ private:
 
   Logger logger;
 
+  std::string serverAddress;
+
   /************************************ methods ***********************************************/
   bool writeSnapshot();
 
@@ -60,9 +62,21 @@ private:
   bool containsKey(std::string row, std::string col);
 
 public: 
-
   Cache() {
+    wrtCnt = 0;
+
+    fs.get_mappings(fileToKeys, keysToFile);
+
+    fs.replay();
+
+    logger.log_config("Cache");
+  }
+
+  Cache(std::string serverAddr) {
     // fs.keys_to_fileToKeys(fileToKeys);
+    fs.set_prefix(serverAddr);
+
+    serverAddress = serverAddr;
 
     wrtCnt = 0;
 
@@ -78,6 +92,9 @@ public:
     // fileToKeys["lisaemails"] = set;
   }
 
+  static Cache create_cache(std::string serverAddr) {
+    return Cache(serverAddr);
+  }
 
   std::string get(std::string row, std::string col);
 

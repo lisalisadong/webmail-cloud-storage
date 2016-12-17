@@ -28,9 +28,13 @@ public:
 
 	void clear_temp_log();
 
+	void set_prefix(std::string pre);
+
 private:
 
 	Logger logger;
+
+	std::string prefix;
 
 	std::string curr_file = "000.000.000.000.000.001";
 
