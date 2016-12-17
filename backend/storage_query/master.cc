@@ -29,6 +29,8 @@ using storagequery::GetReplicaRequest;
 using storagequery::GetReplicaResponse;
 using storagequery::PingRequest;
 using storagequery::PingResponse;
+using storagequery::GetAllNodesRequest;
+using storagequery::GetAllNodesResponse;
 
 #define SERVER_CONFIG "./../config/servers.config"
 
@@ -96,6 +98,15 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 	Status Ping(ServerContext* context, const PingRequest* request,
 						PingResponse* response) override {
+		return Status::OK;
+	}
+
+	Status GetAllNodes(ServerContext* context, const GetAllNodesRequest* request,
+						GetAllNodesResponse* response) override {
+		std::string up = conHash.getUpServers();
+		std::string down = conHash.getDownServers();
+		response->set_up(up);
+		response->set_down(down);
 		return Status::OK;
 	}
 };

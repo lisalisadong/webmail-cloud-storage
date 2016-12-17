@@ -48,6 +48,8 @@ using storagequery::PingRequest;
 using storagequery::PingResponse;
 using storagequery::GetDataRequest;
 using storagequery::GetDataResponse;
+using storagequery::GetAllNodesRequest;
+using storagequery::GetAllNodesResponse;
 
 #define MASTER_ADDR "localhost:8000"
 

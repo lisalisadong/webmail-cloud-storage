@@ -19,7 +19,7 @@ service StorageQuery {
   rpc GetReplica (GetReplicaRequest) returns (GetReplicaResponse) {}
   rpc DeleteNode (GetNodeRequest) returns (GetNodeResponse) {}
   rpc GetData (GetDataRequest) returns (GetDataResponse) {}
-  rpc GetAllNodes (GetAllNodesRequest) returns (GetAllNodesReponse) {}
+  rpc GetAllNodes (GetAllNodesRequest) returns (GetAllNodesResponse) {}
 }  
 
 // get
@@ -127,7 +127,7 @@ message GetAllNodesRequest {
   
 }
 
-message GetAllNodesReponse {
+message GetAllNodesResponse {
   string up = 1;
   string down = 2;
 }
