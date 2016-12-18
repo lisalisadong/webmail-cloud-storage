@@ -172,7 +172,7 @@ bool Cache::writeSnapshot() {
 
 /* write meta data into file system */
 void Cache::writeMeta() {
-    fs.write_file(serverAddress + "mapping", keysToFile);
+    fs.write_file(serverAddress + "_mapping", keysToFile);
     // std::cout << "Meta data write succeeded" << std::endl;
 }
 

@@ -87,15 +87,15 @@ VNode ConHash::getVirtual(std::string addr, int i) {
 
 // return all the virtual nodes that's clockwisely next to the node added
 std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string addr) {
+	// return the nodes that new nodes should ask for data.
+	std::vector<std::pair<std::string, std::string> > res;
 
 	// add to working server set
 	upServers.insert(addr);
 	if(downServers.find(addr) != downServers.end()) {
 		downServers.erase(addr);
+		return res;
 	}
-
-	// return the nodes that new nodes should ask for data.
-	std::vector<std::pair<std::string, std::string> > res;
 
 	std::unordered_set<std::string> ids;
 
@@ -160,16 +160,12 @@ std::vector<std::string> ConHash::getNodes(std::string key) {
 
 	std::string primary = itr->second.id;
 
-	res.push_back(primary);
+	if(downServers.find(itr->second.id) == downServers.end()) res.push_back(primary);
 
 	//=============get replica==================
-	std::string secondary = getReplica(key);
+	std::string replica = getReplica(key);
 
-	if(res.size() > 0 && res[0] != secondary) res.push_back(secondary);
-
-	for(std::string node: res) {
-		std::cout << "Node for " << key << " is: " << node << std::endl;
-	}
+	if(primary != replica && downServers.find(replica) == downServers.end()) res.push_back(replica);
 
 	return res;
 }
@@ -188,34 +184,38 @@ std::vector<std::string> ConHash::getAllNodes() {
 }
 
 void ConHash::notifyUp(std::string addr) {
-	if(upServers.find(addr) == upServers.end()) {
-		upServers.insert(addr);
-	}
+	upServers.insert(addr);
 
-	if(downServers.find(addr) != downServers.end()) {
-		downServers.erase(addr);
-	}
+	downServers.erase(addr);
 }
 
 void ConHash::notifyDown(std::string addr) {
-	if(upServers.find(addr) != upServers.end()) {
-		upServers.insert(addr);
-	}
+	upServers.erase(addr);
 
-	if(downServers.find(addr) == downServers.end()) {
-		downServers.erase(addr);
+	downServers.insert(addr);
+
+	std::cout << "Down servers: " << std::endl;
+	for(std::string d: downServers) {
+		std::cout << d << std::endl;
 	}
 }
 
 std::string ConHash::getReplica(std::string key) {
-	long hashVal = hash2(key);
+	if(map.size() == 0) return "";
+	long hashVal = get_hash_val(key);
+	
 	std::map<long, VNode>::iterator itr = map.upper_bound(hashVal);
 
 	if(itr == map.end()) {
 		itr = map.begin();
 	}
+	itr++;
+	if(itr == map.end()) {
+		itr = map.begin();
+	}
 
 	return itr->second.id;
+
 }
 
 std::string ConHash::getUpServers() {
@@ -228,6 +228,8 @@ std::string ConHash::getUpServers() {
 
 std::string ConHash::getDownServers() {
 	std::string ret;
+
+	
 	for (auto s : downServers) {
 		ret += serialize(s);
 	}

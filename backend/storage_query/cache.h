@@ -13,7 +13,7 @@
 #include "logger.h"
 
 #define CACHE_SIZE 200
-#define WRT_OP 1
+#define WRT_OP 101
 
 class Cache {
 private:
@@ -68,9 +68,13 @@ public:
   Cache() {
     wrtCnt = 0;
 
+    fs.replay();
+
     fs.get_mappings(fileToKeys, keysToFile);
 
-    fs.replay();
+    std::cout << "In cache fileTokeys: " << fileToKeys.size() << std::endl; 
+
+    std::cout << "In cache keysToFile: " << keysToFile.size() << std::endl; 
 
     logger.log_config("Cache");
   }
@@ -88,6 +92,10 @@ public:
     fs.replay();
 
     logger.log_config("Cache");
+
+    std::cout << "In cache fileTokeys: " << fileToKeys.size() << std::endl; 
+
+    std::cout << "In cache keysToFile: " << keysToFile.size() << std::endl; 
 
     // std::unordered_set<std::pair<std::string, std::string>, Hash> set;
     // std::pair<std::string, std::string> p("lisa", "emails");
