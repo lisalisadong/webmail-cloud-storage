@@ -40,7 +40,8 @@ string getEmailResponse(string user, const char* url) {
 	int emailNameI = urlStr.find(' ');
 	string emailName = urlStr.substr(0, emailNameI);
 
-	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+//	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+	StorageClient client = getClient(user);
 	string email;
 	client.Get(user, emailName, email);
 	response += to_string(email.length()) + "\n";
@@ -83,7 +84,8 @@ string getEmailMid(string emails, string url) {
 string getListResponse(string user, string url, const char* begin, const char* end, string liurl) {
 	string response = HTTP_HEADER;
 
-	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+//	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+	StorageClient client = getClient(user);
 	string emails;
 	client.Get(user, url, emails);
 	string email_begin = readHTMLFile(begin);

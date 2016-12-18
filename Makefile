@@ -10,7 +10,7 @@ all: storage_backend $(HTTP_SERVER_DIR)server
 storage_backend:
 	$(MAKE) -C $(STORAGE_DIR)
 
-$(HTTP_SERVER_DIR)server: $(STORAGE_DIR)storage_query.pb.o $(STORAGE_DIR)storage_query.grpc.pb.o $(STORAGE_DIR)logger.o $(STORAGE_DIR)utils.o $(STORAGE_DIR)file_system.o $(STORAGE_DIR)cache.o $(STORAGE_DIR)storage_client.o $(HTTP_SERVER_DIR)server.cc 
+$(HTTP_SERVER_DIR)server: $(STORAGE_DIR)storage_query.pb.o $(STORAGE_DIR)storage_query.grpc.pb.o $(STORAGE_DIR)logger.o $(STORAGE_DIR)utils.o $(STORAGE_DIR)file_system.o $(STORAGE_DIR)cache.o $(STORAGE_DIR)storage_client.o $(STORAGE_DIR)master_client.o $(HTTP_SERVER_DIR)server.cc 
 	g++ $(CXXFLAGS) $^ $(LDFLAGS) -o $@ -g -O0 
 
 pack:
