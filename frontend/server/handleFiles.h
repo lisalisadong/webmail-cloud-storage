@@ -52,7 +52,8 @@ void getFileResponse(string user, const char* url, Message* pM) {
 	response += fileName.substr(fileName.find_last_of("/-") + 1);
 	response += HTTP_HEADER_FILE2;
 
-	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+//	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+	StorageClient client = getClient(user);
 	string email;
 	client.Get(user, fileName, email);
 	response += to_string(email.length()) + "\n";
@@ -95,7 +96,8 @@ string getFileMid(string files) {
 string getFileListResponse(string user, const char* begin, const char* end, string url) {
 	string response = HTTP_HEADER;
 
-	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+//	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+	StorageClient client = getClient(user);
 	string files;
 	client.Get(user, url, files);
 	string email_begin = readHTMLFile(begin);
@@ -109,7 +111,8 @@ string getFileListResponse(string user, const char* begin, const char* end, stri
 }
 
 void createNewFolder(string user, string referer, string lastLine) {
-	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+//	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+	StorageClient client = getClient(user);
 	string folderName = lastLine.substr(lastLine.find('=') + 1); // aaa
 	string dir = referer.substr(referer.find('/', 7) + 1); // files / folder-aaa/solution
 	if (dir[dir.length() - 2] == '\r') dir.erase(dir.length() - 2, 2);
@@ -148,7 +151,8 @@ char* getRawData(const char* lastLine, int& contentLen) {
 }
 
 void createNewFile(string user, string referer, const char* lastLine, int contentLen) {
-	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+//	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+	StorageClient client = getClient(user);
 	string fileName = getFileName(lastLine);
 	string folder = referer.substr(referer.find('/', 7) + 1); // files / folder-aaa/solution
 	if (folder[folder.length() - 2] == '\r') folder.erase(folder.length() - 2, 2);

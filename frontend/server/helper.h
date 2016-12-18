@@ -26,6 +26,9 @@
 #include <grpc++/grpc++.h>
 #include <iomanip>
 
+#include "constants.h"
+#include "../../backend/storage_query/master_client.h"
+
 using namespace std;
 
 #ifndef HELPER_H_
@@ -98,4 +101,10 @@ string readHTMLFile(const char* fileLoc) {
 	return fileStr;
 }
 
+MasterClient master(grpc::CreateChannel("127.0.0.1:8000", grpc::InsecureChannelCredentials()));
+StorageClient getClient(string user) {
+	vector<string> strs;
+	master.GetNode(user, "", strs);
+	return strs.size() >= 1 ? StorageClient(grpc::CreateChannel(strs[0], grpc::InsecureChannelCredentials())) : (StorageClient) NULL;
+}
 #endif /* HELPER_H_ */

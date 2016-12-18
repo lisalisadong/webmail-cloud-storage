@@ -40,15 +40,23 @@ string getEmailResponse(string user, const char* url) {
 	int emailNameI = urlStr.find(' ');
 	string emailName = urlStr.substr(0, emailNameI);
 
-	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+//	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+	StorageClient client = getClient(user);
 	string email;
 	client.Get(user, emailName, email);
+	int crlf;
+	while ((crlf = email.find("\r\n")) != string::npos)
+		email.replace(crlf, 2, "<br/>");
+
+	string email_begin = readHTMLFile("frontend/sites/emailDisplay_begin.html");
+	string email_end = readHTMLFile("frontend/sites/emailDisplay_end.html");
+	email = email_begin + email + email_end;
+
 	response += to_string(email.length()) + "\n";
 	response += "\n";
 	response += email;
 	return response;
 }
-
 
 string generateLI(string num, string title, string url) {
 	string res;
@@ -83,7 +91,8 @@ string getEmailMid(string emails, string url) {
 string getListResponse(string user, string url, const char* begin, const char* end, string liurl) {
 	string response = HTTP_HEADER;
 
-	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+//	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+	StorageClient client = getClient(user);
 	string emails;
 	client.Get(user, url, emails);
 	string email_begin = readHTMLFile(begin);
@@ -95,5 +104,140 @@ string getListResponse(string user, string url, const char* begin, const char* e
 	response += "\n";
 	response += email_begin;
 	return response;
+}
+
+void addReceiver(vector<string>* receivers, string to) {
+	int space;
+	while ((space = to.find(" ")) != string::npos)
+		to.replace(space, 1, "");
+//	to = "To: " + to + "\r\n";
+	receivers->push_back(to);
+}
+
+void sendEmail(vector<string>& receivers, string& header, string& email) {
+	for (int i = 0; i < receivers.size(); i++) {
+		string receiver = receivers[i];
+		int at2 = receiver.find("@");
+		if (!receiver.substr(at2 + 1).compare(DOMAIN_NAME)) {
+			string receiverPre = receiver.substr(0, at2);
+			StorageClient client = getClient(receiverPre);
+			string emails;
+			if (!client.Get(receiverPre, "emails", emails)) continue;
+
+			int numLF = emails.find_last_of("\n", emails.length() - 2);
+			int numPreLF = emails.find_last_of("\n", numLF - 1);
+			string numStr = emails.substr(numPreLF + 1, numLF - numPreLF - 1);
+			int num = atoi(numStr.c_str());
+			numStr = to_string(num + 1);
+			string emailName = "email-" + numStr;
+			client.Put(receiverPre, "emails", emails + numStr + header);
+			client.Put(receiverPre, emailName, email);
+		}
+	}
+
+}
+
+vector<string> getReceivers(string& toLine) {
+	vector<string> receivers;
+	int at;
+	while ((at = toLine.find("%40")) != string::npos)
+		toLine.replace(at, 3, "@");
+	int toFirst = 0;
+	int comma = toLine.find(',');
+	while (comma != string::npos) {
+		string to = toLine.substr(toFirst, comma - toFirst);
+		addReceiver(&receivers, to);
+		toFirst = comma + 1;
+		comma = toLine.find(',', comma + 1);
+	}
+	string to = toLine.substr(toFirst);
+	addReceiver(&receivers, to);
+	return receivers;
+}
+
+void createEmail(string user, string lastLine) {
+	string fromLine = "From: " + user + "@localhost\r\n";
+
+	int andToEqualIndex = lastLine.find("&to=") + 4;
+	int andContentEqualIndex = lastLine.find("&content=");
+	int first = strlen(SUBJECT) + 1;
+	string subject = lastLine.substr(first, andToEqualIndex - first - 4);
+	string subjectLine = "Subject: " + subject + "\r\n";
+
+	string toLine = lastLine.substr(andToEqualIndex, andContentEqualIndex - andToEqualIndex); //zhixu%40localhost, xx%40localhost
+
+	vector<string> receivers = getReceivers(toLine);
+	toLine = "To: " + toLine + "\r\n";
+
+	time_t now = time(0);
+	string date = ctime(&now);
+	date.replace(date.find('\n'), 1, "");
+	string dateLine = "Date: " + date + "\r\n";
+	string content = lastLine.substr(andContentEqualIndex + 9);
+	string contentLine = content + "\r\n";
+	string header = "\n" + subject + ", " + date;
+
+	string email = toLine + fromLine + subjectLine + dateLine + "\r\n" + contentLine;
+
+	sendEmail(receivers, header, email);
+}
+
+void forwardEmail(string user, string referer, string lastLine) {
+	int start = referer.find_last_of('/') + 1;
+	string emailName = referer.substr(start, referer.length() - 2 - start);
+
+	StorageClient client = getClient(user);
+	string email;
+	if (!client.Get(user, emailName, email)) return;
+	string toLine = lastLine.substr(lastLine.find('=') + 1);
+	vector<string> receivers = getReceivers(toLine);
+
+	int subjectIndex = email.find("Subject: ");
+	int subjectEnd = email.find("\r\n", subjectIndex);
+	string subject = email.substr(subjectIndex, subjectEnd - subjectIndex);
+	subject.replace(0, 9, "");
+	time_t now = time(0);
+	string date = ctime(&now);
+	string header = "\nFW: " + subject + ", " + date;
+
+	sendEmail(receivers, header, email);
+}
+
+void replayEmail(string user, string referer, string lastLine) {
+	string fromLine = "From: " + user + "@localhost\r\n";
+
+	int start = referer.find_last_of('/') + 1;
+	string emailName = referer.substr(start, referer.length() - 2 - start);
+
+	StorageClient client = getClient(user);
+	string email;
+	if (!client.Get(user, emailName, email)) return;
+
+	int fromIndex = email.find("From: ");
+	int fromEnd = email.find("\r\n", fromIndex + 1);
+	string toLine = email.substr(fromIndex, fromEnd - fromIndex);
+	toLine.replace(0, 6, "");
+	vector<string> receivers = getReceivers(toLine);
+	toLine = "To: " + toLine + "\r\n";
+
+	int subjectIndex = email.find("Subject: ");
+	int subjectEnd = email.find("\r\n", subjectIndex);
+	string subject = email.substr(subjectIndex, subjectEnd - subjectIndex);
+	subject.replace(0, 9, "");
+	subject = "Re: " + subject;
+	time_t now = time(0);
+	string date = ctime(&now);
+	string header = "\n" + subject + ", " + date;
+
+	string content = lastLine.substr(lastLine.find("=") + 1);
+	string contentLine = content + "\r\n";
+
+	string subjectLine = subject;
+
+	string dateLine = "Date: " + date + "\r\n";
+
+	string finalEmail = toLine + fromLine + subjectLine + dateLine + "\r\n" + contentLine;
+
+	sendEmail(receivers, header, finalEmail);
 }
 #endif /* HANDLEEMAILS_H_ */

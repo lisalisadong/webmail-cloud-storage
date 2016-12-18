@@ -1,9 +1,32 @@
-/*
- * constants.h
- *
- *  Created on: Dec 12, 2016
- *      Author: cis505
- */
+#include <stdlib.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <errno.h>
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <pthread.h>
+#include <sstream>
+#include <signal.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <set>
+#include <vector>
+#include <dirent.h>
+#include <map>
+#include <ctime>
+#include <sys/time.h>
+#include <algorithm>
+#include <fstream>
+#include <grpc++/grpc++.h>
+#include <iomanip>
+
+#include "../../backend/storage_query/master_client.h"
 
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
@@ -35,13 +58,17 @@ const static char* SIGNUP = "/signup";
 const static char* LOGINSUBMIT = "/loginsubmit";
 const static char* NEW_FOLDER = "/newFolder";
 const static char* UPLOAD_FILE = "/uploadFile";
-
+const static char* FORWARD = "/forward";
+const static char* REPLY = "/reply";
 const static char* FOLDER_NAME = "folderName";
 const static char* FILE_PRE = "file-";
 const static char* FOLDER_PRE = "folder-";
 
 const static char* UPLOADED_FILE = "uploadedFile";
 const static char* FILE_NAME_PRE = "Content-Disposition: form-data; name=\"uploadedFile\"; filename=\"";
+
+const static char* SUBJECT = "subject";
+const static char* TO = "to";
 
 class Message {
 public:
