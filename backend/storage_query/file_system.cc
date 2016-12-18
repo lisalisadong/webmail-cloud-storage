@@ -119,10 +119,16 @@ void FileSystem::replay() {
 	logger.log_trace("Replaying temp log");
 
 	std::ifstream file (std::string(LOG_DIR) + prefix + "_" + TEMP_LOG);
+
+	logger.log_trace("Ready to open file: " + file);
+
 	if (file.is_open()) {
 		std::string tuple;
 		while (true) {
 			tuple = get_next_tuple(file);
+
+			logger.log_trace("Ready to proceed log: " + tuple);
+
 			if (tuple.length() == 0)
 				break;
 			int pos = 0;
