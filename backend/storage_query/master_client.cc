@@ -1,5 +1,6 @@
 #include <iostream>
 #include "master_client.h"
+#include "utils.h"
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -13,10 +14,8 @@ using storagequery::GetReplicaRequest;
 using storagequery::GetReplicaResponse;
 using storagequery::PingRequest;
 using storagequery::PingResponse;
-
-std::pair<std::string, std::string> getPair(std::string str);
-void deserialize(std::vector<std::pair<std::string, std::string> >& pairs, std::string nodes);
-void getNodes(std::vector<std::string>& addr, std::string str);
+using storagequery::GetAllNodesRequest;
+using storagequery::GetAllNodesResponse;
 
 // addr should be a vector or set of addr?
 bool MasterClient::GetNode(const std::string& row, const std::string& col, std::vector<std::string>& addr) {
@@ -34,13 +33,12 @@ bool MasterClient::GetNode(const std::string& row, const std::string& col, std::
 
   // The actual RPC.
   Status status = stub_->GetNode(&context, request, &response);
+  addr.clear();
 
   // Act upon its status.
   if (status.ok()) {
     std::string s = response.addr();
-
     getNodes(addr, s);
-
     return true;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
@@ -90,13 +88,13 @@ bool MasterClient::AddNode(const std::string& addr, std::vector<std::pair<std::s
 
 	// The actual RPC.
   Status status = stub_->AddNode(&context, request, &response);
+  val.clear();
 
   // Act upon its status.
   if (status.ok()) {
     std::string dataMap = response.data_map();
     //for testing
     // val.push_back(std::make_pair("localhost:50051_2", "localhost:50051_1"));
-
     deserialize(val, dataMap);
 
     return true;
@@ -115,7 +113,33 @@ bool MasterClient::Ping() {
   return status.ok();
 }
 
-std::pair<std::string, std::string> getPair(std::string str) {
+bool MasterClient::GetAllNodes(std::vector<std::string>& ups, std::vector<std::string>& downs) {
+  ClientContext context;
+  GetAllNodesRequest request;
+  GetAllNodesResponse response;
+  Status status = stub_->GetAllNodes(&context, request, &response);
+  std::string up = response.up();
+  std::string down = response.down();
+  ups.clear();
+  downs.clear();
+  int pos = 0;
+  while (pos < up.length()) {
+    ups.push_back(deserialize_next(up, pos));
+  }
+  pos = 0;
+  while (pos < down.length()) {
+    downs.push_back(deserialize_next(down, pos));
+  }
+  if (status.ok()) {
+    return true;
+  } else {
+    std::cout << status.error_code() << ": " << status.error_message()
+              << std::endl;
+    return false;
+  }
+}
+
+std::pair<std::string, std::string> MasterClient::getPair(std::string str) {
   int i = 0;
   while(str[i] != ' ') { i++; }
 
@@ -124,7 +148,7 @@ std::pair<std::string, std::string> getPair(std::string str) {
   return std::make_pair(str.substr(0, i), str.substr(i + 1, str.length() - i));
 }
 
-void deserialize(std::vector<std::pair<std::string, std::string> >& pairs, std::string nodes) {
+void MasterClient::deserialize(std::vector<std::pair<std::string, std::string> >& pairs, std::string nodes) {
   int start = 0, end = 0;
   for (int end = 0; end < nodes.length(); end++) {
     if(nodes[end] != ',') continue;
@@ -136,12 +160,18 @@ void deserialize(std::vector<std::pair<std::string, std::string> >& pairs, std::
   }
 }
 
-void getNodes(std::vector<std::string>& addr, std::string str) {
-  int start = 0;
-  for(int i = 0; i < str.length(); i++) {
-    if(str[i] != ' ') continue;
-    addr.push_back(str.substr(start, i - start));
-    start = i + 1;
+void MasterClient::getNodes(std::vector<std::string>& addr, std::string str) {
+  int found = 0;
+
+  while(found < str.length() && str[found] != ' ') found++;
+
+  // std::cout << "First: " << str.substr(0, found) << std::endl;
+
+  addr.push_back(str.substr(0, found));
+
+  if(found < str.length() - 1) {
+    // std::cout << "Second: " << str.substr(found + 1, str.length() - found - 1) << std::endl;
+    addr.push_back(str.substr(found + 1, str.length() - found - 1));
   }
 }
 

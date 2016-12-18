@@ -27,9 +27,17 @@ public:
 
 	bool Ping();
 
+	bool GetAllNodes(std::vector<std::string>& ups, std::vector<std::string>& downs);
+
 private:
 	Logger logger;
 	std::unique_ptr<StorageQuery::Stub> stub_;
+
+	std::pair<std::string, std::string> getPair(std::string str);
+
+	void deserialize(std::vector<std::pair<std::string, std::string> >& pairs, std::string nodes);
+
+	void getNodes(std::vector<std::string>& addr, std::string str);
 
 };
 

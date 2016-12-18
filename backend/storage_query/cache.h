@@ -12,7 +12,7 @@
 #include "file_system.h"
 #include "logger.h"
 
-#define CACHE_SIZE 2
+#define CACHE_SIZE 200
 #define WRT_OP 1
 
 class Cache {
@@ -61,7 +61,10 @@ private:
 
   bool containsKey(std::string row, std::string col);
 
-public: 
+public:
+
+  std::string currFile;
+
   Cache() {
     wrtCnt = 0;
 
@@ -105,6 +108,8 @@ public:
   bool remove(std::string row, std::string col);
 
   void migrate(std::string selfAddr, std::string otherAddr, std::string& data);
+
+  int get_raw_data(int start, int size, std::string& data);
 
 };
 

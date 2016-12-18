@@ -18,6 +18,8 @@ service StorageQuery {
   rpc GetNode (GetNodeRequest) returns (GetNodeResponse) {}
   rpc GetReplica (GetReplicaRequest) returns (GetReplicaResponse) {}
   rpc DeleteNode (GetNodeRequest) returns (GetNodeResponse) {}
+  rpc GetData (GetDataRequest) returns (GetDataResponse) {}
+  rpc GetAllNodes (GetAllNodesRequest) returns (GetAllNodesResponse) {}
 }  
 
 // get
@@ -108,4 +110,24 @@ message GetReplicaRequest {
 
 message GetReplicaResponse {
   string addr = 1;
+}
+
+// for admin
+message GetDataRequest {
+  uint32 start = 1;
+  uint32 size = 2;
+}
+
+message GetDataResponse {
+  uint32 size = 1;
+  string data = 2;
+}
+
+message GetAllNodesRequest {
+  
+}
+
+message GetAllNodesResponse {
+  string up = 1;
+  string down = 2;
 }

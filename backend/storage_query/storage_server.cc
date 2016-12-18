@@ -17,6 +17,7 @@
 #include <sstream>
 #include <signal.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #include <grpc++/grpc++.h>
 
@@ -45,6 +46,10 @@ using storagequery::MigrateRequest;
 using storagequery::MigrateResponse;
 using storagequery::PingRequest;
 using storagequery::PingResponse;
+using storagequery::GetDataRequest;
+using storagequery::GetDataResponse;
+using storagequery::GetAllNodesRequest;
+using storagequery::GetAllNodesResponse;
 
 #define MASTER_ADDR "localhost:8000"
 
@@ -166,6 +171,11 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 		std::string other_addr = address.substr(found + 1);
 
+		std::cout << "address: " << address << std::endl;
+
+		std::cout << "self address: " << self_addr << std::endl;
+    	std::cout << "other address: " << other_addr << std::endl;
+
 		std::string data;
 		cache.migrate(self_addr, other_addr, data);
 
@@ -178,6 +188,20 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		return Status::OK;
 	}
 
+	Status GetData(ServerContext* context, const GetDataRequest* request, 
+						GetDataResponse* response) override {
+		int start = request->start();
+		int size = request->size();
+
+		std::string data;
+		int ret = cache.get_raw_data(start, size, data);
+
+		response->set_size(ret);
+		response->set_data(data);
+
+		return Status::OK;
+	}
+
 public:
 	// std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
 	Cache cache = Cache::create_cache(worker_addr);
@@ -185,6 +209,7 @@ public:
 
 };
 
+/* get data when initializing the node*/
 void* get_data(void*) {
 	sleep(3);
 	if (master.Ping()) {
@@ -192,10 +217,18 @@ void* get_data(void*) {
 		std::vector<std::pair<std::string, std::string> > pairs;
 		if (master.AddNode(worker_addr, pairs)) {
 			for (std::pair<std::string, std::string> p : pairs) {
+
+
 				std::string other = get_real_addr(p.first);
 				StorageClient worker(grpc::CreateChannel(other, grpc::InsecureChannelCredentials()));
 				StorageClient self(grpc::CreateChannel(worker_addr, grpc::InsecureChannelCredentials()));
+
+				std::cout << "self: " << worker_addr << std::endl;
+				std::cout << "other: " << p.first << std::endl;
+
 				std::unordered_map<std::string, std::unordered_map<std::string, std::string> > data;
+
+				// (other + self)
 				if (worker.Migrate(p.first + " " + p.second, data)) {
 					wLogger.log_trace("migrating data...");
 					for (auto it = data.begin(); it != data.end(); it++) {
@@ -212,6 +245,7 @@ void* get_data(void*) {
 		wLogger.log_error("master is down");
 	}
 }
+
 
 
 void RunServer() {
@@ -238,6 +272,13 @@ void RunServer() {
 	server->Wait();
 }
 
+/* hanler for "contrl + C" */
+// void sigint(int a) {
+//     wLogger.log_trace("Node is about to exit.");
+//     std::vector<std::string> nodes;
+//     master.GetNode(worker_addr, "", nodes);
+// }
+
 
 
 int main(int argc, char** argv) {
@@ -245,6 +286,8 @@ int main(int argc, char** argv) {
 		wLogger.log_error("Wrong configuration, please enter a port number.");
 		return 0;
 	}
+
+	// signal(SIGINT, sigint);
 
 	worker_addr.append(argv[1]);
 

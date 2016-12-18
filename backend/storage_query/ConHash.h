@@ -40,9 +40,13 @@ public:
 
 	bool deleteNode(std::string addr);
 
-	std::unordered_set<std::string> getNodes(std::string key);
+	std::vector<std::string> getNodes(std::string key);
 
 	std::vector<std::string> getAllNodes();
+
+	std::string getUpServers();
+
+	std::string getDownServers();
 
 	void notifyUp(std::string addr);
 
@@ -136,13 +140,13 @@ std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string a
 	return res;
 }
 
-std::unordered_set<std::string> ConHash::getNodes(std::string key) {
+std::vector<std::string> ConHash::getNodes(std::string key) {
 	/* No node yet */
 	if(map.size() == 0) {
 		throw std::exception();
 	}
 
-	std::unordered_set<std::string> res;
+	std::vector<std::string> res;
 	//============first hash====================
 	long hashVal = get_hash_val(key);
 
@@ -156,12 +160,12 @@ std::unordered_set<std::string> ConHash::getNodes(std::string key) {
 
 	std::string primary = itr->second.id;
 
-	res.insert(primary);
+	res.push_back(primary);
 
 	//=============get replica==================
 	std::string secondary = getReplica(key);
 
-	if(res.find(secondary) == res.end()) res.insert(secondary);
+	if(res.size() > 0 && res[0] != secondary) res.push_back(secondary);
 
 	for(std::string node: res) {
 		std::cout << "Node for " << key << " is: " << node << std::endl;
@@ -212,6 +216,22 @@ std::string ConHash::getReplica(std::string key) {
 	}
 
 	return itr->second.id;
+}
+
+std::string ConHash::getUpServers() {
+	std::string ret;
+	for (auto s : upServers) {
+		ret += serialize(s);
+	}
+	return ret;
+}
+
+std::string ConHash::getDownServers() {
+	std::string ret;
+	for (auto s : downServers) {
+		ret += serialize(s);
+	}
+	return ret;
 }
 
 
