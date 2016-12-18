@@ -21,7 +21,7 @@ void Logger::log_assert(bool cond, std::string message) {
 
 void Logger::log_warn(const std::string& message) {
 	if (log_verbose) {
-		fprintf(stderr, "%s [WARN] [%s] %s\n", timestamp_string().c_str(), cName.c_str(), message.c_str());
+		fprintf(stderr, "%s [WARN ] [%s] %s\n", timestamp_string().c_str(), cName.c_str(), message.c_str());
 	}
 }
 

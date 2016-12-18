@@ -66,12 +66,15 @@ public:
 
 private:
 
+	Logger logger;
+
 	VNode getVirtual(std::string, int i);
 
 };
 
 
 ConHash::ConHash() {
+	logger.log_config("ConHash");
 	v_num = V_NUM;
 }
 
@@ -93,9 +96,7 @@ std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string a
 	// add to working server set
 	upServers.insert(addr);
 	if(downServers.find(addr) != downServers.end()) {
-		logger.log_trace("Server was in server list, skip migrating");
 		downServers.erase(addr);
-		return res;
 	}
 
 	std::unordered_set<std::string> ids;
@@ -106,7 +107,7 @@ std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string a
 
 		long hashVal = get_hash_val(v.vId);
 
-		std::cout << "hash value of" << v.vId << " is: " << hashVal << std::endl;
+		// logger.log_trace("hash value of" + v.vId + " is: " + hashVal);
 
 		/* same hash val exists */
 		if(map.find(hashVal) != map.end()) {
@@ -122,7 +123,7 @@ std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string a
 
 		VNode next = itr->second;
 
-		std::cout << "next node is: " << next.id << std::endl;
+		logger.log_trace("next node is: " + next.id);
 
 		// if next node is the node itself
 		if(next.id == v.id) continue;
@@ -151,7 +152,7 @@ std::vector<std::string> ConHash::getNodes(std::string key) {
 	//============first hash====================
 	long hashVal = get_hash_val(key);
 
-	std::cout << "Hash value of " << key << " is: " << hashVal << std::endl;
+	// logger.log_trace("Hash value of " + key + " is: " + hashVal);
 
 	std::map<long, VNode>::iterator itr = map.upper_bound(hashVal);
 
@@ -195,10 +196,10 @@ void ConHash::notifyDown(std::string addr) {
 
 	downServers.insert(addr);
 
-	std::cout << "Down servers: " << std::endl;
-	for(std::string d: downServers) {
-		std::cout << d << std::endl;
-	}
+	// std::cout << "Down servers: " << std::endl;
+	// for(std::string d: downServers) {
+	// 	std::cout << d << std::endl;
+	// }
 }
 
 std::string ConHash::getReplica(std::string key) {

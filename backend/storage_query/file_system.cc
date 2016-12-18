@@ -116,7 +116,7 @@ void FileSystem::write_log(std::string fileName, std::string row, std::string co
 
 void FileSystem::replay() {
 
-	logger.log_trace("Replaying temp log");
+	logger.log_trace("Replaying temp log " + prefix + "_" + TEMP_LOG);
 
 	std::ifstream file (std::string(LOG_DIR) + prefix + "_" + TEMP_LOG);
 
@@ -136,13 +136,16 @@ void FileSystem::replay() {
 			std::string val = deserialize_next(tuple, pos);
 			std::string operation = deserialize_next(tuple, pos);
 			
-			if (operation == "PUT") {
+			if (operation == "PUT\n") {
 				write_entry(fileName, row, col, val);
-			} else if (operation == "DELETE") {
+				write_entry(std::string(STORE_DIR) + prefix + "_" + MAPPING, row, col, fileName);
+			} else if (operation == "DELETE\n") {
 				delete_entry(fileName, row, col);
+				delete_entry(std::string(STORE_DIR) + prefix + "_" + MAPPING, row, col);
 			}
 		}
 		file.close();
+		clear_temp_log();
 	}
 	else logger.log_warn("Cannot open temp log to read");
 }
@@ -156,6 +159,9 @@ void FileSystem::clear_temp_log() {
 void FileSystem::set_prefix(std::string pre) {
 	logger.log_trace("Setting file system prefix to " + pre);
 	prefix = pre;
+
+	logger.log_trace("File prefix: " + prefix);
+
 }
 
 /************************private methods********************/

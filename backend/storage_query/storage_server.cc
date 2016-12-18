@@ -107,21 +107,19 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		// map[row][col] = val;
 		bool status = cache.put(row, col, val);
 
-		std::cout << worker_addr << ": " << "put " << row << " " << col << " " << val << std::endl;
-
 		// not tested yet
 		/* get replica addr from master */
 		std::string replicaAddr;
 		bool hasReplica = master.GetReplica(row, col, replicaAddr);
 
-		std::cout << "Replica: " << replicaAddr << std::endl;
+		wLogger.log_trace("replica: " + replicaAddr);
 
 		if(hasReplica && replicaAddr != worker_addr) {
-			std::cout << "replica node: " << replicaAddr << std::endl;
+			wLogger.log_trace("putting copy to: " + replicaAddr);
 			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
 			replicaNode.Put(row, col, val);
 		} else {
-			std::cout << "put copy" << std::endl;
+			wLogger.log_trace("copy was not put");
 		}
 
 		return Status::OK;
@@ -180,11 +178,6 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 		std::string other_addr = address.substr(found + 1);
 
-		std::cout << "address: " << address << std::endl;
-
-		std::cout << "self address: " << self_addr << std::endl;
-    	std::cout << "other address: " << other_addr << std::endl;
-
 		std::string data;
 		cache.migrate(self_addr, other_addr, data);
 
@@ -230,22 +223,19 @@ void* get_data(void*) {
 				StorageClient worker(grpc::CreateChannel(other, grpc::InsecureChannelCredentials()));
 				StorageClient self(grpc::CreateChannel(worker_addr, grpc::InsecureChannelCredentials()));
 
-				std::cout << "self: " << worker_addr << std::endl;
-				std::cout << "other: " << p.first << std::endl;
-
 				std::unordered_map<std::string, std::unordered_map<std::string, std::string> > data;
 
 				// (other + self)
 				if (worker.Migrate(p.first + " " + p.second, data)) {
-					wLogger.log_trace("migrating data...");
+					wLogger.log_trace("migrating data from " + other);
 					for (auto it = data.begin(); it != data.end(); it++) {
 						for (auto itr = it->second.begin(); itr != it->second.end(); itr++) {
 							self.Put(it->first, itr->first, itr->second);
 						}
 					}
-					wLogger.log_trace("migrating done");
 				}
 			}
+			wLogger.log_trace("migrating done");
 		}
 
 	} else {
