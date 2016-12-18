@@ -70,6 +70,14 @@ class StorageQuery GRPC_FINAL {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::GetNodeResponse>> AsyncDeleteNode(::grpc::ClientContext* context, const ::storagequery::GetNodeRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::GetNodeResponse>>(AsyncDeleteNodeRaw(context, request, cq));
     }
+    virtual ::grpc::Status GetData(::grpc::ClientContext* context, const ::storagequery::GetDataRequest& request, ::storagequery::GetDataResponse* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::GetDataResponse>> AsyncGetData(::grpc::ClientContext* context, const ::storagequery::GetDataRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::GetDataResponse>>(AsyncGetDataRaw(context, request, cq));
+    }
+    virtual ::grpc::Status GetAllNodes(::grpc::ClientContext* context, const ::storagequery::GetAllNodesRequest& request, ::storagequery::GetAllNodesResponse* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::GetAllNodesResponse>> AsyncGetAllNodes(::grpc::ClientContext* context, const ::storagequery::GetAllNodesRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::GetAllNodesResponse>>(AsyncGetAllNodesRaw(context, request, cq));
+    }
   private:
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::GetResponse>* AsyncGetRaw(::grpc::ClientContext* context, const ::storagequery::GetRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::PutResponse>* AsyncPutRaw(::grpc::ClientContext* context, const ::storagequery::PutRequest& request, ::grpc::CompletionQueue* cq) = 0;
@@ -81,6 +89,8 @@ class StorageQuery GRPC_FINAL {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::GetNodeResponse>* AsyncGetNodeRaw(::grpc::ClientContext* context, const ::storagequery::GetNodeRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::GetReplicaResponse>* AsyncGetReplicaRaw(::grpc::ClientContext* context, const ::storagequery::GetReplicaRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::GetNodeResponse>* AsyncDeleteNodeRaw(::grpc::ClientContext* context, const ::storagequery::GetNodeRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::GetDataResponse>* AsyncGetDataRaw(::grpc::ClientContext* context, const ::storagequery::GetDataRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::storagequery::GetAllNodesResponse>* AsyncGetAllNodesRaw(::grpc::ClientContext* context, const ::storagequery::GetAllNodesRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub GRPC_FINAL : public StubInterface {
    public:
@@ -125,6 +135,14 @@ class StorageQuery GRPC_FINAL {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::storagequery::GetNodeResponse>> AsyncDeleteNode(::grpc::ClientContext* context, const ::storagequery::GetNodeRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::storagequery::GetNodeResponse>>(AsyncDeleteNodeRaw(context, request, cq));
     }
+    ::grpc::Status GetData(::grpc::ClientContext* context, const ::storagequery::GetDataRequest& request, ::storagequery::GetDataResponse* response) GRPC_OVERRIDE;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::storagequery::GetDataResponse>> AsyncGetData(::grpc::ClientContext* context, const ::storagequery::GetDataRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::storagequery::GetDataResponse>>(AsyncGetDataRaw(context, request, cq));
+    }
+    ::grpc::Status GetAllNodes(::grpc::ClientContext* context, const ::storagequery::GetAllNodesRequest& request, ::storagequery::GetAllNodesResponse* response) GRPC_OVERRIDE;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::storagequery::GetAllNodesResponse>> AsyncGetAllNodes(::grpc::ClientContext* context, const ::storagequery::GetAllNodesRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::storagequery::GetAllNodesResponse>>(AsyncGetAllNodesRaw(context, request, cq));
+    }
 
    private:
     std::shared_ptr< ::grpc::ChannelInterface> channel_;
@@ -138,6 +156,8 @@ class StorageQuery GRPC_FINAL {
     ::grpc::ClientAsyncResponseReader< ::storagequery::GetNodeResponse>* AsyncGetNodeRaw(::grpc::ClientContext* context, const ::storagequery::GetNodeRequest& request, ::grpc::CompletionQueue* cq) GRPC_OVERRIDE;
     ::grpc::ClientAsyncResponseReader< ::storagequery::GetReplicaResponse>* AsyncGetReplicaRaw(::grpc::ClientContext* context, const ::storagequery::GetReplicaRequest& request, ::grpc::CompletionQueue* cq) GRPC_OVERRIDE;
     ::grpc::ClientAsyncResponseReader< ::storagequery::GetNodeResponse>* AsyncDeleteNodeRaw(::grpc::ClientContext* context, const ::storagequery::GetNodeRequest& request, ::grpc::CompletionQueue* cq) GRPC_OVERRIDE;
+    ::grpc::ClientAsyncResponseReader< ::storagequery::GetDataResponse>* AsyncGetDataRaw(::grpc::ClientContext* context, const ::storagequery::GetDataRequest& request, ::grpc::CompletionQueue* cq) GRPC_OVERRIDE;
+    ::grpc::ClientAsyncResponseReader< ::storagequery::GetAllNodesResponse>* AsyncGetAllNodesRaw(::grpc::ClientContext* context, const ::storagequery::GetAllNodesRequest& request, ::grpc::CompletionQueue* cq) GRPC_OVERRIDE;
     const ::grpc::RpcMethod rpcmethod_Get_;
     const ::grpc::RpcMethod rpcmethod_Put_;
     const ::grpc::RpcMethod rpcmethod_CPut_;
@@ -148,6 +168,8 @@ class StorageQuery GRPC_FINAL {
     const ::grpc::RpcMethod rpcmethod_GetNode_;
     const ::grpc::RpcMethod rpcmethod_GetReplica_;
     const ::grpc::RpcMethod rpcmethod_DeleteNode_;
+    const ::grpc::RpcMethod rpcmethod_GetData_;
+    const ::grpc::RpcMethod rpcmethod_GetAllNodes_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -165,6 +187,8 @@ class StorageQuery GRPC_FINAL {
     virtual ::grpc::Status GetNode(::grpc::ServerContext* context, const ::storagequery::GetNodeRequest* request, ::storagequery::GetNodeResponse* response);
     virtual ::grpc::Status GetReplica(::grpc::ServerContext* context, const ::storagequery::GetReplicaRequest* request, ::storagequery::GetReplicaResponse* response);
     virtual ::grpc::Status DeleteNode(::grpc::ServerContext* context, const ::storagequery::GetNodeRequest* request, ::storagequery::GetNodeResponse* response);
+    virtual ::grpc::Status GetData(::grpc::ServerContext* context, const ::storagequery::GetDataRequest* request, ::storagequery::GetDataResponse* response);
+    virtual ::grpc::Status GetAllNodes(::grpc::ServerContext* context, const ::storagequery::GetAllNodesRequest* request, ::storagequery::GetAllNodesResponse* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_Get : public BaseClass {
@@ -366,7 +390,47 @@ class StorageQuery GRPC_FINAL {
       ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_Get<WithAsyncMethod_Put<WithAsyncMethod_CPut<WithAsyncMethod_Delete<WithAsyncMethod_Migrate<WithAsyncMethod_Ping<WithAsyncMethod_AddNode<WithAsyncMethod_GetNode<WithAsyncMethod_GetReplica<WithAsyncMethod_DeleteNode<Service > > > > > > > > > > AsyncService;
+  template <class BaseClass>
+  class WithAsyncMethod_GetData : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithAsyncMethod_GetData() {
+      ::grpc::Service::MarkMethodAsync(10);
+    }
+    ~WithAsyncMethod_GetData() GRPC_OVERRIDE {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status GetData(::grpc::ServerContext* context, const ::storagequery::GetDataRequest* request, ::storagequery::GetDataResponse* response) GRPC_FINAL GRPC_OVERRIDE {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestGetData(::grpc::ServerContext* context, ::storagequery::GetDataRequest* request, ::grpc::ServerAsyncResponseWriter< ::storagequery::GetDataResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(10, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithAsyncMethod_GetAllNodes : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithAsyncMethod_GetAllNodes() {
+      ::grpc::Service::MarkMethodAsync(11);
+    }
+    ~WithAsyncMethod_GetAllNodes() GRPC_OVERRIDE {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status GetAllNodes(::grpc::ServerContext* context, const ::storagequery::GetAllNodesRequest* request, ::storagequery::GetAllNodesResponse* response) GRPC_FINAL GRPC_OVERRIDE {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestGetAllNodes(::grpc::ServerContext* context, ::storagequery::GetAllNodesRequest* request, ::grpc::ServerAsyncResponseWriter< ::storagequery::GetAllNodesResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(11, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  typedef WithAsyncMethod_Get<WithAsyncMethod_Put<WithAsyncMethod_CPut<WithAsyncMethod_Delete<WithAsyncMethod_Migrate<WithAsyncMethod_Ping<WithAsyncMethod_AddNode<WithAsyncMethod_GetNode<WithAsyncMethod_GetReplica<WithAsyncMethod_DeleteNode<WithAsyncMethod_GetData<WithAsyncMethod_GetAllNodes<Service > > > > > > > > > > > > AsyncService;
   template <class BaseClass>
   class WithGenericMethod_Get : public BaseClass {
    private:
@@ -533,6 +597,40 @@ class StorageQuery GRPC_FINAL {
     }
     // disable synchronous version of this method
     ::grpc::Status DeleteNode(::grpc::ServerContext* context, const ::storagequery::GetNodeRequest* request, ::storagequery::GetNodeResponse* response) GRPC_FINAL GRPC_OVERRIDE {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_GetData : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithGenericMethod_GetData() {
+      ::grpc::Service::MarkMethodGeneric(10);
+    }
+    ~WithGenericMethod_GetData() GRPC_OVERRIDE {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status GetData(::grpc::ServerContext* context, const ::storagequery::GetDataRequest* request, ::storagequery::GetDataResponse* response) GRPC_FINAL GRPC_OVERRIDE {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_GetAllNodes : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithGenericMethod_GetAllNodes() {
+      ::grpc::Service::MarkMethodGeneric(11);
+    }
+    ~WithGenericMethod_GetAllNodes() GRPC_OVERRIDE {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status GetAllNodes(::grpc::ServerContext* context, const ::storagequery::GetAllNodesRequest* request, ::storagequery::GetAllNodesResponse* response) GRPC_FINAL GRPC_OVERRIDE {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }

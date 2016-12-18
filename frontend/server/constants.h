@@ -58,13 +58,17 @@ const static char* SIGNUP = "/signup";
 const static char* LOGINSUBMIT = "/loginsubmit";
 const static char* NEW_FOLDER = "/newFolder";
 const static char* UPLOAD_FILE = "/uploadFile";
-
+const static char* FORWARD = "/forward";
+const static char* REPLY = "/reply";
 const static char* FOLDER_NAME = "folderName";
 const static char* FILE_PRE = "file-";
 const static char* FOLDER_PRE = "folder-";
 
 const static char* UPLOADED_FILE = "uploadedFile";
 const static char* FILE_NAME_PRE = "Content-Disposition: form-data; name=\"uploadedFile\"; filename=\"";
+
+const static char* SUBJECT = "subject";
+const static char* TO = "to";
 
 class Message {
 public:

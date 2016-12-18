@@ -26,6 +26,8 @@ static const char* StorageQuery_method_names[] = {
   "/storagequery.StorageQuery/GetNode",
   "/storagequery.StorageQuery/GetReplica",
   "/storagequery.StorageQuery/DeleteNode",
+  "/storagequery.StorageQuery/GetData",
+  "/storagequery.StorageQuery/GetAllNodes",
 };
 
 std::unique_ptr< StorageQuery::Stub> StorageQuery::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -44,6 +46,8 @@ StorageQuery::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& chann
   , rpcmethod_GetNode_(StorageQuery_method_names[7], ::grpc::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_GetReplica_(StorageQuery_method_names[8], ::grpc::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_DeleteNode_(StorageQuery_method_names[9], ::grpc::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_GetData_(StorageQuery_method_names[10], ::grpc::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_GetAllNodes_(StorageQuery_method_names[11], ::grpc::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status StorageQuery::Stub::Get(::grpc::ClientContext* context, const ::storagequery::GetRequest& request, ::storagequery::GetResponse* response) {
@@ -126,6 +130,22 @@ StorageQuery::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& chann
   return new ::grpc::ClientAsyncResponseReader< ::storagequery::GetNodeResponse>(channel_.get(), cq, rpcmethod_DeleteNode_, context, request);
 }
 
+::grpc::Status StorageQuery::Stub::GetData(::grpc::ClientContext* context, const ::storagequery::GetDataRequest& request, ::storagequery::GetDataResponse* response) {
+  return ::grpc::BlockingUnaryCall(channel_.get(), rpcmethod_GetData_, context, request, response);
+}
+
+::grpc::ClientAsyncResponseReader< ::storagequery::GetDataResponse>* StorageQuery::Stub::AsyncGetDataRaw(::grpc::ClientContext* context, const ::storagequery::GetDataRequest& request, ::grpc::CompletionQueue* cq) {
+  return new ::grpc::ClientAsyncResponseReader< ::storagequery::GetDataResponse>(channel_.get(), cq, rpcmethod_GetData_, context, request);
+}
+
+::grpc::Status StorageQuery::Stub::GetAllNodes(::grpc::ClientContext* context, const ::storagequery::GetAllNodesRequest& request, ::storagequery::GetAllNodesResponse* response) {
+  return ::grpc::BlockingUnaryCall(channel_.get(), rpcmethod_GetAllNodes_, context, request, response);
+}
+
+::grpc::ClientAsyncResponseReader< ::storagequery::GetAllNodesResponse>* StorageQuery::Stub::AsyncGetAllNodesRaw(::grpc::ClientContext* context, const ::storagequery::GetAllNodesRequest& request, ::grpc::CompletionQueue* cq) {
+  return new ::grpc::ClientAsyncResponseReader< ::storagequery::GetAllNodesResponse>(channel_.get(), cq, rpcmethod_GetAllNodes_, context, request);
+}
+
 StorageQuery::Service::Service() {
   (void)StorageQuery_method_names;
   AddMethod(new ::grpc::RpcServiceMethod(
@@ -178,6 +198,16 @@ StorageQuery::Service::Service() {
       ::grpc::RpcMethod::NORMAL_RPC,
       new ::grpc::RpcMethodHandler< StorageQuery::Service, ::storagequery::GetNodeRequest, ::storagequery::GetNodeResponse>(
           std::mem_fn(&StorageQuery::Service::DeleteNode), this)));
+  AddMethod(new ::grpc::RpcServiceMethod(
+      StorageQuery_method_names[10],
+      ::grpc::RpcMethod::NORMAL_RPC,
+      new ::grpc::RpcMethodHandler< StorageQuery::Service, ::storagequery::GetDataRequest, ::storagequery::GetDataResponse>(
+          std::mem_fn(&StorageQuery::Service::GetData), this)));
+  AddMethod(new ::grpc::RpcServiceMethod(
+      StorageQuery_method_names[11],
+      ::grpc::RpcMethod::NORMAL_RPC,
+      new ::grpc::RpcMethodHandler< StorageQuery::Service, ::storagequery::GetAllNodesRequest, ::storagequery::GetAllNodesResponse>(
+          std::mem_fn(&StorageQuery::Service::GetAllNodes), this)));
 }
 
 StorageQuery::Service::~Service() {
@@ -247,6 +277,20 @@ StorageQuery::Service::~Service() {
 }
 
 ::grpc::Status StorageQuery::Service::DeleteNode(::grpc::ServerContext* context, const ::storagequery::GetNodeRequest* request, ::storagequery::GetNodeResponse* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status StorageQuery::Service::GetData(::grpc::ServerContext* context, const ::storagequery::GetDataRequest* request, ::storagequery::GetDataResponse* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status StorageQuery::Service::GetAllNodes(::grpc::ServerContext* context, const ::storagequery::GetAllNodesRequest* request, ::storagequery::GetAllNodesResponse* response) {
   (void) context;
   (void) request;
   (void) response;
