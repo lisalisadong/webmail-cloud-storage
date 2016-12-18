@@ -28,6 +28,8 @@ bool Cache::put(std::string row, std::string col, std::string val) {
         file = fs.place_new_entry();
     }
 
+    currFile = file;
+
     /* file counter plus 1 */
     fileCnt[file] += 1;
     // std::cout<<file<<" is accessed "<<fileCnt[file]<<" times."<<std::endl;
@@ -63,6 +65,7 @@ bool Cache::cput(std::string row, std::string col, std::string val1, std::string
     if (!containsKey(row, col) || get(row, col) != val1) return false;
 
     std::string file = keysToFile[row][col];
+    currFile = file;
 
     fileCnt[file] += 1;
     // std::cout<<file<<" is accessed "<<fileCnt[file]<<" times."<<std::endl;
@@ -81,6 +84,7 @@ bool Cache::remove(std::string row, std::string col) {
     if(!containsKey(row, col)) return false;
 
     std::string file = keysToFile[row][col];
+    currFile = file;
     fileCnt[file] += 1;
     std::pair<std::string, std::string> p(row, col);
     fileToKeys[file].erase(p);
@@ -103,12 +107,22 @@ bool Cache::remove(std::string row, std::string col) {
 }
 
 void Cache::migrate(std::string selfAddr, std::string otherAddr, std::string& data) {
+
     long selfHash = get_hash_val(selfAddr);
     long otherHash = get_hash_val(otherAddr);
+
+    std::cout << "Hash val of self: " << selfHash << std::endl;
+    std::cout << "Hash val of other: " << otherHash << std::endl;
+
     std::vector<std::pair<std::string, std::string> > toDelete;
     for (auto fp = keysToFile.begin(); fp != keysToFile.end(); fp++) {
         long entryHash = get_hash_val(fp->first);
+
+        std::cout << "Hash val of " << fp->first << " is: " << entryHash << std::endl;
+
         if (entryHash <= otherHash || entryHash > selfHash) {
+
+            std::cout << fp->first << " is about to be migrated." << std::endl;
             for (auto sp = fp->second.begin(); sp != fp->second.end(); sp++) {
                 std::string val = get(fp->first, sp->first);
                 data += serialize(serialize(fp->first) + serialize(sp->first) + serialize(val));
@@ -122,6 +136,22 @@ void Cache::migrate(std::string selfAddr, std::string otherAddr, std::string& da
     }
 }
 
+int Cache::get_raw_data(int start, int size, std::string& data) {
+    int ret = 0;
+    for (auto fp = keysToFile.begin(); fp != keysToFile.end(); fp++) {
+        for (auto sp = fp->second.begin(); sp != fp->second.end(); sp++) {
+            if (start > 0) {
+                start--;
+                continue;
+            }
+            if (size == 0) break;
+            std::string val = get(fp->first, sp->first);
+            data += serialize(serialize(fp->first) + serialize(sp->first) + serialize(val));
+            ret++;
+        }
+    }
+    return ret;
+}
 
 
 /**************************private methods*******************************/
@@ -142,7 +172,7 @@ bool Cache::writeSnapshot() {
 
 /* write meta data into file system */
 void Cache::writeMeta() {
-    fs.write_file(serverAddress + "_mapping", keysToFile);
+    fs.write_file(serverAddress + "mapping", keysToFile);
     // std::cout << "Meta data write succeeded" << std::endl;
 }
 
@@ -212,7 +242,7 @@ std::string Cache::getLRFile() {
     std::unordered_map<std::string, int>::const_iterator itr = fileCnt.begin();
 
     while(itr != fileCnt.end()) {
-        if(itr->second < cnt) {
+        if(itr->second < cnt && itr->first != currFile) {
             cnt = itr->second;
             lrFile = itr->first;
         }
@@ -223,21 +253,21 @@ std::string Cache::getLRFile() {
 }
 
 /* put a chunk into cache */
-void Cache::updateCache(std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk) {
-    if(chunk.size() <= 0) return;
+// void Cache::updateCache(std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk) {
+//     if(chunk.size() <= 0) return;
 
-    for(auto rItr = chunk.begin(); rItr != chunk.end(); ++rItr) {
+//     for(auto rItr = chunk.begin(); rItr != chunk.end(); ++rItr) {
         
-        std::string row = rItr->first;
+//         std::string row = rItr->first;
 
-        for(auto cItr = chunk[row].begin(); cItr != chunk[row].end(); ++cItr) {
-            std::string col = cItr->first;
+//         for(auto cItr = chunk[row].begin(); cItr != chunk[row].end(); ++cItr) {
+//             std::string col = cItr->first;
 
-            map[row][col] = chunk[row][col];
-        }
-    } 
+//             map[row][col] = chunk[row][col];
+//         }
+//     } 
 
-}
+// }
 
 bool Cache::containsKey(std::string row, std::string col) {
 

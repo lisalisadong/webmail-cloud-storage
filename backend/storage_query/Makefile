@@ -12,11 +12,13 @@ PROTOS_PATH = ../protos
 
 vpath %.proto $(PROTOS_PATH)
 
-all: system-check storage_server master
+all: system-check storage_server master test
 
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) $^ -c $(LDFLAGS) -o $@
 
+test: storage_query.pb.o storage_query.grpc.pb.o logger.o utils.o file_system.o cache.o master_client.o storage_client.o test.o
+	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 # master_client
 # master_client: storage_query.pb.o storage_query.grpc.pb.o master_client.cc 
 # 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
@@ -40,7 +42,7 @@ storage_server: storage_query.pb.o storage_query.grpc.pb.o logger.o utils.o file
 	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
 
 clean:
-	rm -f *.o *.pb.cc *.pb.h storage_client storage_server master_client master
+	rm -f *.o *.pb.cc *.pb.h storage_client storage_server master_client master test
 
 
 # The following is to test your system and ensure a smoother experience.

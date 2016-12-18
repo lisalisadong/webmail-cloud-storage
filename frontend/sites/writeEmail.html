@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+	<meta charset="UTF-8">
   <head>
     <title>Write Email</title>
   </head>
@@ -7,7 +8,10 @@
   <body>
 	  <div>
 	    <form action="sendEmail" method="post">
-			<input type="text" name="title" style="width:600px;"><br>
+	    	Subject: <br/>
+			<input type="text" name="subject" style="width:600px;"><br/>
+			Send to: <br/>
+			<input type="text" name="to" style="width:600px;"><br/>
 			<textarea name="content" style="width:600px;height:500px"></textarea> <br/>
         	<input type="submit" value="Send"/>
 	    </form>

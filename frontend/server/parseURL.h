@@ -36,22 +36,29 @@ using namespace std;
 #define PARSEURL_H_
 
 void testInitialize() {
-	StorageClient client(grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials()));
-	string emails = "1\ntest email\n2\ntest email\n4\ntestemail\n";
-	string row("Alice");
+	string user("Alice");
+	StorageClient client = getClient(user);
+
+	client.Put(user, "pwd", "aaa");
+
+	string emails = "1\nAAA, Mon, 24 Oct 2016 01:25:53 -0400\n2\nAAA, Mon, 24 Oct 2016 01:25:53 -0400\n4\nBBBBBB, Mon, 17 Oct 2016 01:25:53 -0400\n";
+	string email1 = "To: Alice@localhost\r\nFrom: zhixu@localhost\r\nSubject: AAA\r\nDate: Mon, 24 Oct 2016 01:25:53 -0400\r\n\r\nAAA\r\n";
+	string email2 = "To: Alice@localhost\r\nFrom: zhixu@localhost\r\nSubject: AAA\r\nDate: Mon, 17 Oct 2016 01:25:53 -0400\r\n\r\nBBB\r\n";
+	string email4 = "To: Alice@localhost\r\nFrom: zhixu@localhost\r\nSubject: BBBBBB\r\nDate: Mon, 10 Oct 2016 01:25:53 -0400\r\n\r\nDDD\r\n";
+//	string emails = to_string(email1.length()) + "\r\n" + email1 +to_string(email2.length()) + "\r\n" + email2 + to_string(email3.length()) + "\r\n" + email3;
 	string col("emails");
-	client.Put(row, col, emails);
+	client.Put(user, "emails", emails);
 	cout << "Put Alice emails: " << endl << emails << endl;
 
-	client.Put(row, "email-1", "aaaaaaaaaaaaaaa");
-	client.Put(row, "email-2", "bbbbbbbbbbbbbbb");
-	client.Put(row, "email-4", "ddddddddddddddd");
+	client.Put(user, "email-1", email1);
+	client.Put(user, "email-2", email2);
+	client.Put(user, "email-4", email4);
 
-	client.Put(row, "files", "folder-aaa\nfolder-bbb\nfile-1.txt\n");
-	client.Put(row, "folder-aaa", "folder-aaa/..\nfolder-aaa/homework3\nfolder-aaa/solution\nfile-aaa/a.png\n");
-	client.Put(row, "folder-aaa/solution", "folder-aaa/solution/..\nfile-aaa/solution/2.txt\n");
-	client.Put(row, "folder-aaa/homework3", "folder-aaa/homework3/..\n");
-	client.Put(row, "folder-bbb", "folder-bbb/..\n");
+	client.Put(user, "files", "folder-aaa\nfolder-bbb\nfile-1.txt\n");
+	client.Put(user, "folder-aaa", "folder-aaa/..\nfolder-aaa/homework3\nfolder-aaa/solution\nfile-aaa/a.png\n");
+	client.Put(user, "folder-aaa/solution", "folder-aaa/solution/..\nfile-aaa/solution/2.txt\n");
+	client.Put(user, "folder-aaa/homework3", "folder-aaa/homework3/..\n");
+	client.Put(user, "folder-bbb", "folder-bbb/..\n");
 
 	/*
 	 *	files
@@ -69,13 +76,68 @@ void testInitialize() {
 	readFile("a.png", apng);
 	readFile("1.txt", txt1);
 	readFile("2.txt", txt2);
-	client.Put(row, "file-aaa/a.png", apng);
-	client.Put(row, "file-1.txt", txt1);
-	client.Put(row, "file-aaa/solution/2.txt", txt2);
+	client.Put(user, "file-aaa/a.png", apng);
+	client.Put(user, "file-1.txt", txt1);
+	client.Put(user, "file-aaa/solution/2.txt", txt2);
 
-	string response = client.Get(row, col);
+	string response;
+	client.Get(user, col, response);
 	cout << "Get Alice emails: " << endl << response << endl;
-	string fileResponse = client.Get(row, "file-aaa/solution/2.txt");
+	string fileResponse;
+	client.Get(user, "file-aaa/solution/2.txt", fileResponse);
+	cout << "Get file-1: " << endl << fileResponse << endl;
+}
+
+void testInitializezhixu() {
+	string user("zhixu");
+	StorageClient client = getClient(user);
+
+	client.Put(user, "pwd", "aaa");
+
+	string emails = "1\nAAA, Mon, 24 Oct 2016 01:25:53 -0400\n2\nAAA, Mon, 24 Oct 2016 01:25:53 -0400\n4\nBBBBBB, Mon, 17 Oct 2016 01:25:53 -0400\n";
+	string email1 = "To: Alice@localhost\r\nFrom: zhixu@localhost\r\nSubject: AAA\r\nDate: Mon, 24 Oct 2016 01:25:53 -0400\r\n\r\nAAA\r\n";
+	string email2 = "To: Alice@localhost\r\nFrom: zhixu@localhost\r\nSubject: AAA\r\nDate: Mon, 17 Oct 2016 01:25:53 -0400\r\n\r\nBBB\r\n";
+	string email4 = "To: Alice@localhost\r\nFrom: zhixu@localhost\r\nSubject: BBBBBB\r\nDate: Mon, 10 Oct 2016 01:25:53 -0400\r\n\r\nDDD\r\n";
+//	string emails = to_string(email1.length()) + "\r\n" + email1 +to_string(email2.length()) + "\r\n" + email2 + to_string(email3.length()) + "\r\n" + email3;
+	string col("emails");
+	client.Put(user, "emails", emails);
+	cout << "Put " + user + " emails: " << endl << emails << endl;
+
+	client.Put(user, "email-1", email1);
+	client.Put(user, "email-2", email2);
+	client.Put(user, "email-4", email4);
+
+	client.Put(user, "files", "folder-aaa\nfolder-bbb\nfile-1.txt\n");
+	client.Put(user, "folder-aaa", "folder-aaa/..\nfolder-aaa/homework3\nfolder-aaa/solution\nfile-aaa/a.png\n");
+	client.Put(user, "folder-aaa/solution", "folder-aaa/solution/..\nfile-aaa/solution/2.txt\n");
+	client.Put(user, "folder-aaa/homework3", "folder-aaa/homework3/..\n");
+	client.Put(user, "folder-bbb", "folder-bbb/..\n");
+
+	/*
+	 *	files
+	 *	|--aaa
+	 *	|	|--homework3
+	 *	|	|--solution
+	 *	|	|	|--2.txt
+	 *	|	|--a.png
+	 *	|--bbb
+	 *	|--1.txt
+	 */
+	string apng;
+	string txt1;
+	string txt2;
+	readFile("a.png", apng);
+	readFile("1.txt", txt1);
+	readFile("2.txt", txt2);
+	client.Put(user, "file-aaa/a.png", apng);
+	client.Put(user, "file-1.txt", txt1);
+	client.Put(user, "file-aaa/solution/2.txt", txt2);
+
+	string response;
+	client.Get(user, col, response);
+	cout << "Get Alice emails: " << endl << response << endl;
+	string fileResponse;
+	client.Get(user, "file-aaa/solution/2.txt", fileResponse);
 	cout << "Get file-1: " << endl << fileResponse << endl;
 }
 
@@ -96,17 +158,22 @@ string getEmail(string& urlStr) {
 	return email;
 }
 
-bool checkPWD(const char* lastLine, string& email) {
+bool checkPWD(const char* lastLine, string& user, string& sessionid) {
 	string urlStr = lastLine;
-	email = getEmail(urlStr);
+	user = getEmail(urlStr);
 	int passwordIndex = urlStr.find("password");
 	string password = urlStr.substr(passwordIndex + 9);
-	if (isDebug) cout << "Current login user is: " << email << " with password: " << password << endl;
+	if (isDebug) cout << "Current login user is: " << user << " with password: " << password << endl;
 
+	StorageClient client = getClient(user);
+	string actualPwd;
+	if (!client.Get(user, "pwd", actualPwd) || actualPwd.compare(password)) return false;
+	sessionid = generateSessionID(user);
+	client.Put(user, "sessionid", sessionid);
 	return true;
 }
 
-bool checkCookie(string cookie, string& email) {
+bool checkCookie(string cookie, string& user) {
 	if (cookie.length() <= 0) return false;
 	int newLineI = cookie.find_first_of("\r\n");
 	if (newLineI != string::npos) cookie.erase(newLineI);
@@ -114,10 +181,11 @@ bool checkCookie(string cookie, string& email) {
 	int sessionidI = cookie.find("sessionid=");
 	int userI = cookie.find("user=");
 	string sessionid = cookie.substr(sessionidI + 10, userI - sessionidI - 12);
-	email = cookie.substr(userI + 5);
-	if (email.compare("Alice") == 0)
-		return true;
-	else return false;
+	user = cookie.substr(userI + 5);
+	StorageClient client = getClient(user);
+	string actualSessionid;
+	if (!client.Get(user, "sessionid", actualSessionid)) return false;
+	return !sessionid.compare(actualSessionid);
 }
 
 int generateHTML(struct Message* pM, const char* url, const char* lastLine, string cookie, string referer, int contentLen) {
@@ -152,12 +220,20 @@ int generateHTML(struct Message* pM, const char* url, const char* lastLine, stri
 			} else if (!strncmp(url, WRITE_EMAIL, strlen(WRITE_EMAIL))) {
 				response = getResponse("frontend/sites/writeEmail.html", "");
 			} else if (!strncmp(url, SEND_EMAIL, strlen(SEND_EMAIL))) {
-
+				createEmail(user, lastLine);
+				response = getListResponse(user, string("emails"), "frontend/sites/emails_begin.html", "frontend/sites/emails_end.html", string("email"));
+			} else if (!strncmp(url, FORWARD, strlen(FORWARD))) {
+				forwardEmail(user, referer, lastLine);
+				response = getListResponse(user, string("emails"), "frontend/sites/emails_begin.html", "frontend/sites/emails_end.html", string("email"));
+			} else if (!strncmp(url, REPLY, strlen(REPLY))) {
+				replayEmail(user, referer, lastLine);
+				response = getListResponse(user, string("emails"), "frontend/sites/emails_begin.html", "frontend/sites/emails_end.html", string("email"));
 			} else response = getResponse("frontend/sites/notfound.html", "");
 		} else {
 			if (!strncmp(url, LOGINSUBMIT, strlen(LOGINSUBMIT))) {
-				if (checkPWD(lastLine, user)) {
-					string headers = "Set-Cookie: sessionid=" + generateSessionID(user) + "\nSet-Cookie: user=" + user + "\n";
+				string sessionid;
+				if (checkPWD(lastLine, user, sessionid)) {
+					string headers = "Set-Cookie: sessionid=" + sessionid + "\nSet-Cookie: user=" + user + "\n";
 					response = getResponse("frontend/sites/dashboard.html", headers.c_str());
 				} else response = getResponse("frontend/sites/loginError.html", "");
 			} else if (!strncmp(url + 1, " ", 1))

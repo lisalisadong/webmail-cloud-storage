@@ -36,7 +36,7 @@ private:
 
 	std::string prefix;
 
-	std::string curr_file = "000.000.000.000.000.001";
+	std::string curr_file = "000.000.001";
 
 	std::ifstream::pos_type file_size(std::string filename);
 

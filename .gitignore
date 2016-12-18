@@ -6,3 +6,5 @@ backend/storage_query/full_log.txt
 backend/store/mapping
 backend/log/temp_log.txt
 backend/log/full_log.txt
+backend/storage_query/storage_client.o
+backend/storage_query/master
