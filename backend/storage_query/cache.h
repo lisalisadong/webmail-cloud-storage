@@ -65,42 +65,40 @@ public:
 
   std::string currFile;
 
-  Cache() {
-    wrtCnt = 0;
+  // Cache() {
+  //   wrtCnt = 0;
 
-    fs.replay();
+  //   fs.replay();
 
-    fs.get_mappings(fileToKeys, keysToFile);
+  //   fs.get_mappings(fileToKeys, keysToFile);
 
-    std::cout << "In cache fileTokeys: " << fileToKeys.size() << std::endl; 
+  //   std::cout << "In cache fileTokeys: " << fileToKeys.size() << std::endl; 
 
-    std::cout << "In cache keysToFile: " << keysToFile.size() << std::endl; 
+  //   std::cout << "In cache keysToFile: " << keysToFile.size() << std::endl; 
 
-    logger.log_config("Cache");
-  }
+  //   logger.log_config("Cache");
+  // }
 
   Cache(std::string serverAddr) {
     // fs.keys_to_fileToKeys(fileToKeys);
+
     fs.set_prefix(serverAddr);
 
     serverAddress = serverAddr;
 
-    wrtCnt = 0;
+    // Cache();
 
-    fs.get_mappings(fileToKeys, keysToFile);
+    wrtCnt = 0;
 
     fs.replay();
 
-    logger.log_config("Cache");
+    fs.get_mappings(fileToKeys, keysToFile);
 
     std::cout << "In cache fileTokeys: " << fileToKeys.size() << std::endl; 
 
     std::cout << "In cache keysToFile: " << keysToFile.size() << std::endl; 
 
-    // std::unordered_set<std::pair<std::string, std::string>, Hash> set;
-    // std::pair<std::string, std::string> p("lisa", "emails");
-    // set.insert(p);
-    // fileToKeys["lisaemails"] = set;
+    logger.log_config("Cache");
   }
 
   static Cache create_cache(std::string serverAddr) {

@@ -119,10 +119,18 @@ void FileSystem::replay() {
 	logger.log_trace("Replaying temp log");
 
 	std::ifstream file (std::string(LOG_DIR) + prefix + "_" + TEMP_LOG);
+
+	logger.log_trace("File prefix: " + prefix);
+
+	logger.log_trace("Ready to open file: " + std::string(LOG_DIR) + prefix + "_" + TEMP_LOG);
+
 	if (file.is_open()) {
 		std::string tuple;
 		while (true) {
 			tuple = get_next_tuple(file);
+
+			logger.log_trace("Ready to proceed log: " + tuple);
+
 			if (tuple.length() == 0)
 				break;
 			int pos = 0;
@@ -132,13 +140,16 @@ void FileSystem::replay() {
 			std::string val = deserialize_next(tuple, pos);
 			std::string operation = deserialize_next(tuple, pos);
 			
-			if (operation == "PUT") {
+			if (operation == "PUT\n") {
 				write_entry(fileName, row, col, val);
-			} else if (operation == "DELETE") {
+				write_entry(std::string(STORE_DIR) + prefix + "_" + MAPPING, row, col, fileName);
+			} else if (operation == "DELETE\n") {
 				delete_entry(fileName, row, col);
+				delete_entry(std::string(STORE_DIR) + prefix + "_" + MAPPING, row, col);
 			}
 		}
 		file.close();
+		clear_temp_log();
 	}
 	else logger.log_warn("Cannot open temp log to read");
 }
@@ -152,6 +163,9 @@ void FileSystem::clear_temp_log() {
 void FileSystem::set_prefix(std::string pre) {
 	logger.log_trace("Setting file system prefix to " + pre);
 	prefix = pre;
+
+	logger.log_trace("File prefix: " + prefix);
+
 }
 
 /************************private methods********************/
