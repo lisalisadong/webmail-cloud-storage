@@ -148,6 +148,7 @@ int Cache::get_raw_data(int start, int size, std::string& data) {
             if (size == 0) break;
             std::string val = get(fp->first, sp->first);
             data += serialize(serialize(fp->first) + serialize(sp->first) + serialize(val));
+            size--;
             ret++;
         }
     }
@@ -284,8 +285,8 @@ bool Cache::containsKey(std::string row, std::string col) {
 
     // the disk has the keys
     /* check if in map */
-    rfind = map.find(row);
-    if (rfind == map.end() || rfind->second.find(col) == rfind->second.end()) {
+    auto mfind = map.find(row);
+    if (mfind == map.end() || mfind->second.find(col) == mfind->second.end()) {
         std::string file = keysToFile[row][col];
 
         // std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk = fs.read_file(file);

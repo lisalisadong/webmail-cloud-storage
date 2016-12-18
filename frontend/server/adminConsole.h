@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <unordered_map>
+#include <map>
 #include <vector>
 #include <grpc++/grpc++.h>
 #include "../../backend/storage_query/master_client.h"
@@ -23,7 +24,7 @@ void renderDataStoragePage(int fd, vector<string>& upBackendServer, int& node, i
 	string HOMEPAGE_END = "<a href=\"http://localhost:10000/prev\">prev</a>    <a href=\"http://localhost:10000/next\">next</a><br><a href=\"http://localhost:10000\">Homepage</a></body></html>";
 
 	vector<string> result;
-	unordered_map<string, unordered_map<string, string> > data;
+	map<string, map<string, string> > data;
 	int returnSize = 0;
 	cout << "xyz" << endl;
 	while (result.size() < 10 && node < upBackendServer.size()) {
@@ -48,7 +49,7 @@ void renderDataStoragePage(int fd, vector<string>& upBackendServer, int& node, i
 
 		for (auto it1 = data.begin(); it1 != data.end(); it1++) {
 			string row = it1->first;
-			unordered_map<string, string> value = it1->second;
+			map<string, string> value = it1->second;
 			for (auto it2 = value.begin(); it2 != value.end(); it2++) {
 				result.push_back(row + ":" + it2->first + "     " + it2->second);
 			}
