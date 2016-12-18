@@ -162,6 +162,8 @@ int StorageClient::GetData(int start, int size, std::unordered_map<std::string, 
   ClientContext context;
   GetDataRequest request;
   GetDataResponse response;
+  request.set_start(start);
+  request.set_size(size);
   Status status = stub_->GetData(&context, request, &response);
   data.clear();
   deserialize_data_to_map(data, response.data());

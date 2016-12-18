@@ -25,6 +25,7 @@ void renderDataStoragePage(int fd, vector<string>& upBackendServer, int& node, i
 	vector<string> result;
 	unordered_map<string, unordered_map<string, string> > data;
 	int returnSize = 0;
+	cout << "xyz" << endl;
 	while (result.size() < 10 && node < upBackendServer.size()) {
 		data.clear();
 

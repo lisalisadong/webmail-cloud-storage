@@ -40,7 +40,7 @@ int main() {
 	std::string row; 
 	std::string col; 
 	std::string val; 
-	for(int i = 0; i < 10; i++) {
+	for(int i = 0; i < 55; i++) {
 
 		std::cout << "=================================" << std::endl;
 		row = "r" + std::to_string(i);

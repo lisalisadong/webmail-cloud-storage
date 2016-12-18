@@ -197,6 +197,7 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 		std::string data;
 		int ret = cache.get_raw_data(start, size, data);
+		wLogger.log_trace("get data size: " + std::to_string(ret));
 
 		response->set_size(ret);
 		response->set_data(data);

@@ -137,6 +137,7 @@ void Cache::migrate(std::string selfAddr, std::string otherAddr, std::string& da
 }
 
 int Cache::get_raw_data(int start, int size, std::string& data) {
+    logger.log_trace("getting raw data from " + std::to_string(start) + " size of " + std::to_string(size));
     int ret = 0;
     for (auto fp = keysToFile.begin(); fp != keysToFile.end(); fp++) {
         for (auto sp = fp->second.begin(); sp != fp->second.end(); sp++) {
