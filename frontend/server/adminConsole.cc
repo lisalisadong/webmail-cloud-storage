@@ -48,8 +48,6 @@ void* adminConsole(void* arg) {
 
 		if (request.compare("/") == 0) {
 			renderAdminConsoleHomepage(fd, upBackendServer);
-			page = 0;
-			node = 0;
 		} else if (request.compare("/data") == 0) {
 			node = 0;
 			page = 0;

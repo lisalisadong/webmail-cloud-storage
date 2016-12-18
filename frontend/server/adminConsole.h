@@ -27,8 +27,14 @@ void renderDataStoragePage(int fd, vector<string>& upBackendServer, int& node, i
 	int returnSize = 0;
 	while (result.size() < 10 && node < upBackendServer.size()) {
 		data.clear();
+
+		cout << "There are " + to_string(upBackendServer.size()) + " backend servers alive" << endl;
+		cout << "Current node: " + to_string(node) + "; current page: " + to_string(page) << endl;
+		cout << "Connect with backend server " + upBackendServer.at(node) << endl;
+
 		StorageClient client(grpc::CreateChannel(upBackendServer.at(node), grpc::InsecureChannelCredentials()));
 		returnSize = client.GetData(page*10, 10 - returnSize, data);
+		cout << "Return size is " + to_string(returnSize) << endl;
 
 		if (returnSize < 10) {
 			node++;
@@ -37,7 +43,6 @@ void renderDataStoragePage(int fd, vector<string>& upBackendServer, int& node, i
 			returnSize = 0;
 			page++;
 		}
-
 		cout << "Next node " + to_string(node) + "; next page: " + to_string(page) << endl;
 
 		for (auto it1 = data.begin(); it1 != data.end(); it1++) {
