@@ -25,7 +25,7 @@ void renderDataStoragePage(int fd, vector<string>& upBackendServer, int& node, i
 	vector<string> result;
 	unordered_map<string, unordered_map<string, string> > data;
 	int returnSize = 0;
-	while (result.size() < 10) {
+	while (result.size() < 10 && node < upBackendServer.size()) {
 		data.clear();
 		StorageClient client(grpc::CreateChannel(upBackendServer.at(node), grpc::InsecureChannelCredentials()));
 		returnSize = client.GetData(page*10, 10 - returnSize, data);
@@ -37,6 +37,8 @@ void renderDataStoragePage(int fd, vector<string>& upBackendServer, int& node, i
 			returnSize = 0;
 			page++;
 		}
+
+		cout << "Next node " + to_string(node) + "; next page: " + to_string(page) << endl;
 
 		for (auto it1 = data.begin(); it1 != data.end(); it1++) {
 			string row = it1->first;
@@ -110,6 +112,9 @@ map<string, vector<string> > getFrontendServerState() {
 	else up_server = server_state.substr(0, index);
 	if (index == server_state.length() - 1) down_server = "";
 	else down_server = server_state.substr(index + 1);
+
+	cout << "up front servers: " + up_server << endl;
+	cout << "down front servers: " + down_server << endl;
 
 	while ((pos = up_server.find(";")) != string::npos) {
 		up.push_back(up_server.substr(0, pos));
