@@ -143,7 +143,7 @@ bool StorageClient::Migrate(std::string virtualAddr, std::unordered_map<std::str
   MigrateRequest request;
   MigrateResponse response;
   Status status = stub_->Migrate(&context, request, &response);
-
+  data.clear();
   deserialize_data_to_map(data, response.data());
 
   if (status.ok()) {
@@ -160,6 +160,7 @@ int StorageClient::GetData(int start, int size, std::unordered_map<std::string, 
   GetDataRequest request;
   GetDataResponse response;
   Status status = stub_->GetData(&context, request, &response);
+  data.clear();
   deserialize_data_to_map(data, response.data());
   if (status.ok()) {
     return response.size();

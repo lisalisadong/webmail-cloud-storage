@@ -124,6 +124,8 @@ bool MasterClient::GetAllNodes(std::vector<std::string>& ups, std::vector<std::s
   Status status = stub_->GetAllNodes(&context, request, &response);
   std::string up = response.up();
   std::string down = response.down();
+  ups.clear();
+  downs.clear();
   int pos = 0;
   while (pos < up.length()) {
     ups.push_back(deserialize_next(up, pos));
