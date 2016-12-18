@@ -93,6 +93,7 @@ std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string a
 	// add to working server set
 	upServers.insert(addr);
 	if(downServers.find(addr) != downServers.end()) {
+		logger.log_trace("Server was in server list, skip migrating");
 		downServers.erase(addr);
 		return res;
 	}

@@ -120,8 +120,6 @@ void FileSystem::replay() {
 
 	std::ifstream file (std::string(LOG_DIR) + prefix + "_" + TEMP_LOG);
 
-	logger.log_trace("Ready to open file: " + file);
-
 	if (file.is_open()) {
 		std::string tuple;
 		while (true) {
