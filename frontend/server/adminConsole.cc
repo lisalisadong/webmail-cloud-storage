@@ -51,7 +51,9 @@ void* adminConsole(void* arg) {
 			page = 0;
 			node = 0;
 		} else if (request.compare("/data") == 0) {
-			renderDataStoragePage(fd, upBackendServer, 0, 0);
+			node = 0;
+			page = 0;
+			renderDataStoragePage(fd, upBackendServer, node, page);
 		} else if (request.compare("/prev") == 0) {
 			page--;
 			if (page < 0) page = 0;
