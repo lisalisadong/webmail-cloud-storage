@@ -167,6 +167,11 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 		std::string other_addr = address.substr(found + 1);
 
+		std::cout << "address: " << address << std::endl;
+
+		std::cout << "self address: " << self_addr << std::endl;
+    	std::cout << "other address: " << other_addr << std::endl;
+
 		std::string data;
 		cache.migrate(self_addr, other_addr, data);
 
@@ -194,10 +199,18 @@ void* get_data(void*) {
 		std::vector<std::pair<std::string, std::string> > pairs;
 		if (master.AddNode(worker_addr, pairs)) {
 			for (std::pair<std::string, std::string> p : pairs) {
+
+
 				std::string other = get_real_addr(p.first);
 				StorageClient worker(grpc::CreateChannel(other, grpc::InsecureChannelCredentials()));
 				StorageClient self(grpc::CreateChannel(worker_addr, grpc::InsecureChannelCredentials()));
+
+				std::cout << "self: " << worker_addr << std::endl;
+				std::cout << "other: " << p.first << std::endl;
+
 				std::unordered_map<std::string, std::unordered_map<std::string, std::string> > data;
+
+				// (other + self)
 				if (worker.Migrate(p.first + " " + p.second, data)) {
 					wLogger.log_trace("migrating data...");
 					for (auto it = data.begin(); it != data.end(); it++) {

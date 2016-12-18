@@ -22,27 +22,28 @@ int main() {
 	std::string addr2;
 
 	std::vector<std::string> vec;
-	// master.GetNode("r1", "c1", vec);
+	master.GetNode("r1", "c1", vec);
 
-	// if(vec.size() == 0) {
-	// 	std::cout << "No node found." << std::endl;
-	// 	return 0;
-	// } else {
-	// 	addr1 = vec[0];
-	// }
+	if(vec.size() == 0) {
+		std::cout << "No node found." << std::endl;
+		return 0;
+	} else {
+		addr1 = vec[0];
+	}
 
-	// StorageClient s1(grpc::CreateChannel(addr1, grpc::InsecureChannelCredentials()));
+	StorageClient s1(grpc::CreateChannel(addr1, grpc::InsecureChannelCredentials()));
 	std::string row; 
 	std::string col; 
 	std::string val; 
-	for(int i = 0; i < 100; i++) {
+	for(int i = 0; i < 10; i++) {
 		row = "r" + std::to_string(i);
 		col = "c" + std::to_string(i);
 		val = "v" + std::to_string(i);
-		// s1.Put(row, col, val);
-		master.GetNode(row, val, vec);
+		
+		s1.Put(row, col, val);
+		// master.GetNode(row, val, vec);
 
-		std::cout << "(" << row << ", " << col << ") is in node: " << vec[0] << std::endl;
+		// std::cout << "(" << row << ", " << col << ") is in node: " << vec[0] << std::endl;
 	}
 
 	// for(int i = 0; i < 10; i++) {
