@@ -10,8 +10,8 @@
 #include <unordered_map>
 #include <vector>
 #include <grpc++/grpc++.h>
-#include <master_client.h>
-#include <storage_client.h>
+#include "../../backend/storage_query/master_client.h"
+#include "../../backend/storage_query/storage_client.h"
 
 using namespace std;
 
