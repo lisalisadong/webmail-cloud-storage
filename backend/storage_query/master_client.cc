@@ -160,7 +160,7 @@ void MasterClient::deserialize(std::vector<std::pair<std::string, std::string> >
   }
 }
 
-void getNodes(std::vector<std::string>& addr, std::string str) {
+void MasterClient::getNodes(std::vector<std::string>& addr, std::string str) {
   int found = 0;
 
   while(found < str.length() && str[found] != ' ') found++;

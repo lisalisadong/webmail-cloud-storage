@@ -99,8 +99,8 @@ void FileSystem::write_log(std::string fileName, std::string row, std::string co
 
 	std::string tuple = serialize(serialize(fileName) + serialize(row) + serialize(col) + serialize(val) + serialize(operation + "\n"));
 
-	std::ofstream full_log (std::string(LOG_DIR) + FULL_LOG, std::ios_base::app);
-	std::ofstream temp_log (std::string(LOG_DIR) + TEMP_LOG, std::ios_base::app);
+	std::ofstream full_log (std::string(LOG_DIR) + prefix + "_" + FULL_LOG, std::ios_base::app);
+	std::ofstream temp_log (std::string(LOG_DIR) + prefix + "_" + TEMP_LOG, std::ios_base::app);
 
 	if (!full_log.is_open() || !temp_log.is_open()) {
 		logger.log_error("Cannot open logs to write");
@@ -118,7 +118,7 @@ void FileSystem::replay() {
 
 	logger.log_trace("Replaying temp log");
 
-	std::ifstream file (std::string(LOG_DIR) + TEMP_LOG);
+	std::ifstream file (std::string(LOG_DIR) + prefix + "_" + TEMP_LOG);
 	if (file.is_open()) {
 		std::string tuple;
 		while (true) {
@@ -140,12 +140,12 @@ void FileSystem::replay() {
 		}
 		file.close();
 	}
-	else logger.log_error("Cannot open temp log to read");
+	else logger.log_warn("Cannot open temp log to read");
 }
 
 void FileSystem::clear_temp_log() {
 	logger.log_trace("Clearing temp log");
-	std::ofstream temp_log (std::string(LOG_DIR) + TEMP_LOG);
+	std::ofstream temp_log (std::string(LOG_DIR) + prefix + "_" + TEMP_LOG);
 	temp_log.close();
 }
 
