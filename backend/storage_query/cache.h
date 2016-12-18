@@ -65,7 +65,29 @@ public:
 
   std::string currFile;
 
-  Cache() {
+  // Cache() {
+  //   wrtCnt = 0;
+
+  //   fs.replay();
+
+  //   fs.get_mappings(fileToKeys, keysToFile);
+
+  //   std::cout << "In cache fileTokeys: " << fileToKeys.size() << std::endl; 
+
+  //   std::cout << "In cache keysToFile: " << keysToFile.size() << std::endl; 
+
+  //   logger.log_config("Cache");
+  // }
+
+  Cache(std::string serverAddr) {
+    // fs.keys_to_fileToKeys(fileToKeys);
+
+    fs.set_prefix(serverAddr);
+
+    serverAddress = serverAddr;
+
+    // Cache();
+
     wrtCnt = 0;
 
     fs.replay();
@@ -77,15 +99,6 @@ public:
     std::cout << "In cache keysToFile: " << keysToFile.size() << std::endl; 
 
     logger.log_config("Cache");
-  }
-
-  Cache(std::string serverAddr) {
-    // fs.keys_to_fileToKeys(fileToKeys);
-    fs.set_prefix(serverAddr);
-
-    serverAddress = serverAddr;
-
-    Cache();
   }
 
   static Cache create_cache(std::string serverAddr) {
