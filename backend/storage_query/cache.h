@@ -85,22 +85,7 @@ public:
 
     serverAddress = serverAddr;
 
-    wrtCnt = 0;
-
-    fs.get_mappings(fileToKeys, keysToFile);
-
-    fs.replay();
-
-    logger.log_config("Cache");
-
-    std::cout << "In cache fileTokeys: " << fileToKeys.size() << std::endl; 
-
-    std::cout << "In cache keysToFile: " << keysToFile.size() << std::endl; 
-
-    // std::unordered_set<std::pair<std::string, std::string>, Hash> set;
-    // std::pair<std::string, std::string> p("lisa", "emails");
-    // set.insert(p);
-    // fileToKeys["lisaemails"] = set;
+    Cache();
   }
 
   static Cache create_cache(std::string serverAddr) {
