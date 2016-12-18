@@ -7,8 +7,6 @@
 #include <arpa/inet.h>
 #include <vector>
 #include <map>
-#include <unordered_map>
-#include <map>
 #include <vector>
 #include <grpc++/grpc++.h>
 #include "../../backend/storage_query/master_client.h"
@@ -22,43 +20,36 @@ using namespace std;
 void renderDataStoragePage(int fd, vector<string>& upBackendServer, int& node, int& page) {
 	string HOMEPAGE_BEGIN = "<!DOCTYPE html><html><head><title>DataStorage</title></head><body>";
 	string HOMEPAGE_END = "<a href=\"http://localhost:10000/prev\">prev</a>    <a href=\"http://localhost:10000/next\">next</a><br><a href=\"http://localhost:10000\">Homepage</a></body></html>";
-
 	vector<string> result;
 	map<string, map<string, string> > data;
-	int returnSize = 0;
-	cout << "get results from backend" << endl;
-	cout << "There are " + to_string(upBackendServer.size()) + " backend servers alive" << endl;
 
-	while (result.size() < 10 && node < upBackendServer.size()) {
-		data.clear();
+	int size = upBackendServer.size();
+	cout << "There are " + to_string(size) + " backend servers alive" << endl;
 
-		cout << "Current node: " + to_string(node) + "; current page: " + to_string(page) << endl;
-		cout << "Connect with backend server " + upBackendServer.at(node) << endl;
+	if (node < 0) node = 0;
+	if (node >= size) node = size - 1;
+	string backend_server = upBackendServer.at(node);
+	cout << "get data from backend node " + backend_server << endl;
 
-		StorageClient client(grpc::CreateChannel(upBackendServer.at(node), grpc::InsecureChannelCredentials()));
-		returnSize = client.GetData(page*10, 10 - returnSize, data);
-		cout << "Return size is " + to_string(returnSize) << endl;
+	StorageClient client(grpc::CreateChannel(backend_server, grpc::InsecureChannelCredentials()));
+	int returnSize = client.GetData(page*10, 10, data);
+	cout << "Return size is " + to_string(returnSize) << endl;
 
-		if (returnSize < 10) {
-			node++;
-			page = 0;
-		} else {
-			returnSize = 0;
-			page++;
-		}
-		cout << "Next node " + to_string(node) + "; next page: " + to_string(page) << endl;
+	if (returnSize < 10) {
+		node++;
+		page = 0;
+	}
 
-		for (auto it1 = data.begin(); it1 != data.end(); it1++) {
-			string row = it1->first;
-			map<string, string> value = it1->second;
-			for (auto it2 = value.begin(); it2 != value.end(); it2++) {
-				result.push_back(row + ":" + it2->first + "     " + it2->second);
-			}
+	for (auto it1 = data.begin(); it1 != data.end(); it1++) {
+		string row = it1->first;
+		map<string, string> value = it1->second;
+		for (auto it2 = value.begin(); it2 != value.end(); it2++) {
+			result.push_back(row + ":" + it2->first + "\t" + it2->second);
 		}
 	}
 
 	//generate html
-	string content = HOMEPAGE_BEGIN + "<h3>Data Storage</h3><ol>";
+	string content = HOMEPAGE_BEGIN + "<h3>Data Storage</h3><h5>node#" + backend_server + "</h5><ol>";
 	for (int i = 0; i < result.size(); i++) {
 		content += "<li>" + result.at(i) + "</li>";
 	}
@@ -139,7 +130,7 @@ map<string, vector<string> > getFrontendServerState() {
 	return frontend;
 }
 
-void renderAdminConsoleHomepage(int fd, vector<string>& upBackendServer) {
+void renderAdminConsoleHomepage(int fd) {
 	string HOMEPAGE_BEGIN = "<!DOCTYPE html><html><head><title>AdminConsole</title></head><body>";
 	string HOMEPAGE_END = "<a href=\"http://localhost:10000/data\">Data</a></body></html>";
 
@@ -150,7 +141,6 @@ void renderAdminConsoleHomepage(int fd, vector<string>& upBackendServer) {
 	map<string, vector<string> > backendServerState = getBackendServerState();
 	vector<string> back_up = backendServerState["up"];
 	vector<string> back_down = backendServerState["down"];
-	upBackendServer = back_up;
 
 	//generate html file
 	string content = HOMEPAGE_BEGIN + "<h3>Frontend Server</h3><h5>Alive:</h5><ul>";

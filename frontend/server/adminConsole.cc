@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <pthread.h>
+#include <grpc++/grpc++.h>
+#include "../../backend/storage_query/master_client.h"
 #include "adminConsole.h"
 
 #define PORT_NUM 10000
@@ -28,6 +30,7 @@ void* adminConsole(void* arg) {
 	char buf[1024];
 	int page = 0, node = 0;
 	vector<string> upBackendServer;
+	vector<string> downBackendServer;
 
 	while (read(fd, buf, sizeof(buf)) > 0) {
 		int start = -1, end = -1, count = 0;
@@ -47,14 +50,21 @@ void* adminConsole(void* arg) {
 		cout << "new request: " << request << endl;
 
 		if (request.compare("/") == 0) {
-			renderAdminConsoleHomepage(fd, upBackendServer);
+			renderAdminConsoleHomepage(fd);
 		} else if (request.compare("/data") == 0) {
 			node = 0;
 			page = 0;
+			upBackendServer.clear();
+			downBackendServer.clear();
+			MasterClient master(grpc::CreateChannel("127.0.0.1:8000", grpc::InsecureChannelCredentials()));
+			master.GetAllNodes(upBackendServer, downBackendServer);
 			renderDataStoragePage(fd, upBackendServer, node, page);
 		} else if (request.compare("/prev") == 0) {
 			page--;
-			if (page < 0) page = 0;
+			if (page < 0) {
+				node--;
+				page = 0;
+			}
 			renderDataStoragePage(fd, upBackendServer, node, page);
 		} else if (request.compare("/next") == 0) {
 			page++;
