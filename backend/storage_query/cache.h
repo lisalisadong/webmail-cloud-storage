@@ -109,6 +109,8 @@ public:
 
   void migrate(std::string selfAddr, std::string otherAddr, std::string& data);
 
+  int get_raw_data(int start, int size, std::string& data);
+
 };
 
 

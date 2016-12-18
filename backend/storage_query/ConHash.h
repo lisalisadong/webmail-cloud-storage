@@ -44,6 +44,10 @@ public:
 
 	std::vector<std::string> getAllNodes();
 
+	std::string getUpServers();
+
+	std::string getDownServers();
+
 	void notifyUp(std::string addr);
 
 	void notifyDown(std::string addr);
@@ -212,6 +216,22 @@ std::string ConHash::getReplica(std::string key) {
 	}
 
 	return itr->second.id;
+}
+
+std::string ConHash::getUpServers() {
+	std::string ret;
+	for (auto s : upServers) {
+		ret += serialize(s);
+	}
+	return ret;
+}
+
+std::string ConHash::getDownServers() {
+	std::string ret;
+	for (auto s : downServers) {
+		ret += serialize(s);
+	}
+	return ret;
 }
 
 

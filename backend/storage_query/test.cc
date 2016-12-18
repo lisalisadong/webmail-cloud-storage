@@ -2,6 +2,7 @@
 #include "master_client.h"
 #include <string>
 #include <iostream>
+#include <vector>
 
 #include "storage_query.grpc.pb.h"
 #include <grpc++/grpc++.h>
