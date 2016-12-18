@@ -107,12 +107,21 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		// map[row][col] = val;
 		bool status = cache.put(row, col, val);
 
+		std::cout << worker_addr << ": " << "put " << row << " " << col << " " << val << std::endl;
+
 		// not tested yet
 		/* get replica addr from master */
 		std::string replicaAddr;
-		if(master.GetReplica(row, col, replicaAddr) && replicaAddr != worker_addr) {
+		bool hasReplica = master.GetReplica(row, col, replicaAddr);
+
+		std::cout << "Replica: " << replicaAddr << std::endl;
+
+		if(hasReplica && replicaAddr != worker_addr) {
+			std::cout << "replica node: " << replicaAddr << std::endl;
 			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
 			replicaNode.Put(row, col, val);
+		} else {
+			std::cout << "put copy" << std::endl;
 		}
 
 		return Status::OK;
@@ -205,8 +214,6 @@ class StorageServiceImpl final : public StorageQuery::Service{
 public:
 	// std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
 	Cache cache = Cache::create_cache(worker_addr);
-
-
 };
 
 /* get data when initializing the node*/
