@@ -142,7 +142,10 @@ bool StorageClient::Migrate(std::string virtualAddr, std::unordered_map<std::str
   ClientContext context;
   MigrateRequest request;
   MigrateResponse response;
+  request.set_addr(virtualAddr);
+
   Status status = stub_->Migrate(&context, request, &response);
+
   data.clear();
   deserialize_data_to_map(data, response.data());
 

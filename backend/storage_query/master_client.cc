@@ -33,16 +33,12 @@ bool MasterClient::GetNode(const std::string& row, const std::string& col, std::
 
   // The actual RPC.
   Status status = stub_->GetNode(&context, request, &response);
+  addr.clear();
 
   // Act upon its status.
   if (status.ok()) {
     std::string s = response.addr();
-
-
-    std::cout << "In master client, (" << row << ", " << col << ") is in node: " << s << std::endl;
-
     getNodes(addr, s);
-
     return true;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
@@ -92,13 +88,13 @@ bool MasterClient::AddNode(const std::string& addr, std::vector<std::pair<std::s
 
 	// The actual RPC.
   Status status = stub_->AddNode(&context, request, &response);
+  val.clear();
 
   // Act upon its status.
   if (status.ok()) {
     std::string dataMap = response.data_map();
     //for testing
     // val.push_back(std::make_pair("localhost:50051_2", "localhost:50051_1"));
-
     deserialize(val, dataMap);
 
     return true;
@@ -164,12 +160,18 @@ void MasterClient::deserialize(std::vector<std::pair<std::string, std::string> >
   }
 }
 
-void MasterClient::getNodes(std::vector<std::string>& addr, std::string str) {
-  int start = 0;
-  for(int i = 0; i < str.length(); i++) {
-    if(str[i] != ' ') continue;
-    addr.push_back(str.substr(start, i - start));
-    start = i + 1;
+void getNodes(std::vector<std::string>& addr, std::string str) {
+  int found = 0;
+
+  while(found < str.length() && str[found] != ' ') found++;
+
+  // std::cout << "First: " << str.substr(0, found) << std::endl;
+
+  addr.push_back(str.substr(0, found));
+
+  if(found < str.length() - 1) {
+    // std::cout << "Second: " << str.substr(found + 1, str.length() - found - 1) << std::endl;
+    addr.push_back(str.substr(found + 1, str.length() - found - 1));
   }
 }
 

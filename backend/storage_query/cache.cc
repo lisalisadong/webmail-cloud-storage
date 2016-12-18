@@ -107,12 +107,22 @@ bool Cache::remove(std::string row, std::string col) {
 }
 
 void Cache::migrate(std::string selfAddr, std::string otherAddr, std::string& data) {
+
     long selfHash = get_hash_val(selfAddr);
     long otherHash = get_hash_val(otherAddr);
+
+    std::cout << "Hash val of self: " << selfHash << std::endl;
+    std::cout << "Hash val of other: " << otherHash << std::endl;
+
     std::vector<std::pair<std::string, std::string> > toDelete;
     for (auto fp = keysToFile.begin(); fp != keysToFile.end(); fp++) {
         long entryHash = get_hash_val(fp->first);
+
+        std::cout << "Hash val of " << fp->first << " is: " << entryHash << std::endl;
+
         if (entryHash <= otherHash || entryHash > selfHash) {
+
+            std::cout << fp->first << " is about to be migrated." << std::endl;
             for (auto sp = fp->second.begin(); sp != fp->second.end(); sp++) {
                 std::string val = get(fp->first, sp->first);
                 data += serialize(serialize(fp->first) + serialize(sp->first) + serialize(val));
