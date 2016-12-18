@@ -26,11 +26,12 @@ void renderDataStoragePage(int fd, vector<string>& upBackendServer, int& node, i
 	vector<string> result;
 	map<string, map<string, string> > data;
 	int returnSize = 0;
-	cout << "xyz" << endl;
+	cout << "get results from backend" << endl;
+	cout << "There are " + to_string(upBackendServer.size()) + " backend servers alive" << endl;
+
 	while (result.size() < 10 && node < upBackendServer.size()) {
 		data.clear();
 
-		cout << "There are " + to_string(upBackendServer.size()) + " backend servers alive" << endl;
 		cout << "Current node: " + to_string(node) + "; current page: " + to_string(page) << endl;
 		cout << "Connect with backend server " + upBackendServer.at(node) << endl;
 
