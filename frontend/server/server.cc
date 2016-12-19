@@ -265,8 +265,9 @@ void* threadFun(void* arg) {
 
 int main(int argc, char *argv[]) {
 	bzero(remainingChars, (LINE_LIMIT + 1) * 2);
-	testInitialize();
-	testInitializezhixu();
+	mqueueInitialize();
+//	testInitialize();
+//	testInitializezhixu();
 // parse arguments
 	char arg_char;
 	int port = DEFAULT_PORT;

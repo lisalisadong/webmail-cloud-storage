@@ -132,6 +132,18 @@ void sendEmail(vector<string>& receivers, string& header, string& email) {
 			string emailName = "email-" + numStr;
 			client.Put(receiverPre, "emails", emails + numStr + header);
 			client.Put(receiverPre, emailName, email);
+		} else {
+			string outEmail = "FROM xxx\n" + email;
+
+			int toStart = outEmail.find("To: ") + 4;
+			int toEnd = outEmail.find("\r\n", toStart);
+			outEmail.replace(toStart, toEnd - toStart, receiver);
+
+			StorageClient client = getClient("mqueue");
+			string mqueue;
+			client.Get("mqueue", "mqueue", mqueue);
+			mqueue += outEmail;
+			client.Put("mqueue", "mqueue", mqueue);
 		}
 	}
 
@@ -156,7 +168,7 @@ vector<string> getReceivers(string& toLine) {
 }
 
 void createEmail(string user, string lastLine) {
-	string fromLine = "From: " + user + "@localhost\r\n";
+	string fromLine = "From: " + user + "@" + DOMAIN_NAME + "\r\n";
 
 	int andToEqualIndex = lastLine.find("&to=") + 4;
 	int andContentEqualIndex = lastLine.find("&content=");
@@ -175,6 +187,7 @@ void createEmail(string user, string lastLine) {
 	string dateLine = "Date: " + date + "\r\n";
 	string content = lastLine.substr(andContentEqualIndex + 9);
 	string contentLine = content + "\r\n";
+	filterHex(contentLine);
 	string header = "\n" + subject + ", " + date;
 
 	string email = toLine + fromLine + subjectLine + dateLine + "\r\n" + contentLine;
@@ -192,6 +205,10 @@ void forwardEmail(string user, string referer, string lastLine) {
 	string toLine = lastLine.substr(lastLine.find('=') + 1);
 	vector<string> receivers = getReceivers(toLine);
 
+	int toStart = email.find("To: ") + 4;
+	int toEnd = email.find("\r\n", toStart);
+	email.replace(toStart, toEnd - toStart, toLine);
+
 	int subjectIndex = email.find("Subject: ");
 	int subjectEnd = email.find("\r\n", subjectIndex);
 	string subject = email.substr(subjectIndex, subjectEnd - subjectIndex);
@@ -204,7 +221,7 @@ void forwardEmail(string user, string referer, string lastLine) {
 }
 
 void replayEmail(string user, string referer, string lastLine) {
-	string fromLine = "From: " + user + "@localhost\r\n";
+	string fromLine = "From: " + user + "@" + DOMAIN_NAME + "\r\n";
 
 	int start = referer.find_last_of('/') + 1;
 	string emailName = referer.substr(start, referer.length() - 2 - start);
@@ -230,6 +247,7 @@ void replayEmail(string user, string referer, string lastLine) {
 	string header = "\n" + subject + ", " + date;
 
 	string content = lastLine.substr(lastLine.find("=") + 1);
+	filterHex(content);
 	string contentLine = content + "\r\n";
 
 	string subjectLine = subject;
@@ -239,5 +257,29 @@ void replayEmail(string user, string referer, string lastLine) {
 	string finalEmail = toLine + fromLine + subjectLine + dateLine + "\r\n" + contentLine;
 
 	sendEmail(receivers, header, finalEmail);
+}
+
+void deleteEmail(string user, string referer) {
+	StorageClient client = getClient(user);
+	string emails;
+	client.Get(user, "emails", emails);
+
+	string emailName = referer.substr(referer.find_last_of('/') + 1);
+	emailName.replace(emailName.length() - 2, 2, "");
+	client.Delete(user, emailName);
+
+	string preNumStr = emailName.substr(emailName.find_last_of('-') + 1);
+
+	int first = 0;
+	int second;
+	int third;
+	while ((second = emails.find('\n', first)) != string::npos) {
+		third = emails.find('\n', second + 1);
+		string numStr = emails.substr(first, second - first);
+		if (!numStr.compare(preNumStr)) break;
+		first = third + 1;
+	}
+	emails.replace(first, third - first + 1, "");
+	client.Put(user, "emails", emails);
 }
 #endif /* HANDLEEMAILS_H_ */

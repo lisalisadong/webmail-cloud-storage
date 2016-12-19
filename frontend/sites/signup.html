@@ -1,23 +1,27 @@
 <!DOCTYPE html>
 <html>
 	<meta charset="UTF-8">
-  <head>
-    <title>SignUp</title>
-  </head>
-
+	<head>
+		<title>SignUp</title>
+	</head>
+    <script>
+	    function check(){
+		    if (document.getElementById('password').value == document.getElementById('passcomfirm').value){
+				document.getElementById('submit').disabled = false;
+			} else {
+				document.getElementById('submit').disabled = true;
+			}
+	    }
+    </script>
   <body>
-    <form>
-      First name:<br>
-      <input type="text" name="firstname"><br>
-      Last name:<br>
-      <input type="text" name="lastname"><br>
+    <form action="credentials" method="post">
       Choose your username:<br>
       <input type="text" name="username"><br>
       Create a password:<br>
-      <input type="text" name="password"><br>
+      <input type="password" name="password" id="password" onkeyup='check();'/><br>
       Confirm your password:<br>
-      <input type="text" name="passcomfirm"><br>
-      <input type="submit" value="Submit">
+      <input type="password" name="passcomfirm" id="passcomfirm" onkeyup='check();'/><br>
+      <input type="submit" id="submit" value="Submit" disabled=true>
     </form>
   </body>
 

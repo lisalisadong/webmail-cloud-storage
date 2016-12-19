@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<meta charset="UTF-8">
+	<head>
+		<title>Change Password</title>
+	</head>
+    <script>
+	    function check(){
+		    if (document.getElementById('password').value == document.getElementById('passcomfirm').value){
+				document.getElementById('submit').disabled = false;
+			} else {
+				document.getElementById('submit').disabled = true;
+			}
+	    }
+    </script>
+  <body>
+    <spin style="color:red;font-size:20px;">Previous password doesn't match!</spin>
+    <form action="checkpwd" method="post">
+    	Your username:<br>
+    	<input type="text" name="username"><br>
+    	Previous password:<br/>
+		<input type="password" name="prepwd"/><br>
+    	New password:<br>
+    	<input type="password" name="password" id="password" onkeyup='check();'/><br>
+    	Confirm new password:<br>
+    	<input type="password" name="passcomfirm" id="passcomfirm" onkeyup='check();'/><br>
+    	<input type="submit" id="submit" value="Submit" disabled=true>
+    </form>
+  </body>
+
+</html>

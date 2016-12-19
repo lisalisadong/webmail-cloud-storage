@@ -28,6 +28,7 @@
 
 #include "constants.h"
 #include "../../backend/storage_query/master_client.h"
+#include "../../backend/storage_query/storage_client.h"
 
 using namespace std;
 
@@ -99,6 +100,23 @@ string readHTMLFile(const char* fileLoc) {
 		bzero(fileLine, BUFF_SIZE);
 	}
 	return fileStr;
+}
+
+char hexToChar(string hexStr) {
+	stringstream ss;
+	int res;
+	ss << std::hex << hexStr;
+	ss >> res;
+	return res;
+}
+
+void filterHex(string& str) {
+	int perc;
+	while ((perc = str.find('%')) != string::npos) {
+		string hexStr = str.substr(perc + 1, 2);
+		char res = hexToChar(hexStr);
+		str.replace(perc, 3, 1, res);
+	}
 }
 
 MasterClient master(grpc::CreateChannel("127.0.0.1:8000", grpc::InsecureChannelCredentials()));
