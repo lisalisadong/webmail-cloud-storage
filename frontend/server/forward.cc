@@ -332,7 +332,11 @@ int main(int argc, char* argv[]) {
 
 	while (true) {
 		if (isDebug_f) cout << "Forward emails" << endl;
-		run();
+		try {
+			run();
+		} catch (int e) {
+			cout << "Error: " << e << endl;
+		}
 		sleep(1);
 	}
 	return 0;

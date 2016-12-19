@@ -123,6 +123,8 @@ MasterClient master(grpc::CreateChannel("127.0.0.1:8000", grpc::InsecureChannelC
 StorageClient getClient(string user) {
 	vector<string> strs;
 	master.GetNode(user, "", strs);
-	return strs.size() >= 1 ? StorageClient(grpc::CreateChannel(strs[0], grpc::InsecureChannelCredentials())) : (StorageClient) NULL;
+	while (strs.size() == 0)
+		master.GetNode(user, "", strs);
+	return StorageClient(grpc::CreateChannel(strs[0], grpc::InsecureChannelCredentials()));
 }
 #endif /* HELPER_H_ */
