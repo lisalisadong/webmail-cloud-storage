@@ -158,10 +158,12 @@ bool StorageClient::Migrate(std::string virtualAddr, std::unordered_map<std::str
   }
 }
 
-int StorageClient::GetData(int start, int size, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& data) {
+int StorageClient::GetData(int start, int size, std::map<std::string, std::map<std::string, std::string> >& data) {
   ClientContext context;
   GetDataRequest request;
   GetDataResponse response;
+  request.set_start(start);
+  request.set_size(size);
   Status status = stub_->GetData(&context, request, &response);
   data.clear();
   deserialize_data_to_map(data, response.data());
@@ -177,6 +179,18 @@ int StorageClient::GetData(int start, int size, std::unordered_map<std::string, 
 
 
 void StorageClient::deserialize_data_to_map(std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& data, std::string rawData) {
+  int ePos = 0;
+  while (ePos < rawData.length()) {
+    std::string entry = deserialize_next(rawData, ePos);
+    int pos = 0;
+    std::string row = deserialize_next(entry, pos);
+    std::string col = deserialize_next(entry, pos);
+    std::string val = deserialize_next(entry, pos);
+    data[row][col] = val;
+  }
+}
+
+void StorageClient::deserialize_data_to_map(std::map<std::string, std::map<std::string, std::string> >& data, std::string rawData) {
   int ePos = 0;
   while (ePos < rawData.length()) {
     std::string entry = deserialize_next(rawData, ePos);

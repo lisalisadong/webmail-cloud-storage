@@ -2,6 +2,7 @@
 #define CACHE_H_
 
 #include <unordered_map>
+#include <map>
 #include <unordered_set>
 #include <string>
 #include <iostream>
@@ -23,7 +24,7 @@ private:
   // std::unordered_map<std::string, std::vector<std::pair<std::string, std::string>> > fileToKeys;
 
   // meta data: <row, <col, fileName> >
-  std::unordered_map<std::string, std::unordered_map<std::string, std::string> > keysToFile;
+  std::map<std::string, std::map<std::string, std::string> > keysToFile;
 
   // data
   std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;

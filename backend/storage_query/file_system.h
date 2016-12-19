@@ -7,6 +7,7 @@
 #include <fstream>
 #include <utility>
 #include <unordered_set>
+#include <map>
 #include "logger.h"
 #include "utils.h"
 
@@ -17,10 +18,12 @@ public:
 	void read_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries);
 	
 	int write_file(std::string fileName, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& entries);
+
+	int write_file(std::string fileName, std::map<std::string, std::map<std::string, std::string> >& entries);
 	
 	std::string place_new_entry();
 	
-	void get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile);
+	void get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::map<std::string, std::map<std::string, std::string> >& keyToFile);
 
 	void write_log(std::string fileName, std::string row, std::string col, std::string val, std::string operation);
 

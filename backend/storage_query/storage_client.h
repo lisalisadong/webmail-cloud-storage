@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <map>
 #include <grpc++/grpc++.h>
 #include "storage_query.grpc.pb.h"
 #include "logger.h"
@@ -41,13 +42,15 @@ public:
 
 	bool Migrate(std::string virtualAddr, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& data);
 
-	int GetData(int start, int size, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& data);
+	int GetData(int start, int size, std::map<std::string, std::map<std::string, std::string> >& data);
 
 private:
 	Logger logger;
 	std::unique_ptr<StorageQuery::Stub> stub_;
 
 	void deserialize_data_to_map(std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& data, std::string rawData);
+
+	void deserialize_data_to_map(std::map<std::string, std::map<std::string, std::string> >& data, std::string rawData);
 
 };
 
