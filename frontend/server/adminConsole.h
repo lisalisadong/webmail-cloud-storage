@@ -22,9 +22,18 @@ void renderDataStoragePage(int fd, vector<string>& upBackendServer, int& node, i
 	string HOMEPAGE_END = "<a href=\"http://localhost:10000/prev\">prev</a>    <a href=\"http://localhost:10000/next\">next</a><br><a href=\"http://localhost:10000\">Homepage</a></body></html>";
 	vector<string> result;
 	map<string, map<string, string> > data;
+	string content, response;
 
 	int size = upBackendServer.size();
 	cout << "There are " + to_string(size) + " backend servers alive" << endl;
+
+	if (size == 0) {
+		content = HOMEPAGE_BEGIN + "<h3>Data Storage</h3><h5>no data!</h5>" + HOMEPAGE_END;
+		response = HTTP_HEADER + to_string(content.length()) + "\n\n";
+		response += content;
+		write(fd, response.c_str(), response.length());
+		return;
+	}
 
 	if (node < 0) node = 0;
 	if (node >= size) node = size - 1;
@@ -44,18 +53,18 @@ void renderDataStoragePage(int fd, vector<string>& upBackendServer, int& node, i
 		string row = it1->first;
 		map<string, string> value = it1->second;
 		for (auto it2 = value.begin(); it2 != value.end(); it2++) {
-			result.push_back(row + ":" + it2->first + "\t" + it2->second);
+			result.push_back("<td>" + row + "</td><td>" + it2->first + "</td><td>" + it2->second + "</td>");
 		}
 	}
 
 	//generate html
-	string content = HOMEPAGE_BEGIN + "<h3>Data Storage</h3><h5>node#" + backend_server + "</h5><ol>";
+	content = HOMEPAGE_BEGIN + "<h3>Data Storage</h3><h5>node#" + backend_server + "</h5><table><tr><th>Row</th><th>Col</th><th>Value</th></tr>";
 	for (int i = 0; i < result.size(); i++) {
-		content += "<li>" + result.at(i) + "</li>";
+		content += "<tr>" + result.at(i) + "</tr>";
 	}
-	content += "</ol>"+ HOMEPAGE_END;
+	content += "</table>" + HOMEPAGE_END;
 
-	string response = HTTP_HEADER + to_string(content.length()) + "\n\n";
+	response = HTTP_HEADER + to_string(content.length()) + "\n\n";
 	response += content;
 	write(fd, response.c_str(), response.length());
 }

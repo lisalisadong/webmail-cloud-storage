@@ -148,6 +148,7 @@ int main(int argc, char *argv[]) {
 	int port_number = PORT_NUM;
 	string html_part1 = "<!DOCTYPE html><html><head><title>Redirect</title><link rel=\"icon\" href=\"data:;base64,=\"><meta http-equiv=\"refresh\" content=\"0; URL='http://";
 	string html_part2 = "'\"/></head></html>";
+	string content, response;
 
 	// create socket for listening
 	int listen_fd = socket(PF_INET, SOCK_STREAM, 0);
@@ -182,33 +183,33 @@ int main(int argc, char *argv[]) {
 
 		int fd = accept(listen_fd, (struct sockaddr*) &clientaddr, &clientaddrlen);
 		if (fd < 0) continue;
-		/*
-		char* temp_ip = inet_ntoa(clientaddr.sin_addr);
-		int temp_port = ntohs(clientaddr.sin_port);
-		printf("incoming connection is from %s:%d\n", temp_ip, temp_port);
-		//read(fd, buf, sizeof(buf));
 
-		if (strcmp("127.0.0.1", temp_ip) == 0 && temp_port == 10000) {
-			responseToAdminConsole(servers, server_state, fd);
+		int count = 0;
+		pthread_mutex_lock(&mutex_lock);
+		while (!server_state.at(index)->running) {
+			index = (index + 1) % size;
+			count++;
+			if (count >= size) break;
+		}
+		pthread_mutex_unlock(&mutex_lock);
+
+		//if no server is running now
+		if (count >= size) {
+			cout << "No server is running now" << endl;
+			content = "<!DOCTYPE html><html><head><title>Fail</title><link rel=\"icon\" href=\"data:;base64,=\"></head><body><h2>No Server Available</h2></body></html>";
+			response = HTTP_HEADER + to_string(content.length()) + "\n\n";
+			response += content;
+			write(fd, response.c_str(), response.length());
+
 			close(fd);
 			continue;
 		}
-		*/
-		pthread_mutex_lock(&mutex_lock);
-		while (!server_state.at(index)->running) index = (index + 1) % size;
-		pthread_mutex_unlock(&mutex_lock);
 
 		cout << "Accept a new connection, redirect to server#" << to_string(index) << endl;
+		content = html_part1 + servers.at(index) + html_part2;
 
-		//read(fd, buf, sizeof(buf));
-		//string s(buf);
-		//cout << s << endl;
-
-		string content = html_part1 + servers.at(index) + html_part2;
-
-		string response = HTTP_HEADER + to_string(content.length()) + "\n\n";
+		response = HTTP_HEADER + to_string(content.length()) + "\n\n";
 		response += content;
-		//cout << response << endl;
 		write(fd, response.c_str(), response.length());
 
 		index = (index + 1) % size;
@@ -216,6 +217,5 @@ int main(int argc, char *argv[]) {
 	}
 
 	close(listen_fd);
-
 	return 0;
 }
