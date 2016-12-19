@@ -233,7 +233,12 @@ bool checkPWD(string lastLine) {
 	string password = lastLine.substr(passwordFirst, passwordEnd - passwordFirst);
 
 	StorageClient client = getClient(username);
-	return client.CPut(username, PWD, prepwd, password);
+	string actualPWD;
+	client.Get(username, PWD, actualPWD);
+	if (!actualPWD.compare(prepwd)) {
+		client.CPut(username, PWD, prepwd, password);
+		return true;
+	} else return false;
 }
 
 int generateHTML(struct Message* pM, const char* url, const char* lastLine, string cookie, string referer, int contentLen) {

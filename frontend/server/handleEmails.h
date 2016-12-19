@@ -188,7 +188,7 @@ void createEmail(string user, string lastLine) {
 	string content = lastLine.substr(andContentEqualIndex + 9);
 	string contentLine = content + "\r\n";
 	filterHex(contentLine);
-	string header = "\n" + subject + ", " + date;
+	string header = "\n" + subject + ", " + date + "\n";
 
 	string email = toLine + fromLine + subjectLine + dateLine + "\r\n" + contentLine;
 
