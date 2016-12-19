@@ -125,7 +125,7 @@ void* check_servers(void*) {
 				conHash.notifyDown(server);
 			}
 		}
-		sleep(5);
+		sleep(2);
 	}
 }
 

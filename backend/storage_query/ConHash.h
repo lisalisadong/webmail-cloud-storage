@@ -95,9 +95,7 @@ std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string a
 
 	// add to working server set
 	upServers.insert(addr);
-	if(downServers.find(addr) != downServers.end()) {
-		downServers.erase(addr);
-	}
+	downServers.erase(addr);
 
 	std::unordered_set<std::string> ids;
 
@@ -110,11 +108,11 @@ std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string a
 		// logger.log_trace("hash value of" + v.vId + " is: " + hashVal);
 
 		/* same hash val exists */
-		if(map.find(hashVal) != map.end()) {
-			throw std::exception();
+		if(map.find(hashVal) == map.end()) {
+			// throw std::exception();
+			map.insert(std::pair<long, VNode>(hashVal, v));
 		}
 
-		map.insert(std::pair<long, VNode>(hashVal, v));
 		std::map<long, VNode>::iterator itr = map.upper_bound(hashVal);
 
 		if(itr == map.end()) {
@@ -162,12 +160,22 @@ std::vector<std::string> ConHash::getNodes(std::string key) {
 
 	std::string primary = itr->second.id;
 
-	if(downServers.find(itr->second.id) == downServers.end()) res.push_back(primary);
+	std::cout << "The primary is: " << primary << std::endl;
+
+	if(downServers.find(itr->second.id) == downServers.end()) {
+		std::cout << "primary added" << std::endl;
+		res.push_back(primary);
+	}
 
 	//=============get replica==================
 	std::string replica = getReplica(key);
 
-	if(primary != replica && downServers.find(replica) == downServers.end()) res.push_back(replica);
+	std::cout << "The replica is: " << replica << std::endl;
+
+	if(primary != replica && downServers.find(replica) == downServers.end()) {
+		std::cout << "replcia added" << std::endl;
+		res.push_back(replica);
+	}
 
 	return res;
 }

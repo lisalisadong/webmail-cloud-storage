@@ -211,7 +211,7 @@ public:
 
 /* get data when initializing the node*/
 void* get_data(void*) {
-	sleep(3);
+	sleep(5);
 	if (master.Ping()) {
 		wLogger.log_trace("master is ready, requesting data");
 		std::vector<std::pair<std::string, std::string> > pairs;

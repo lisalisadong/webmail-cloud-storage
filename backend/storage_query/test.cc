@@ -40,14 +40,14 @@ int main() {
 	std::string row; 
 	std::string col; 
 	std::string val; 
-	for(int i = 0; i < 10; i++) {
+	for(int i = 0; i < 100; i++) {
 
 		std::cout << "=================================" << std::endl;
 		row = "r" + std::to_string(i);
 		col = "c" + std::to_string(i);
 		val = "v" + std::to_string(i);
 
-		StorageClient s1(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
+		// StorageClient s1(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
 		// if(s1.Get(row, col, val)) {
 		// 	std::cout << "In " << vec[0] << " Got (" << row << ", " << col << "): ";
 		// 	std::cout << val << std::endl;
@@ -56,30 +56,30 @@ int main() {
 		// 	std::cout << "Key not found." << std::endl;
 		// }
 
-		// vec.clear();
-		// master.GetNode(row, val, vec);
+		vec.clear();
+		master.GetNode(row, val, vec);
 		// std::cout << "(" << row << ", " << col << ") is in node: " << vec[0] << std::endl;
 		// std::cout << "(" << row << ", " << col << ") is in node: " << vec[1] << std::endl;
 		// // for(std::string node: vec) {
 		// // 	std::cout << "(" << row << ", " << col << ") is in node: " << node << std::endl;
 		// // }
 
-		// StorageClient s1(grpc::CreateChannel(vec[0], grpc::InsecureChannelCredentials()));
-		// std::cout << "In " << vec[0] << ": ";
-		// if(s1.Get(row, col, val)) {
-		// 	std::cout << " Got (" << row << ", " << col << "): ";
-		// 	std::cout << val << std::endl;
-		// } else {
-		// 	std::cout << "(" << row << ", " << col << "): ";
-		// 	std::cout << "Key not found." << std::endl;
-		// }
+		StorageClient s1(grpc::CreateChannel(vec[0], grpc::InsecureChannelCredentials()));
+		std::cout << "In " << vec[0] << ": ";
+		if(s1.Get(row, col, val)) {
+			std::cout << " Got (" << row << ", " << col << "): ";
+			std::cout << val << std::endl;
+		} else {
+			std::cout << "(" << row << ", " << col << "): ";
+			std::cout << "Key not found." << std::endl;
+		}
 
 		// std::string replicaNode;
 
 		// master.GetReplica(row, col, replicaNode);
 		
 		// std::cout << "Replica node: for  "	<< "(" << row << ", " << col << "): " << replicaNode << std::endl;	
-		s1.Put(row, col, val);
+		// s1.Put(row, col, val);
 	}
 
 	// for(int i = 0; i < 10; i++) {
