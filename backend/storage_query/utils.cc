@@ -63,16 +63,23 @@ long get_hash_val(std::string addr) {
 }
 
 long hash2(std::string addr) {
-	long hash1 = get_hash_val(addr);
+	unsigned char digestBuffer[MD5_DIGEST_LENGTH];
+    MD5_CTX c;
+    long hashcode = 0;
 
-	long half = LONG_MAX / 2;
-	long full = LONG_MAX;
+    MD5_Init(&c);
+    MD5_Update(&c, (const unsigned char*) addr.c_str(), addr.length());
+    MD5_Final(digestBuffer, &c);
 
-	half = half - (full - hash1);
-
-	if(half < 0) half += full;
-
-	return half;
+    // 每四个字节构成一个32位整数，
+    // 将四个32位整数相加得到instr的hash值（可能溢出） 
+    for(int i = 0; i < 4; i++) {
+        hashcode += ((long)(digestBuffer[i*4 + 0]&0xFF) << 24)
+              | ((long)(digestBuffer[i*4 + 2]&0xFF) << 16)
+              | ((long)(digestBuffer[i*4 + 1]&0xFF) <<  8)
+              | ((long)(digestBuffer[i*4 + 3]&0xFF));
+    }
+    return hashcode;
 
 	// return hash1 / 2;
 }

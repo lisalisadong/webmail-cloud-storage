@@ -110,9 +110,16 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		// not tested yet
 		/* get replica addr from master */
 		std::string replicaAddr;
-		if(master.GetReplica(row, col, replicaAddr) && replicaAddr != worker_addr) {
+		bool hasReplica = master.GetReplica(row, col, replicaAddr);
+
+		wLogger.log_trace("replica: " + replicaAddr);
+
+		if(hasReplica && replicaAddr != worker_addr) {
+			wLogger.log_trace("putting copy to: " + replicaAddr);
 			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
 			replicaNode.Put(row, col, val);
+		} else {
+			wLogger.log_trace("copy was not put");
 		}
 
 		return Status::OK;
@@ -171,11 +178,6 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 		std::string other_addr = address.substr(found + 1);
 
-		std::cout << "address: " << address << std::endl;
-
-		std::cout << "self address: " << self_addr << std::endl;
-    	std::cout << "other address: " << other_addr << std::endl;
-
 		std::string data;
 		cache.migrate(self_addr, other_addr, data);
 
@@ -195,6 +197,7 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 		std::string data;
 		int ret = cache.get_raw_data(start, size, data);
+		wLogger.log_trace("get data size: " + std::to_string(ret));
 
 		response->set_size(ret);
 		response->set_data(data);
@@ -205,13 +208,11 @@ class StorageServiceImpl final : public StorageQuery::Service{
 public:
 	// std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
 	Cache cache = Cache::create_cache(worker_addr);
-
-
 };
 
 /* get data when initializing the node*/
 void* get_data(void*) {
-	sleep(3);
+	sleep(5);
 	if (master.Ping()) {
 		wLogger.log_trace("master is ready, requesting data");
 		std::vector<std::pair<std::string, std::string> > pairs;
@@ -223,22 +224,19 @@ void* get_data(void*) {
 				StorageClient worker(grpc::CreateChannel(other, grpc::InsecureChannelCredentials()));
 				StorageClient self(grpc::CreateChannel(worker_addr, grpc::InsecureChannelCredentials()));
 
-				std::cout << "self: " << worker_addr << std::endl;
-				std::cout << "other: " << p.first << std::endl;
-
 				std::unordered_map<std::string, std::unordered_map<std::string, std::string> > data;
 
 				// (other + self)
 				if (worker.Migrate(p.first + " " + p.second, data)) {
-					wLogger.log_trace("migrating data...");
+					wLogger.log_trace("migrating data from " + other);
 					for (auto it = data.begin(); it != data.end(); it++) {
 						for (auto itr = it->second.begin(); itr != it->second.end(); itr++) {
 							self.Put(it->first, itr->first, itr->second);
 						}
 					}
-					wLogger.log_trace("migrating done");
 				}
 			}
+			wLogger.log_trace("migrating done");
 		}
 
 	} else {

@@ -120,16 +120,38 @@ void Cache::migrate(std::string selfAddr, std::string otherAddr, std::string& da
 
         std::cout << "Hash val of " << fp->first << " is: " << entryHash << std::endl;
 
-        if (entryHash <= otherHash || entryHash > selfHash) {
-
-            std::cout << fp->first << " is about to be migrated." << std::endl;
-            for (auto sp = fp->second.begin(); sp != fp->second.end(); sp++) {
-                std::string val = get(fp->first, sp->first);
-                data += serialize(serialize(fp->first) + serialize(sp->first) + serialize(val));
-                logger.log_trace("migrating " + data);
-                toDelete.push_back(std::make_pair(fp->first, sp->first));
+        if(selfHash < otherHash) {
+            if (entryHash > selfHash && entryHash <= otherHash) {
+                std::cout << fp->first << " is about to be migrated." << std::endl;
+                for (auto sp = fp->second.begin(); sp != fp->second.end(); sp++) {
+                    std::string val = get(fp->first, sp->first);
+                    data += serialize(serialize(fp->first) + serialize(sp->first) + serialize(val));
+                    logger.log_trace("migrating " + data);
+                    toDelete.push_back(std::make_pair(fp->first, sp->first));
+                }
+            }
+        } else {    // otherHash < selfHash
+            if (entryHash > selfHash || entryHash <= otherHash) {
+                std::cout << fp->first << " is about to be migrated." << std::endl;
+                for (auto sp = fp->second.begin(); sp != fp->second.end(); sp++) {
+                    std::string val = get(fp->first, sp->first);
+                    data += serialize(serialize(fp->first) + serialize(sp->first) + serialize(val));
+                    logger.log_trace("migrating " + data);
+                    toDelete.push_back(std::make_pair(fp->first, sp->first));
+                }
             }
         }
+
+        // if (entryHash <= otherHash || entryHash > selfHash) {
+
+        //     std::cout << fp->first << " is about to be migrated." << std::endl;
+        //     for (auto sp = fp->second.begin(); sp != fp->second.end(); sp++) {
+        //         std::string val = get(fp->first, sp->first);
+        //         data += serialize(serialize(fp->first) + serialize(sp->first) + serialize(val));
+        //         logger.log_trace("migrating " + data);
+        //         toDelete.push_back(std::make_pair(fp->first, sp->first));
+        //     }
+        // }
     }
     for (auto p : toDelete) {
         remove(p.first, p.second);
@@ -137,6 +159,7 @@ void Cache::migrate(std::string selfAddr, std::string otherAddr, std::string& da
 }
 
 int Cache::get_raw_data(int start, int size, std::string& data) {
+    logger.log_trace("getting raw data from " + std::to_string(start) + " size of " + std::to_string(size));
     int ret = 0;
     for (auto fp = keysToFile.begin(); fp != keysToFile.end(); fp++) {
         for (auto sp = fp->second.begin(); sp != fp->second.end(); sp++) {
@@ -147,6 +170,7 @@ int Cache::get_raw_data(int start, int size, std::string& data) {
             if (size == 0) break;
             std::string val = get(fp->first, sp->first);
             data += serialize(serialize(fp->first) + serialize(sp->first) + serialize(val));
+            size--;
             ret++;
         }
     }
@@ -172,7 +196,7 @@ bool Cache::writeSnapshot() {
 
 /* write meta data into file system */
 void Cache::writeMeta() {
-    fs.write_file(serverAddress + "mapping", keysToFile);
+    fs.write_file(serverAddress + "_mapping", keysToFile);
     // std::cout << "Meta data write succeeded" << std::endl;
 }
 
@@ -283,8 +307,8 @@ bool Cache::containsKey(std::string row, std::string col) {
 
     // the disk has the keys
     /* check if in map */
-    rfind = map.find(row);
-    if (rfind == map.end() || rfind->second.find(col) == rfind->second.end()) {
+    auto mfind = map.find(row);
+    if (mfind == map.end() || mfind->second.find(col) == mfind->second.end()) {
         std::string file = keysToFile[row][col];
 
         // std::unordered_map<std::string, std::unordered_map<std::string, std::string> > chunk = fs.read_file(file);

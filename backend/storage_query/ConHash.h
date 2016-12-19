@@ -66,12 +66,15 @@ public:
 
 private:
 
+	Logger logger;
+
 	VNode getVirtual(std::string, int i);
 
 };
 
 
 ConHash::ConHash() {
+	logger.log_config("ConHash");
 	v_num = V_NUM;
 }
 
@@ -87,15 +90,12 @@ VNode ConHash::getVirtual(std::string addr, int i) {
 
 // return all the virtual nodes that's clockwisely next to the node added
 std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string addr) {
+	// return the nodes that new nodes should ask for data.
+	std::vector<std::pair<std::string, std::string> > res;
 
 	// add to working server set
 	upServers.insert(addr);
-	if(downServers.find(addr) != downServers.end()) {
-		downServers.erase(addr);
-	}
-
-	// return the nodes that new nodes should ask for data.
-	std::vector<std::pair<std::string, std::string> > res;
+	downServers.erase(addr);
 
 	std::unordered_set<std::string> ids;
 
@@ -105,14 +105,14 @@ std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string a
 
 		long hashVal = get_hash_val(v.vId);
 
-		std::cout << "hash value of" << v.vId << " is: " << hashVal << std::endl;
+		// logger.log_trace("hash value of" + v.vId + " is: " + hashVal);
 
 		/* same hash val exists */
-		if(map.find(hashVal) != map.end()) {
-			throw std::exception();
+		if(map.find(hashVal) == map.end()) {
+			// throw std::exception();
+			map.insert(std::pair<long, VNode>(hashVal, v));
 		}
 
-		map.insert(std::pair<long, VNode>(hashVal, v));
 		std::map<long, VNode>::iterator itr = map.upper_bound(hashVal);
 
 		if(itr == map.end()) {
@@ -121,7 +121,7 @@ std::vector<std::pair<std::string, std::string> > ConHash::addNode(std::string a
 
 		VNode next = itr->second;
 
-		std::cout << "next node is: " << next.id << std::endl;
+		logger.log_trace("next node is: " + next.id);
 
 		// if next node is the node itself
 		if(next.id == v.id) continue;
@@ -150,7 +150,7 @@ std::vector<std::string> ConHash::getNodes(std::string key) {
 	//============first hash====================
 	long hashVal = get_hash_val(key);
 
-	std::cout << "Hash value of " << key << " is: " << hashVal << std::endl;
+	// logger.log_trace("Hash value of " + key + " is: " + hashVal);
 
 	std::map<long, VNode>::iterator itr = map.upper_bound(hashVal);
 
@@ -160,15 +160,21 @@ std::vector<std::string> ConHash::getNodes(std::string key) {
 
 	std::string primary = itr->second.id;
 
-	res.push_back(primary);
+	std::cout << "The primary is: " << primary << std::endl;
+
+	if(downServers.find(itr->second.id) == downServers.end()) {
+		std::cout << "primary added" << std::endl;
+		res.push_back(primary);
+	}
 
 	//=============get replica==================
-	std::string secondary = getReplica(key);
+	std::string replica = getReplica(key);
 
-	if(res.size() > 0 && res[0] != secondary) res.push_back(secondary);
+	std::cout << "The replica is: " << replica << std::endl;
 
-	for(std::string node: res) {
-		std::cout << "Node for " << key << " is: " << node << std::endl;
+	if(primary != replica && downServers.find(replica) == downServers.end()) {
+		std::cout << "replcia added" << std::endl;
+		res.push_back(replica);
 	}
 
 	return res;
@@ -188,34 +194,38 @@ std::vector<std::string> ConHash::getAllNodes() {
 }
 
 void ConHash::notifyUp(std::string addr) {
-	if(upServers.find(addr) == upServers.end()) {
-		upServers.insert(addr);
-	}
+	upServers.insert(addr);
 
-	if(downServers.find(addr) != downServers.end()) {
-		downServers.erase(addr);
-	}
+	downServers.erase(addr);
 }
 
 void ConHash::notifyDown(std::string addr) {
-	if(upServers.find(addr) != upServers.end()) {
-		upServers.insert(addr);
-	}
+	upServers.erase(addr);
 
-	if(downServers.find(addr) == downServers.end()) {
-		downServers.erase(addr);
-	}
+	downServers.insert(addr);
+
+	// std::cout << "Down servers: " << std::endl;
+	// for(std::string d: downServers) {
+	// 	std::cout << d << std::endl;
+	// }
 }
 
 std::string ConHash::getReplica(std::string key) {
-	long hashVal = hash2(key);
+	if(map.size() == 0) return "";
+	long hashVal = get_hash_val(key);
+	
 	std::map<long, VNode>::iterator itr = map.upper_bound(hashVal);
 
 	if(itr == map.end()) {
 		itr = map.begin();
 	}
+	itr++;
+	if(itr == map.end()) {
+		itr = map.begin();
+	}
 
 	return itr->second.id;
+
 }
 
 std::string ConHash::getUpServers() {
@@ -228,6 +238,8 @@ std::string ConHash::getUpServers() {
 
 std::string ConHash::getDownServers() {
 	std::string ret;
+
+	
 	for (auto s : downServers) {
 		ret += serialize(s);
 	}

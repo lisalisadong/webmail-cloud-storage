@@ -2,6 +2,7 @@
 #define CACHE_H_
 
 #include <unordered_map>
+#include <map>
 #include <unordered_set>
 #include <string>
 #include <iostream>
@@ -23,7 +24,7 @@ private:
   // std::unordered_map<std::string, std::vector<std::pair<std::string, std::string>> > fileToKeys;
 
   // meta data: <row, <col, fileName> >
-  std::unordered_map<std::string, std::unordered_map<std::string, std::string> > keysToFile;
+  std::map<std::string, std::map<std::string, std::string> > keysToFile;
 
   // data
   std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
@@ -65,34 +66,23 @@ public:
 
   std::string currFile;
 
-  Cache() {
-    wrtCnt = 0;
-
-    fs.get_mappings(fileToKeys, keysToFile);
-
-    fs.replay();
-
-    logger.log_config("Cache");
-  }
-
   Cache(std::string serverAddr) {
-    // fs.keys_to_fileToKeys(fileToKeys);
+    logger.log_config("Cache");
+
     fs.set_prefix(serverAddr);
 
     serverAddress = serverAddr;
 
     wrtCnt = 0;
 
-    fs.get_mappings(fileToKeys, keysToFile);
-
     fs.replay();
 
-    logger.log_config("Cache");
+    fs.get_mappings(fileToKeys, keysToFile);
 
-    // std::unordered_set<std::pair<std::string, std::string>, Hash> set;
-    // std::pair<std::string, std::string> p("lisa", "emails");
-    // set.insert(p);
-    // fileToKeys["lisaemails"] = set;
+    logger.log_trace("In cache fileTokeys: " + std::to_string(fileToKeys.size())); 
+
+    logger.log_trace("In cache keysToFile: " + std::to_string(keysToFile.size())); 
+
   }
 
   static Cache create_cache(std::string serverAddr) {

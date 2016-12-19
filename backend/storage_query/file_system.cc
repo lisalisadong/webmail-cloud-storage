@@ -45,9 +45,33 @@ int FileSystem::write_file(std::string fileName, std::unordered_map<std::string,
 	std::string row;
 	std::string col;
 	std::string val;
-	for (std::unordered_map<std::string, std::unordered_map<std::string, std::string> >::const_iterator it = entries.begin(); it != entries.end(); it++) {
+	for (auto it = entries.begin(); it != entries.end(); it++) {
 		row = it->first;
-		for (std::unordered_map<std::string, std::string>::const_iterator itr = it->second.begin(); itr != it->second.end(); itr++) {
+		for (auto itr = it->second.begin(); itr != it->second.end(); itr++) {
+			col = itr->first;
+			val = itr->second;
+			std::string raw = serialize(row) + serialize(col) + serialize(val);
+			std::string tuple = serialize(raw);
+			file << tuple;
+		}
+	}
+	file.close();
+	return 0;
+}
+
+int FileSystem::write_file(std::string fileName, std::map<std::string, std::map<std::string, std::string> >& entries) {
+	logger.log_trace("Openning file " + fileName + " to write");
+	std::ofstream file (STORE_DIR + fileName);
+	if (!file.is_open()) {
+		logger.log_error("Cannot open file " + fileName + " to read");
+		return 1;
+	}
+	std::string row;
+	std::string col;
+	std::string val;
+	for (auto it = entries.begin(); it != entries.end(); it++) {
+		row = it->first;
+		for (auto itr = it->second.begin(); itr != it->second.end(); itr++) {
 			col = itr->first;
 			val = itr->second;
 			std::string raw = serialize(row) + serialize(col) + serialize(val);
@@ -68,7 +92,7 @@ std::string FileSystem::place_new_entry() {
 	return prefix + "_" + curr_file;
 }
 
-void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::unordered_map<std::string, std::unordered_map<std::string, std::string> >& keyToFile) {
+void FileSystem::get_mappings(std::unordered_map<std::string, std::unordered_set<std::pair<std::string, std::string>, Hash> >& fileToKey, std::map<std::string, std::map<std::string, std::string> >& keyToFile) {
 	std::ifstream file (std::string(STORE_DIR) + prefix + "_" + MAPPING);
 	logger.log_trace("Openning mapping to read");
 	if (file.is_open()) {
@@ -116,13 +140,17 @@ void FileSystem::write_log(std::string fileName, std::string row, std::string co
 
 void FileSystem::replay() {
 
-	logger.log_trace("Replaying temp log");
+	logger.log_trace("Replaying temp log " + prefix + "_" + TEMP_LOG);
 
 	std::ifstream file (std::string(LOG_DIR) + prefix + "_" + TEMP_LOG);
+
 	if (file.is_open()) {
 		std::string tuple;
 		while (true) {
 			tuple = get_next_tuple(file);
+
+			logger.log_trace("Ready to proceed log: " + tuple);
+
 			if (tuple.length() == 0)
 				break;
 			int pos = 0;
@@ -132,13 +160,16 @@ void FileSystem::replay() {
 			std::string val = deserialize_next(tuple, pos);
 			std::string operation = deserialize_next(tuple, pos);
 			
-			if (operation == "PUT") {
+			if (operation == "PUT\n") {
 				write_entry(fileName, row, col, val);
-			} else if (operation == "DELETE") {
+				write_entry(std::string(STORE_DIR) + prefix + "_" + MAPPING, row, col, fileName);
+			} else if (operation == "DELETE\n") {
 				delete_entry(fileName, row, col);
+				delete_entry(std::string(STORE_DIR) + prefix + "_" + MAPPING, row, col);
 			}
 		}
 		file.close();
+		clear_temp_log();
 	}
 	else logger.log_warn("Cannot open temp log to read");
 }
@@ -152,6 +183,9 @@ void FileSystem::clear_temp_log() {
 void FileSystem::set_prefix(std::string pre) {
 	logger.log_trace("Setting file system prefix to " + pre);
 	prefix = pre;
+
+	logger.log_trace("File prefix: " + prefix);
+
 }
 
 /************************private methods********************/
