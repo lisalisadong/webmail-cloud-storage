@@ -157,7 +157,7 @@ size_t readN(struct Message* pM, char* line, int N) {
 		remainingChars[remainingHead] = 0;
 		return readCnt;
 	}
-	bzero(remainingChars, 1000 * LINE_LIMIT );
+	bzero(remainingChars, 1000 * LINE_LIMIT);
 
 	char* buf = (char*) malloc(sizeof(char) * (N + 1));
 	bzero(buf, N + 1);
@@ -257,7 +257,11 @@ void* threadFun(void* arg) {
 	}
 	cout << "url: " << url << endl;
 	cout << "lastLine: " << lastLineCharArr << endl;
-	generateHTML(pM, url.c_str(), lastLineCharArr, cookie, referer, contentLen);
+	try {
+		generateHTML(pM, url.c_str(), lastLineCharArr, cookie, referer, contentLen);
+	} catch (int e) {
+		if (isDebug) cout << "Error: " << e << endl;
+	}
 	close(pM->confd);
 	free(lastLineCharArr);
 	return (void*) 0;
