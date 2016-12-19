@@ -17,16 +17,37 @@ using namespace std;
 #define HTTP_HEADER "HTTP/1.1 200 OK\nDate: Fri, 31 Dec 1999 23:59:59 GMT\nContent-Type: text/html\nContent-Length: "
 
 
-void renderDataStoragePage(int fd, vector<string>& upBackendServer, int& node, int& page) {
+/*
+ * get the info about backend servers
+ */
+
+map<string, vector<string>> getBackendServerState() {
+	MasterClient master(grpc::CreateChannel("127.0.0.1:8000", grpc::InsecureChannelCredentials()));
+	vector<string> upServers;
+	vector<string> downServers;
+	map<string, vector<string>> result;
+
+	master.GetAllNodes(upServers, downServers);
+	result["up"] = upServers;
+	result["down"] = downServers;
+
+	return result;
+}
+
+
+void renderDataStoragePage(int fd, int& node, int& page) {
 	string HOMEPAGE_BEGIN = "<!DOCTYPE html><html><head><title>DataStorage</title></head><body>";
 	string HOMEPAGE_END = "<a href=\"http://localhost:10000/prev\">prev</a>    <a href=\"http://localhost:10000/next\">next</a><br><a href=\"http://localhost:10000\">Homepage</a></body></html>";
 	vector<string> result;
 	map<string, map<string, string> > data;
 	string content, response;
 
+	map<string, vector<string> > backendServers = getBackendServerState();
+	vector<string> upBackendServer = backendServers["up"];
+
+	//if there is no backend server up, return no data
 	int size = upBackendServer.size();
 	cout << "There are " + to_string(size) + " backend servers alive" << endl;
-
 	if (size == 0) {
 		content = HOMEPAGE_BEGIN + "<h3>Data Storage</h3><h5>no data!</h5>" + HOMEPAGE_END;
 		response = HTTP_HEADER + to_string(content.length()) + "\n\n";
@@ -44,9 +65,19 @@ void renderDataStoragePage(int fd, vector<string>& upBackendServer, int& node, i
 	int returnSize = client.GetData(page*10, 10, data);
 	cout << "Return size is " + to_string(returnSize) << endl;
 
-	if (returnSize < 10) {
+	//if there is no data in current node, move to next node and get data again
+	if (returnSize == 0) {
 		node++;
-		page = 0;
+		if (node >= size) {
+			node = size - 1;
+		} else page = 0;
+		cout << "backend node " + backend_server + "has no data" << endl;
+		backend_server = upBackendServer.at(node);
+		cout << "get data from backend node " + backend_server << endl;
+
+		StorageClient clientNew(grpc::CreateChannel(backend_server, grpc::InsecureChannelCredentials()));
+		returnSize = clientNew.GetData(page*10, 10, data);
+		cout << "Return size is " + to_string(returnSize) << endl;
 	}
 
 	for (auto it1 = data.begin(); it1 != data.end(); it1++) {
@@ -67,24 +98,6 @@ void renderDataStoragePage(int fd, vector<string>& upBackendServer, int& node, i
 	response = HTTP_HEADER + to_string(content.length()) + "\n\n";
 	response += content;
 	write(fd, response.c_str(), response.length());
-}
-
-
-/*
- * get the info about backend servers
- */
-
-map<string, vector<string>> getBackendServerState() {
-	MasterClient master(grpc::CreateChannel("127.0.0.1:8000", grpc::InsecureChannelCredentials()));
-	vector<string> upServers;
-	vector<string> downServers;
-	map<string, vector<string>> result;
-
-	master.GetAllNodes(upServers, downServers);
-	result["up"] = upServers;
-	result["down"] = downServers;
-
-	return result;
 }
 
 
