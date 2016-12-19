@@ -55,6 +55,8 @@ using storagequery::GetAllNodesResponse;
 
 Logger wLogger;
 std::string worker_addr("localhost:");
+std::vector<std::pair<std::string, std::string> > putReplica;
+std::vector<std::pair<std::string, std::string> > deleteReplica;
 
 /* global master client */
 MasterClient master(grpc::CreateChannel(MASTER_ADDR, grpc::InsecureChannelCredentials()));
@@ -122,7 +124,9 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		if(hasReplica && replicaAddr != worker_addr) {
 			wLogger.log_trace("putting copy to: " + replicaAddr);
 			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
-			replicaNode.Put(row, col, val);
+			if (!replicaNode.Put(row, col, val)) {
+				putReplica.push_back(std::make_pair(row, col));
+			}
 		} else {
 			wLogger.log_trace("copy was not put");
 		}
@@ -151,7 +155,9 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		std::string replicaAddr;
 		if(master.GetReplica(row, col, replicaAddr) && replicaAddr != worker_addr) {
 			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
-			replicaNode.CPut(row, col, val1, val2);
+			if (!replicaNode.CPut(row, col, val1, val2)) {
+				putReplica.push_back(std::make_pair(row, col));
+			}
 		}
 
 		return Status::OK;
@@ -174,7 +180,9 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		std::string replicaAddr;
 		if(master.GetReplica(row, col, replicaAddr) && replicaAddr != worker_addr) {
 			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
-			replicaNode.Delete(row, col);
+			if (!replicaNode.Delete(row, col)) {
+				deleteReplica.push_back(std::make_pair(row, col));
+			}
 		}
 
 		return Status::OK;
@@ -220,6 +228,43 @@ public:
 	// std::unordered_map<std::string, std::unordered_map<std::string, std::string> > map;
 	Cache cache = Cache::create_cache(worker_addr);
 };
+
+/* replay commands on replica if it was down */
+void* replay_replica(void* ) {
+	sleep(5);
+	while (true) {
+		sleep(1);
+		while (putReplica.size() > 0) {
+			std::pair<std::string, std::string> p = putReplica.back();
+			putReplica.pop_back();
+			std::string replica_addr;
+			master.GetReplica(p.first, p.second, replica_addr);
+			StorageClient primary(grpc::CreateChannel(worker_addr, grpc::InsecureChannelCredentials()));
+			StorageClient replica(grpc::CreateChannel(replica_addr, grpc::InsecureChannelCredentials()));		
+			if (primary.Ping() && replica.Ping()) {
+				std::string val;
+				primary.Get(p.first, p.second, val);
+				replica.Put(p.first, p.second, val);
+			} else {
+				putReplica.push_back(p);
+			}
+			
+		}
+		while (deleteReplica.size() > 0) {
+			std::pair<std::string, std::string> p = deleteReplica.back();
+			deleteReplica.pop_back();
+			std::string replica_addr;
+			master.GetReplica(p.first, p.second, replica_addr);
+			StorageClient replica(grpc::CreateChannel(replica_addr, grpc::InsecureChannelCredentials()));		
+			if (replica.Ping()) {
+				std::string val;
+				replica.Delete(p.first, p.second);
+			} else {
+				deleteReplica.push_back(p);
+			}
+		}
+	}	
+}
 
 /* get data when initializing the node*/
 void* get_data(void*) {
@@ -305,6 +350,12 @@ int main(int argc, char** argv) {
 	if (0 != pthread_create(&server_thread, NULL, &get_data, NULL)) {
 		wLogger.log_error("failed to start thread to get data");
 	}
+
+	pthread_t backup_thread;
+	if (0 != pthread_create(&server_thread, NULL, &replay_replica, NULL)) {
+		wLogger.log_error("failed to start thread to replay replica");
+	}
+
 	RunServer();
 
   	return 0;

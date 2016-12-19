@@ -104,5 +104,4 @@ static char* remainingChars = (char*) malloc(sizeof(char) * LINE_LIMIT * 1000);
 static int remainingNum = 0;
 static int sockfd;
 static std::set<int> allfd;
-
 #endif /* CONSTANTS_H_ */
