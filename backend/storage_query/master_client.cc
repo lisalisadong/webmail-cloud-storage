@@ -161,11 +161,15 @@ void MasterClient::deserialize(std::vector<std::pair<std::string, std::string> >
 }
 
 void MasterClient::getNodes(std::vector<std::string>& addr, std::string str) {
+  addr.clear();
+
   int found = 0;
 
   while(found < str.length() && str[found] != ' ') found++;
 
   // std::cout << "First: " << str.substr(0, found) << std::endl;
+
+  if (found == 0) return;
 
   addr.push_back(str.substr(0, found));
 
