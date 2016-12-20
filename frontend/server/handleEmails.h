@@ -170,6 +170,7 @@ vector<string> getReceivers(string& toLine) {
 void createEmail(string user, string lastLine) {
 	string fromLine = "From: " + user + "@" + DOMAIN_NAME + "\r\n";
 
+	filterHex(lastLine);
 	int andToEqualIndex = lastLine.find("&to=") + 4;
 	int andContentEqualIndex = lastLine.find("&content=");
 	int first = strlen(SUBJECT) + 1;
@@ -187,7 +188,6 @@ void createEmail(string user, string lastLine) {
 	string dateLine = "Date: " + date + "\r\n";
 	string content = lastLine.substr(andContentEqualIndex + 9);
 	string contentLine = content + "\r\n";
-	filterHex(contentLine);
 	string header = "\n" + subject + ", " + date + "\n";
 
 	string email = toLine + fromLine + subjectLine + dateLine + "\r\n" + contentLine;
@@ -220,7 +220,7 @@ void forwardEmail(string user, string referer, string lastLine) {
 	sendEmail(receivers, header, email);
 }
 
-void replayEmail(string user, string referer, string lastLine) {
+void replyEmail(string user, string referer, string lastLine) {
 	string fromLine = "From: " + user + "@" + DOMAIN_NAME + "\r\n";
 
 	int start = referer.find_last_of('/') + 1;

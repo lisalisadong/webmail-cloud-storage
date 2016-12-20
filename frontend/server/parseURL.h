@@ -288,7 +288,7 @@ int generateHTML(struct Message* pM, const char* url, const char* lastLine, stri
 				forwardEmail(user, referer, lastLine);
 				response = getResponse("frontend/sites/getIntoEmails.html", "");
 			} else if (!strncmp(url, REPLY, strlen(REPLY))) {
-				replayEmail(user, referer, lastLine);
+				replyEmail(user, referer, lastLine);
 				response = getResponse("frontend/sites/getIntoEmails.html", "");
 			} else if (!strncmp(url, DELETE_EMAIL, strlen(DELETE_EMAIL))) {
 				deleteEmail(user, referer);

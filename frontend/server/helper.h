@@ -112,6 +112,8 @@ char hexToChar(string hexStr) {
 
 void filterHex(string& str) {
 	int perc;
+	while ((perc = str.find('+')) != string::npos)
+		str.replace(perc, 1, 1, ' ');
 	while ((perc = str.find('%')) != string::npos) {
 		string hexStr = str.substr(perc + 1, 2);
 		char res = hexToChar(hexStr);

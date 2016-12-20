@@ -269,7 +269,7 @@ void* threadFun(void* arg) {
 
 int main(int argc, char *argv[]) {
 	bzero(remainingChars, (LINE_LIMIT + 1) * 2);
-	mqueueInitialize();
+//	mqueueInitialize();
 //	testInitialize();
 //	testInitializezhixu();
 // parse arguments

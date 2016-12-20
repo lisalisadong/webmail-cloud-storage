@@ -337,7 +337,7 @@ int main(int argc, char* argv[]) {
 		} catch (int e) {
 			cout << "Error: " << e << endl;
 		}
-		sleep(1);
+		sleep(5);
 	}
 	return 0;
 }
