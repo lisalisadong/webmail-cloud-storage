@@ -3,6 +3,14 @@
 	<meta charset="UTF-8">
 	<head>
 		<title>Change Password</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	</head>
     <script>
 	    function check(){
@@ -14,17 +22,25 @@
 	    }
     </script>
   <body>
-    <form action="checkpwd" method="post">
-    	Your username:<br>
-    	<input type="text" name="username"><br>
-    	Previous password:<br/>
-		<input type="password" name="prepwd"/><br>
-    	New password:<br>
-    	<input type="password" name="password" id="password" onkeyup='check();'/><br>
-    	Confirm new password:<br>
-    	<input type="password" name="passcomfirm" id="passcomfirm" onkeyup='check();'/><br>
-    	<input type="submit" id="submit" value="Submit" disabled=true>
-    </form>
+
+    <div class="jumbotron" align="center">
+
+        <h1>Welcome to T04!</h1>
+
+        <form action="checkpwd" method="post">
+            <h3>Your username:</h3>
+            <p> <input type="text" name="username"> </p>
+            <h3>Previous password:</h3>
+            <p> <input type="password" name="prepwd"/> </p>
+            <h3>New password:</h3>
+            <p> <input type="password" name="password" id="password" onkeyup='check();'/> </p>
+            <h3>Confirm new password:</h3>
+            <p> <input type="password" name="passcomfirm" id="passcomfirm" onkeyup='check();'/> </p>
+            <input type="submit" id="submit" value="Submit" disabled=true>
+            <!-- <p><a action="checkpwd" method="post" class="btn btn-primary btn-lg" role="button" type="submit" id="submit" disable=true>Submit</a></p> -->
+        </form>
+      
+    </div>
   </body>
 
 </html>
