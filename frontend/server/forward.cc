@@ -100,6 +100,7 @@ string* generateA(const char* domain) {
 
 string* getMXIP(const char* domain) {
 	string* MX = generateMX(domain);
+	if (MX == NULL) return NULL;
 	return generateA(MX->c_str());
 }
 
@@ -247,9 +248,17 @@ void run() {
 			string* emailAddr = (*emailAddrs)[j];
 			if (isDebug_f) cerr << "Send email to: " << emailAddr->c_str() << endl;
 			int firstAt = emailAddr->find('@');
+			if (firstAt == string::npos) {
+				email->isDeleted = true;
+				continue;
+			}
 			string* hostname = new string;
 			(*hostname) = emailAddr->substr(firstAt + 1);
 			string* ip = getMXIP(hostname->c_str());
+			if (ip == NULL) {
+				email->isDeleted = true;
+				continue;
+			}
 			if (isDebug_f) cerr << "Hostname: " << ip->c_str() << endl;
 			struct sockaddr_in serverAddr;
 			int sockfd;
