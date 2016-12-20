@@ -85,6 +85,8 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 		// std::string val = map.at(row).at(col);
 
+		wLogger.log_trace("Getting (" + row + ", " + col + ")");
+
 		try {
 			std::string val = cache.get(row, col);
 			response->set_val(val);
@@ -106,6 +108,9 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		std::string row = request->row();
 		std::string col = request->col();
 		std::string val = request->val();
+
+		wLogger.log_trace("Putting (" + row + ", " + col + "," + val + ")");
+
 		// map[row][col] = val;
 		bool status = cache.put(row, col, val);
 
@@ -137,6 +142,9 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		std::string col = request->col();
 		std::string val1 = request->val1();
 		std::string val2 = request->val2();
+
+		wLogger.log_trace("CPutting (" + row + ", " + col + ")");
+
 		// if (map[row][col] == val1) {
 		// 	map[row][col] = val2;
 		// }
@@ -162,6 +170,9 @@ class StorageServiceImpl final : public StorageQuery::Service{
 
 		std::string row = request->row();
 		std::string col = request->col();
+
+		wLogger.log_trace("Deleting (" + row + ", " + col + ")");
+
 		// map[row].erase(col);
 
 		cache.remove(row, col);
