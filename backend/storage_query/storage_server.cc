@@ -120,6 +120,7 @@ class StorageServiceImpl final : public StorageQuery::Service{
 			wLogger.log_trace("putting copy to: " + replicaAddr);
 			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
 			if (!replicaNode.Put(row, col, val)) {
+				wLogger.log_trace("putting copy to cache " + row + col + val);
 				putReplica.push_back(std::make_pair(row, col));
 			}
 		} else {
@@ -148,6 +149,7 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		if(master.GetReplica(row, col, replicaAddr) && replicaAddr != worker_addr) {
 			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
 			if (!replicaNode.CPut(row, col, val1, val2)) {
+				wLogger.log_trace("putting copy to cache");
 				putReplica.push_back(std::make_pair(row, col));
 			}
 		}
@@ -170,6 +172,7 @@ class StorageServiceImpl final : public StorageQuery::Service{
 		if(master.GetReplica(row, col, replicaAddr) && replicaAddr != worker_addr) {
 			StorageClient replicaNode(grpc::CreateChannel(replicaAddr, grpc::InsecureChannelCredentials()));
 			if (!replicaNode.Delete(row, col)) {
+				wLogger.log_trace("putting copy to cache");
 				deleteReplica.push_back(std::make_pair(row, col));
 			}
 		}
@@ -232,6 +235,7 @@ void* replay_replica(void* ) {
 			StorageClient replica(grpc::CreateChannel(replica_addr, grpc::InsecureChannelCredentials()));		
 			if (primary.Ping() && replica.Ping()) {
 				std::string val;
+				std::cout << p.first + p.second + val << std::endl;
 				primary.Get(p.first, p.second, val);
 				replica.Put(p.first, p.second, val);
 			} else {
@@ -341,7 +345,7 @@ int main(int argc, char** argv) {
 	}
 
 	pthread_t backup_thread;
-	if (0 != pthread_create(&server_thread, NULL, &replay_replica, NULL)) {
+	if (0 != pthread_create(&backup_thread, NULL, &replay_replica, NULL)) {
 		wLogger.log_error("failed to start thread to replay replica");
 	}
 

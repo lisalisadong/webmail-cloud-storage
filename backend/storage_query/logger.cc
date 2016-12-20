@@ -10,7 +10,6 @@ void Logger::log_config(std::string className) {
 
 void Logger::log_error(const std::string& message) {
 	fprintf(stderr, "%s [ERROR] [%s] %s\n", timestamp_string().c_str(), cName.c_str(), message.c_str());
-	exit(1);
 }
 
 void Logger::log_assert(bool cond, std::string message) {
