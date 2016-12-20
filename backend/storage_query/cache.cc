@@ -232,12 +232,24 @@ void Cache::writeFileToFs(std::string file, bool isDelete) {
 
     std::unordered_map<std::string, std::unordered_map<std::string, std::string> > tmpMap;
 
+    std::unordered_map<std::string, std::unordered_map<std::string, std::string> > temp;
+
+    try {
+        fs.read_file(file, temp);
+    } catch (int e) {
+        // first time open file
+    }
+    
     // write the file to disk and remove it from the cache(map).
     for (auto p = keys.begin(); p != keys.end(); ++p) {
         std::string row = p->first;
         std::string col = p->second;
 
-        // if(!isDelete && (map.find(row) == map.end() || map[row].find(col) == map[row].end()) continue;
+        if(map.find(row) == map.end() || map[row].find(col) == map[row].end()) {
+            if (temp.find(row) != temp.end() && temp[row].find(col) != temp[row].end()) {
+                map[row][col] = temp[row][col];
+            }
+        }
 
         std::string val = map[row][col];
 
