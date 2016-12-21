@@ -36,8 +36,8 @@ map<string, vector<string>> getBackendServerState() {
 
 
 void renderDataStoragePage(int fd, int& node, int& page) {
-	string HOMEPAGE_BEGIN = "<!DOCTYPE html><html><head><title>DataStorage</title></head><body>";
-	string HOMEPAGE_END = "<a href=\"http://localhost:10000/prev\">prev</a>    <a href=\"http://localhost:10000/next\">next</a><br><a href=\"http://localhost:10000\">Homepage</a></body></html>";
+	string HOMEPAGE_BEGIN = "<!DOCTYPE html><html><head><title>DataStorage</title></head><link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\"><body><div style=\"margin-left: 20px; margin-right: 20px\">";
+	string HOMEPAGE_END = "<a href=\"http://localhost:10000/prev\" class=\"btn btn-success\" role=\"button\" style=\"margin-right: 50px\">prev</a><a href=\"http://localhost:10000/next\" class=\"btn btn-success\" role=\"button\">next</a><br><br><a href=\"http://localhost:10000\" class=\"btn btn-default\" role=\"button\">Homepage</a></div></body></html>";
 	vector<string> result;
 	map<string, map<string, string> > data;
 	string content, response;
@@ -49,7 +49,7 @@ void renderDataStoragePage(int fd, int& node, int& page) {
 	int size = upBackendServer.size();
 	cout << "There are " + to_string(size) + " backend servers alive" << endl;
 	if (size == 0) {
-		content = HOMEPAGE_BEGIN + "<h3>Data Storage</h3><h5>no data!</h5>" + HOMEPAGE_END;
+		content = HOMEPAGE_BEGIN + "<h3>Data Storage</h3><h4>no data!</h4>" + HOMEPAGE_END;
 		response = HTTP_HEADER + to_string(content.length()) + "\n\n";
 		response += content;
 		write(fd, response.c_str(), response.length());
@@ -84,16 +84,16 @@ void renderDataStoragePage(int fd, int& node, int& page) {
 		string row = it1->first;
 		map<string, string> value = it1->second;
 		for (auto it2 = value.begin(); it2 != value.end(); it2++) {
-			result.push_back("<td>" + row + "</td><td>" + it2->first + "</td><td>" + it2->second + "</td>");
+			result.push_back("<td class=\"col-md-2\">" + row + "</td><td class=\"col-md-2\">" + it2->first + "</td><td>" + it2->second + "</td>");
 		}
 	}
 
 	//generate html
-	content = HOMEPAGE_BEGIN + "<h3>Data Storage</h3><h5>node#" + backend_server + "</h5><table><tr><th>Row</th><th>Col</th><th>Value</th></tr>";
+	content = HOMEPAGE_BEGIN + "<h3>Data Storage</h3><h4>node#" + backend_server + "</h4><table class=\"table table-sm table-bordered\"><thead><tr><th class=\"col-md-2\">Row</th><th class=\"col-md-2\">Col</th><th>Value</th></tr></thead><tbody>";
 	for (int i = 0; i < result.size(); i++) {
 		content += "<tr>" + result.at(i) + "</tr>";
 	}
-	content += "</table>" + HOMEPAGE_END;
+	content += "</tbody></table>" + HOMEPAGE_END;
 
 	response = HTTP_HEADER + to_string(content.length()) + "\n\n";
 	response += content;
@@ -153,8 +153,8 @@ map<string, vector<string> > getFrontendServerState() {
 }
 
 void renderAdminConsoleHomepage(int fd) {
-	string HOMEPAGE_BEGIN = "<!DOCTYPE html><html><head><title>AdminConsole</title></head><body>";
-	string HOMEPAGE_END = "<a href=\"http://localhost:10000/data\">Data</a></body></html>";
+	string HOMEPAGE_BEGIN = "<!DOCTYPE html><html><head><title>AdminConsole</title><link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\"></head><body><div style=\"margin-left: 20px; margin-right: 20px\">";
+	string HOMEPAGE_END = "<br><br><a href=\"http://localhost:10000/data\" class=\"btn btn-primary\" role=\"button\">Data</a></div></body></html>";
 
 	map<string, vector<string> > frontendServerState = getFrontendServerState();
 	vector<string> front_up = frontendServerState["up"];
@@ -165,23 +165,23 @@ void renderAdminConsoleHomepage(int fd) {
 	vector<string> back_down = backendServerState["down"];
 
 	//generate html file
-	string content = HOMEPAGE_BEGIN + "<h3>Frontend Server</h3><h5>Alive:</h5><ul>";
+	string content = HOMEPAGE_BEGIN + "<h3>Frontend Server</h3><h4>Alive:</h4><ul class=\"list-group\">";
 	for (int i = 0; i < front_up.size(); i++) {
-		content += "<li>" + front_up.at(i) + "</li>";
+		content += "<li class=\"list-group-item list-group-item-success\">" + front_up.at(i) + "</li>";
 	}
-	content += "</ul><h5>Down:</h5><ul>";
+	content += "</ul><h4>Down:</h4><ul class=\"list-group\">";
 	for (int i = 0; i < front_down.size(); i++) {
-		content += "<li>" + front_down.at(i) + "</li>";
+		content += "<li class=\"list-group-item list-group-item-danger\">" + front_down.at(i) + "</li>";
 	}
 	content += "</ul>";
 
-	content += "<h3>Backend Server</h3><h5>Alive:</h5><ul>";
+	content += "<h3>Backend Server</h3><h4>Alive:</h4><ul class=\"list-group\">";
 	for (int i = 0; i < back_up.size(); i++) {
-		content += "<li>" + back_up.at(i) + "</li>";
+		content += "<li class=\"list-group-item list-group-item-success\">" + back_up.at(i) + "</li>";
 	}
-	content += "</ul><h5>Down:</h5><ul>";
+	content += "</ul><h4>Down:</h4><ul class=\"list-group\">";
 	for (int i = 0; i < back_down.size(); i++) {
-		content += "<li>" + back_down.at(i) + "</li>";
+		content += "<li class=\"list-group-item list-group-item-danger\">" + back_down.at(i) + "</li>";
 	}
 	content += "</ul>" + HOMEPAGE_END;
 
