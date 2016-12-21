@@ -23,24 +23,39 @@
 	    }
     </script>
   <body>
-    <div class="jumbotron" align="center">
 
-        <h1>Welcome to T04!</h1>
+    <div class="row"><br><br><br></div>
+    <div class="col-md-2"></div>
+
+    <div class="jumbotron col-md-8" align="center">
+
+        <a href="/">
+          <img class="media-object" src="https://github.com/lisalisadong/test/blob/master/logo.png?raw=true" alt="..." width=380>
+        </a>
 
         <spin style="color:red;font-size:20px;"> Previous password doesn't match! Please try again </spin>
 
-        <form action="checkpwd" method="post">
-            <h3>Your username:</h3>
-            <p> <input type="text" name="username"> </p>
-            <h3>Previous password:</h3>
-            <p> <input type="password" name="prepwd"/> </p>
-            <h3>New password:</h3>
-            <p> <input type="password" name="password" id="password" onkeyup='check();'/> </p>
-            <h3>Confirm new password:</h3>
-            <p> <input type="password" name="passcomfirm" id="passcomfirm" onkeyup='check();'/> </p>
-            <!-- <input type="submit" id="submit" value="Submit" disabled=true> -->
+        <h2><strong>Change your password for PennCloud</strong></h2>
 
-            <p><button type="submit" class="btn btn-primary btn-lg" id="submit">Submit</button></p>
+        <br>
+
+        <form action="checkpwd" method="post">
+            <strong>Your username:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong>
+            <input type="text" name="username"> 
+            <p></p>
+
+            <strong>Old password:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong>
+            <input type="password" name="prepwd"/> 
+            <p></p>
+            <strong>New password:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong>
+            <input type="password" name="password" id="password" onkeyup='check();'/> 
+            <p></p>
+            <strong>Confirm password:&nbsp;</strong>
+            <input type="password" name="passcomfirm" id="passcomfirm" onkeyup='check();'/> 
+            <p></p>
+
+            <button type="submit" class="btn btn-primary btn-md" id="submit">Submit</button>
+
         </form>
       
     </div>
