@@ -14,10 +14,12 @@
 	</head>
 
 	<body>
-		<div class="jumbotron" align="center">
+		<div class="row"><br/></div>
+		<div class="col-md-2"></div>
+		<div class="jumbotron col-md-8" align="center">
 
 			<a href="/">
-		      <img class="media-object" src="../logos/logo.png" alt="..." width=300>
+		      <img class="media-object" src="/home/cis505/T04/frontend/logos/logo.png" alt="..." width=300>
 		    </a>
 		    <table>
 				<tr>
@@ -25,32 +27,15 @@
 				<td><a href="files"><img class="media-object" src="../logos/file.png" alt="..." width=100></a></td>
 				</tr>
 			</table>
-		  	<form action="newFolder" method="post">
-		    	<input type="text" name="folderName"/>
-			    <input type="submit" value="New Folder"/>
-		    </form>
-			<ul>
-				<li><a href=#>email 1</a></li>
-				<li><a href=#>email 2</a></li>
-			</ul>
-			<form action="uploadFile" method="post" enctype="multipart/form-data">
-			   <input type="file" name="uploadedFile">
-			    <input type="submit" value="Upload"/>
-		    </form> <br/>
-		    <form action="moveFile" method="post">
-			   <input type="text" name="src">
-			   <input type="text" name="des">
-			   <input type="submit" value="Move"/>
-		    </form> <br/>
-		    <form action="renameFile" method="post">
-			   <input type="text" name="preName">
-			   <input type="text" name="newName">
-			   <input type="submit" value="Rename"/>
-		    </form> <br/>
-		    <form action="deleteFile" method="post">
-			   <input type="text" name="name">
-			   <input type="submit" value="Delete"/>
-		    </form> <br/>
+			<div class="row"><br/></div>
+		  	<form action="sendEmail" method="post">
+		    	Subject: <br/>
+				<input type="text" name="subject" style="width:600px;"><br/>
+				Send to: <br/>
+				<input type="text" name="to" style="width:600px;"><br/>
+				<textarea name="content" style="width:600px;height:500px"></textarea> <br/>
+	        	<input type="submit" value="Send"/>
+	    	</form>
 		</div>
 	</body>
 
