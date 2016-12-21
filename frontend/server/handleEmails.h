@@ -61,7 +61,7 @@ string getEmailResponse(string user, const char* url) {
 string generateLI(string num, string title, string url) {
 	string res;
 //	<li><a href="emails/0">aaaa</a></li>
-	res = "<li><a href=\"" + url + "-" + num + "\">" + title + "</a></li>";
+	res = "<li class=\"list-group-item\"><a href=\"" + url + "-" + num + "\">" + title + "</a></li>";
 	return res;
 }
 

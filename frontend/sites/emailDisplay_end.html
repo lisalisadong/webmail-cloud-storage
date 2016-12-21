@@ -1,12 +1,20 @@
+			</div>
 		</div>
 		<br/>
 	    <form action="forward" method="post">
-			<input type="text" name="to" style="width:600px;"/>
+			<input type="text" name="to" placeholder="Forward To" />
         	<input type="submit" value="Forward"/>
 	    </form>
-	    <form action="reply" method="post">
-			<textarea name="content" style="width:600px;height:500px"></textarea> <br/>
-        	<input type="submit" value="Reply"/>
-	    </form>	    
+		<br/>
+		<div class="col-md-1"></div>
+		<div class="col-md-10">
+		    <form action="reply" method="post">
+				<textarea name="content" style="width:100%;height:500px"></textarea> <br/>
+	        	<input type="submit" value="Reply"/>
+		    </form>	  
+	    </div>  
+		<div class="col-md-1"></div>
+		<div class="col-md-2"></div>
 	</body>
+
 </html>
