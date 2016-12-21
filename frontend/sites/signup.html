@@ -3,6 +3,14 @@
 	<meta charset="UTF-8">
 	<head>
 		<title>SignUp</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	</head>
     <script>
 	    function check(){
@@ -14,15 +22,33 @@
 	    }
     </script>
   <body>
-    <form action="credentials" method="post">
-      Choose your username:<br>
-      <input type="text" name="username"><br>
-      Create a password:<br>
-      <input type="password" name="password" id="password" onkeyup='check();'/><br>
-      Confirm your password:<br>
-      <input type="password" name="passcomfirm" id="passcomfirm" onkeyup='check();'/><br>
-      <input type="submit" id="submit" value="Submit" disabled=true>
-    </form>
+
+    <div class="jumbotron" align="center">
+
+      <h2><strong>Please sign up for T04</strong></h2>
+
+      <br>
+
+      <form action="credentials" method="post">
+        <strong>Choose your username:</strong>
+        <input type="text" name="username">
+
+        <p></p>
+        <strong>Create a password:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong>
+        <input type="password" name="password" id="password" onkeyup='check();'/>
+
+        <p></p>
+        <strong>Confirm your password:</strong>
+        <input type="password" name="passcomfirm" id="passcomfirm" onkeyup='check();'/>
+        <p></p>
+
+        <button type="submit" class="btn btn-primary btn-md" id="submit" disabled=true>Submit</button>
+        <!-- <input type="submit" id="submit" value="Submit" disabled=true> -->
+      </form>
+
+        
+      
+    </div>
   </body>
 
 </html>
