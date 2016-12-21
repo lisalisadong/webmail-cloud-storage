@@ -3,12 +3,34 @@
 	<meta charset="UTF-8">
 	<head>
     	<title>Emails</title>
+    	<!-- Latest compiled and minified CSS -->
+    	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+	    <!-- Optional theme -->
+	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+	    <!-- Latest compiled and minified JavaScript -->
+	    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>	
 	</head>
-	<body>
-		
-		
-		<a href="/">Home</a><br/>
-	  	<a href="writeEmail">Write Email</a> &nbsp;
-		<a href="deleteEmail">Delete</a> &nbsp;
-		<br/>
-		<div id="text">
+<body>
+		<div class="row"><br/></div>
+		<div class="col-md-2"></div>
+		<div class="jumbotron col-md-8" align="center">
+
+			<a href="/">
+		      <img class="media-object" src="https://github.com/lisalisadong/test/blob/master/logo.png?raw=true" alt="..." width=300>
+		    </a>
+		    <table>
+				<tr>
+				<td><a href="emails"><img class="media-object" src="https://github.com/lisalisadong/test/blob/master/email.png?raw=true" alt="..." width=100></a></td>
+				<td><a href="files"><img class="media-object" src="https://github.com/lisalisadong/test/blob/master/file.png?raw=true" alt="..." width=100></a></td>
+				</tr>
+			</table>
+			<div class="row"><br/></div>
+			<a href="writeEmail"> <button href="writeEmail" class="btn btn-danger btn-sm">Compose New Email</button></a>
+			<a href="deleteEmail"> <button href="writeEmail" class="btn btn-danger btn-sm">Delete This Email</button></a>
+			<br>
+			<br>
+			<div class="col-md-1"></div>
+			<div class="col-md-10">
+				<div class="panel" id="text" align="left">
