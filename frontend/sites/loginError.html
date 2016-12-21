@@ -3,11 +3,40 @@
 	<meta charset="UTF-8">
   <head>
     <title>LogIn</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
   </head>
 
   <body>
-  <spin style="color:red;font-size:20px;">Email / Password invalid! Please try again!</spin>
-  <div>
+
+  <div class="jumbotron" align="center">
+
+    <h1>Welcome to T04!</h1>
+
+    <p></p>
+    <spin style="color:red;font-size:20px;"><strong>Email / Password invalid! Please try again!</strong><p></p></spin>
+    <form action="signup changepwd loginsubmit" method="post get">
+      <strong>Username:</strong>
+      <input type="text" name="username">
+      <p></p>
+      
+      <strong>Password:&nbsp;</strong>
+      <input type="password" name="password">
+      <p></p>
+      <button formaction="loginsubmit" formmethod="post" type="submit" class="btn btn-warning btn-sm">Login</button>
+      <button formaction="signup" formmethod="get" type="submit" class="btn btn-success btn-sm">Signup</button>
+      <button formaction="changepwd" formmethod="get" type="submit" class="btn btn-danger btn-sm">Change password</button>
+    </form>
+
+  </div>
+  
+  <!-- <div>
     <form action="loginsubmit" method="post">
       Email:<br>
       <input type="text" name="username"><br>
@@ -27,7 +56,7 @@
     <form action="changepwd" method="get">
       <input type="submit" value="Change Password">
     </form>
-  </div>
+  </div> -->
 
   </body>
 
