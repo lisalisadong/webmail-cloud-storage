@@ -1,35 +1,29 @@
-Full names:  ______________ ______________ ______________ ______________
-SEAS logins: ______________ ______________ ______________ ______________
+# How to run:
 
-Which features did you implement? 
-  (list features, or write 'Entire project')
+## Compile
+$ cd /T04
+$ make
 
-Did you complete any extra-credit tasks? If so, which ones?
-  (list extra-credit tasks)
+## Run backend master
+$ cd /T04/backend/storage_query
+$ ./master
 
-Does your project use any third-party components or libraries
-that were authorized by an instructor on Piazza? If so, please
-DO NOT include these components in your submission; instead,
-specify below where these components can be downloaded.
-  (list sources for any third-party components, or write 'None')
+## Run backend slaves
+$ cd /T04/backend/storage_query
+$ ./storage_server 50051
 
-Please include brief instructions for running your project
-below. If you are including a separate file with instructions,
-please include the name of this file.
-  (add instructions for running the project, or file name)
+## Run frontend loadbalancer
+$ cd /T04/frontend/server
+$ ./load_balancer
 
-Did you and your teammate(s) personally write _all_ the code you 
-are submitting (other than code that was explicitly authorized
-by an instructor on Piazza)?
-  [ ] Yes
-  [ ] No
+## Run frontend servers
+$ cd /T04
+$ ./frontend/server/server -p 8101
 
-Did you copy any code from the Internet, or from classmates who
-were not on your team?
-  [ ] Yes
-  [ ] No
+## Run admin console
+$ cd /T04/frontend/server
+$ ./admin
 
-Did you collaborate with anyone other than your teammate(s) on 
-this assignment?
-  [ ] Yes
-  [ ] No
+# Visit website
+- visit localhost:9000 for PennCloud
+- visit localhost:10000 for admin console
