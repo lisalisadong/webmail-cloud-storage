@@ -65,11 +65,11 @@ string generateFilesLI(string url, string title, bool isFolder) {
 	string res;
 	if (isFolder) {
 		res =
-				"<li><a href=\"" + url
+				"<li class="list-group-item"><a href=\"" + url
 						+ "\"> <img src=\"http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/16/Folder-icon.png\" alt=\"Folder\" style=\"width:15px;height:15px;\">"
 						+ title + "</a></li>";
 	} else {
-		res = "<li><a href=\"" + url + "\">" + title + "</a></li>";
+		res = "<li class="list-group-item"><a href=\"" + url + "\">" + title + "</a></li>";
 	}
 	return res;
 }

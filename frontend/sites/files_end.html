@@ -1,22 +1,27 @@
-	</ul>
-	<form action="uploadFile" method="post" enctype="multipart/form-data">
-	   <input type="file" name="uploadedFile">
-	    <input type="submit" value="Upload"/>
-    </form> <br/>
-    <form action="moveFile" method="post">
-	   <input type="text" name="src">
-	   <input type="text" name="des">
-	   <input type="submit" value="Move"/>
-    </form> <br/>
-    <form action="renameFile" method="post">
-	   <input type="text" name="preName">
-	   <input type="text" name="newName">
-	   <input type="submit" value="Rename"/>
-    </form> <br/>
-    <form action="deleteFile" method="post">
-	   <input type="text" name="name">
-	   <input type="submit" value="Delete"/>
-    </form> <br/>
-</body>
+		</div>
+			<form class="form-inline" action="uploadFile" method="post" enctype="multipart/form-data">
+				<div class="form-group">
+			    	<input type="file" name="uploadedFile">
+			    </div>
+			    <div class="form-group">
+			    	<input type="submit" value="Upload"/>
+			    </div>
+		    </form> <br/>
+		    <form action="moveFile" method="post">
+			   <input type="text" name="src" placeholder="Filename">
+			   <input type="text" name="des" placeholder="Directory">
+			   <input type="submit" value="Move"/>
+		    </form> <br/>
+		    <form action="renameFile" method="post">
+			   <input type="text" name="preName" placeholder="Old Name">
+			   <input type="text" name="newName" placeholder="New Name">
+			   <input type="submit" value="Rename"/>
+		    </form> <br/>
+		    <form action="deleteFile" method="post">
+			   <input type="text" name="name" placeholder="Filename/Folder">
+			   <input type="submit" value="Delete"/>
+		    </form> <br/>
+		</div>
+	</body>
 
 </html>
